@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# review harness output
+.shots/
+.work/
+
+# NOTE: source-assets/ is deliberately NOT ignored. It holds the client's
+# original supplied artwork, and docs/CLAIMS.md cites those paths as the
+# provenance for every product and image on the site. It is excluded from the
+# deployed bundle by living outside public/, not by being excluded from git.
