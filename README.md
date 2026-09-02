@@ -515,9 +515,33 @@ A note on reading these numbers: the harness runs Chrome on SwiftShader with no
 GPU, and anything compositing-bound swings wildly run to run — the same
 unchanged page measured 40ms, 207ms, 109ms and 728ms on four consecutive runs.
 Trust a consistent before/after gap with a known mechanism; do not tune against
-a single number. The homepage's scroll jank, for instance, measures the same
-with and without these changes (janky 23 vs 23-27): it is three.js
-initialising, deferred past the opening by design.
+a single number.
+
+How much the renderer distorts things is worth knowing before anyone chases a
+red row. Run against the deployed site, same URL and same minute, the only
+variable being the renderer:
+
+| home · focus index → Fertility | GPU | SwiftShader |
+| --- | --- | --- |
+| after a reader-paced scroll | 223ms | 715ms |
+| jumped to, 900ms settle | **34ms** | 175ms |
+
+The harness reports the right-hand column and flags it. The left-hand column is
+what a visitor gets. Both were measured with the artwork confirmed decoded
+(4/4 `complete`), which the warming above achieves 268-291ms after a
+reader-paced scroll finishes.
+
+The homepage scroll is the other row the harness flags, and it needs the same
+reading. On a GPU, against production: desktop p95 **36ms** with one long frame
+in 61; mobile **42ms worst, zero janky frames**. That one desktop frame is not
+triggered by scrolling to any particular section — it lands at `scrollY 0`,
+which places it in the hero's three.js canvas still initialising a couple of
+seconds after load. It is pre-existing, unchanged by anything here (verified by
+stashing and re-measuring), and deferred past the opening by design.
+
+The canvas does stop when it leaves the viewport, which is the failure worth
+checking for in a three.js scene on a bare rAF loop — measured at 847 draw
+calls per 2s with the hero on screen and **0** with it scrolled away.
 
 ### Long tasks
 
