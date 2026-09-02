@@ -564,10 +564,15 @@ npm start
    one-line changes.
 5. Confirm the FM Bolyar webfont licence.
 
-**What ships:** `public/` is 14 MB, of which 11.8 MB is the manufacturing film;
+**What ships:** `public/` is 33 MB, of which 30.4 MB is the manufacturing film;
 everything else totals under 2 MB. `source-assets/` holds the client's original
 artwork and the Ravenbhel catalogue, tracked in git for provenance but outside
-`public/` so none of it is served.
+`public/` so none of it is served — with one exception. `source-assets/video/`
+is git-ignored: the master film is the same media as
+`public/video/manufacturing.mp4` (faststart is a container re-order, not a
+re-encode), so a second 30 MB copy in the repository bought nothing. Its
+SHA-256 is recorded in `docs/CLAIMS.md` §8, which is what keeps the provenance
+verifiable.
 
 `next.config.ts` excludes `public/**` from the server bundle's file trace. The
 Insights store resolves its directory at runtime, which makes Turbopack trace

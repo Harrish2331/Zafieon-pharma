@@ -53,3 +53,9 @@ next-env.d.ts
 
 # Admin Dashboard uploads. Runtime state, never source.
 /.data
+
+# The supplied master film. `public/video/manufacturing.mp4` is the same media
+# — faststart is a lossless container re-order, not a re-encode — so keeping a
+# second 30 MB copy under version control buys nothing but repo weight.
+# Provenance is preserved by the SHA-256 recorded in docs/CLAIMS.md §8.
+/source-assets/video/

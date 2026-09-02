@@ -270,7 +270,7 @@ the supplied documentation is not lost.
 
 | What is shown | Where | Source | Status |
 |---|---|---|---|
-| Manufacturing film, 1920×1080, 12s | `/manufacturing` hero | `source-assets/video/`, supplied by Zafieon | ✅ Client-supplied |
+| Manufacturing film, 1920×1080, 12s | `/manufacturing` hero | `public/video/manufacturing.mp4`, supplied by Zafieon | ✅ Client-supplied |
 | Poster frame | Same | Frame extracted from that film | ✅ Derived from the supplied file |
 | Four Zafieon Insights images | `/insights`, homepage | Frames extracted from the same film | ✅ Derived from the supplied file |
 
@@ -351,3 +351,28 @@ Two things follow from that, and both are worth Zafieon knowing:
 
 ⚠️ The office photograph on About is flagged separately in §1 as appearing
 generated. That confirmation is still outstanding.
+
+### Where the master film lives
+
+Zafieon supplied the film twice under two names, byte for byte identical:
+
+```
+5e893df9d71cfb10df9ce05649d4383a5c2f30e1692ac580d80e0d18a2b957d0
+  source-assets/video/Video Project.mp4
+  source-assets/video/AI video..mp4     (exact duplicate, deleted)
+```
+
+`public/video/manufacturing.mp4` is that same master with its `moov` atom moved
+ahead of `mdat` so it can stream — a lossless container re-order, not a
+re-encode. Its own hash therefore differs while the media is identical:
+
+```
+15b031edc05c262c30da83ae1feae42a2acf8e6e76dcc126f1710775247ac8f5
+  public/video/manufacturing.mp4
+```
+
+Only that file is under version control. Keeping a second 30 MB copy of the
+same footage bought nothing but repository weight, so `source-assets/video/` is
+git-ignored and the master is held outside it. The hash above is what makes the
+provenance verifiable: re-run `sha256sum` on the supplied file and it must
+match, and `node tools/faststart.mjs` reproduces the served file from it.
