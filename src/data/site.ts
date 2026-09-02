@@ -24,6 +24,7 @@ export const primaryNav = [
   { label: "Products", href: "/products" },
   { label: "Quality", href: "/quality" },
   { label: "Manufacturing", href: "/manufacturing" },
+  { label: "Zafieon Insights", href: "/insights" },
   { label: "Contact", href: "/contact" },
 ] as const;
 
@@ -31,12 +32,14 @@ export const footerNav = {
   company: [
     { label: "About", href: "/about" },
     { label: "Our Focus", href: "/our-focus" },
+    { label: "Zafieon Insights", href: "/insights" },
     { label: "Contact", href: "/contact" },
   ],
   portfolio: [
     { label: "All Products", href: "/products" },
-    { label: "Prescription", href: "/products?class=prescription" },
-    { label: "Nutraceutical", href: "/products?class=nutraceutical" },
+    { label: "Nutraceuticals", href: "/products?category=nutraceutical" },
+    { label: "Prescription", href: "/products?category=prescription" },
+    { label: "Hormones", href: "/products?category=hormone" },
   ],
   standards: [
     { label: "Quality", href: "/quality" },
@@ -54,17 +57,85 @@ export const footerNav = {
    ========================================================================== */
 
 export const contact = {
-  email: { value: "info@zafieonpharma.com", pending: true },
+  email: { value: "info@zafieonpharma.com", pending: false },
   phone: { value: "", pending: true },
-  address: { value: "", pending: true },
-  enquiryTypes: [
-    "Product enquiry",
-    "Distribution & wholesale",
-    "Manufacturing partnership",
-    "Healthcare professional enquiry",
-    "Careers",
-    "Other",
+  /**
+   * Both offices, as supplied by Zafieon. `lines` is rendered one line per
+   * entry rather than as one string with commas, so the postal formatting
+   * survives every column width instead of reflowing into a paragraph.
+   */
+  offices: [
+    {
+      id: "corporate",
+      label: "Corporate Office",
+      short: "Corp. Office",
+      lines: [
+        "3rd Floor, Unit No. 4, Inspire, Main Road,",
+        "G Block, BKC, Bandra Kurla Complex,",
+        "Mumbai, Maharashtra – 400051.",
+      ],
+    },
+    {
+      id: "registered",
+      label: "Registered Office",
+      short: "Reg. Office",
+      lines: [
+        "No: 1/1, 3rd Main Road, Mint Modern City,",
+        "Chennai – 600021.",
+      ],
+    },
   ],
+} as const;
+
+/**
+ * The Contact page's standing invitation, in place of an enquiry form.
+ *
+ * Each strand names a reason someone would get in touch and routes to the same
+ * verified email — there is no second form behind it.
+ */
+export const connect = {
+  eyebrow: "Let's connect",
+  headline: ["Good partnerships begin", "with a conversation."],
+  body: "Whether you're interested in our products, exploring a business opportunity, or simply want to know more about Zafieon Pharma, we'd be happy to connect.",
+  strands: [
+    {
+      id: "products",
+      label: "Products",
+      body: "Pharmaceutical products and portfolio",
+    },
+    {
+      id: "partnerships",
+      label: "Partnerships",
+      body: "Business and collaboration opportunities",
+    },
+    {
+      id: "general",
+      label: "General Information",
+      body: "Learn more about Zafieon Pharma",
+    },
+  ],
+  cta: { label: "Get in Touch" },
+} as const;
+
+/* ============================================================================
+   ZAFIEON INSIGHTS
+   ========================================================================== */
+
+export const insightsCopy = {
+  hero: {
+    eyebrow: "Zafieon Insights",
+    line1: "Perspective from",
+    line2: "inside the work.",
+    body: "Notes on women's health, manufacturing quality and responsible pharmaceutical practice — written from what we do, not about what the market is doing.",
+  },
+  index: {
+    eyebrow: "Zafieon Insights",
+    headline: ["Perspective from", "inside the work."],
+    body: "Short pieces on the decisions behind the portfolio: why we began in women's health, what qualifying a manufacturing partner actually involves, and why a nutraceutical is held to the same standard as everything else.",
+    cta: { label: "Read Zafieon Insights", href: "/insights" },
+  },
+  disclosure:
+    "Zafieon Insights carries Zafieon Pharma's own perspective on its focus, its quality framework and its manufacturing partnerships. It is not medical advice, it does not describe any product's indications, benefits or effects, and it is not a substitute for professional medical judgement.",
 } as const;
 
 /* ============================================================================
@@ -85,14 +156,13 @@ export const home = {
     headline: ["Building a Healthcare", "Organization for the Future."],
     body: [
       "ZAFIEON PHARMA is a new-generation pharmaceutical company founded with a clear purpose—to contribute to better healthcare through quality, science, innovation and responsible practices.",
-      "With more than twelve years of pharmaceutical industry experience behind it, the company combines a deep understanding of healthcare needs and professional relationships with a fresh vision and an entrepreneurial spirit.",
+      "Behind the company sits substantial pharmaceutical industry experience — a working understanding of healthcare needs and professional relationships — combined with a fresh vision and an entrepreneurial spirit.",
     ],
-    stat: { value: "12+", label: "Years of pharmaceutical industry experience" },
   },
   focus: {
     eyebrow: "Our Focus",
     headline: ["Focused on", "Women's Health."],
-    body: "Zafieon Pharma is beginning its journey with a focused presence in women's health, with an emphasis on gynecology, reproductive health, fertility and women's wellness.",
+    body: "Zafieon Pharma is beginning its journey with a focused presence in women's health, with an emphasis on gynaecology, hormonal health, fertility and women's wellness.",
   },
   products: {
     eyebrow: "Featured Products",
@@ -134,7 +204,7 @@ export const about = {
     headline: ["A clear purpose,", "from the first dose."],
     body: [
       "ZAFIEON PHARMA was founded with a clear purpose: to contribute to better healthcare through quality, science, innovation and responsible practices.",
-      "Behind the company sits more than twelve years of pharmaceutical industry experience—a deep understanding of how the industry works, what healthcare professionals need, and how products move from a manufacturing line to the person who ultimately takes them.",
+      "Behind the company sits substantial pharmaceutical industry experience—a working understanding of how the industry works, what healthcare professionals need, and how products move from a manufacturing line to the person who ultimately takes them.",
       "That experience is paired with something newer: a fresh vision, an entrepreneurial spirit, and no legacy assumptions about how a pharmaceutical organization has to operate.",
     ],
   },
@@ -142,7 +212,7 @@ export const about = {
     eyebrow: "Our Journey",
     headline: ["Beginning in", "women's health."],
     body: [
-      "ZAFIEON PHARMA is beginning its journey with a focused presence in Women's Health, with an emphasis on areas such as gynecology, reproductive health, fertility, and women's wellness.",
+      "ZAFIEON PHARMA is beginning its journey with a focused presence in Women's Health, with an emphasis on areas such as gynaecology, hormonal health, fertility, and women's wellness.",
       "The long-term vision is to expand into multiple therapeutic divisions—building outward from a foundation of quality, qualified manufacturing partnerships and responsible practice rather than from scale alone.",
     ],
   },
@@ -297,6 +367,15 @@ export const manufacturing = {
     line1: "Quality built",
     line2: "into every dose.",
     body: "At ZAFIEON PHARMA, we believe that quality begins long before a product reaches the patient. We work with carefully selected and qualified pharmaceutical manufacturing partners who share our commitment to quality, consistency, regulatory compliance, and responsible manufacturing practices.",
+    film: {
+      src: "/video/manufacturing.mp4",
+      poster: "/video/manufacturing-poster.webp",
+      blurDataURL:
+        "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAADwAwCdASoUAAsAPu1iqk2ppaQiMAgBMB2JZQC06BnseFB0IYasaWoAAPet+y91k0q8MfOEF+ECiQzLo0an19C3iiCfVl0S/KIIW87v8DbBgAWMF19NcZUMtXLqXMckFSdsb4sAAAA=",
+      /** Described for screen readers; the film carries no audio narration. */
+      description:
+        "Laboratory analysis, capsule production, cleanroom vial inspection and an automated filling line.",
+    },
   },
   principles: [
     {
@@ -343,12 +422,12 @@ export const manufacturing = {
   directory: {
     eyebrow: "Partner Directory",
     headline: ["The network", "behind the portfolio."],
-    body: "Each partner below manufactures under its own licences, certifications and quality systems. Select a partner to view its capabilities and the companies it manufactures for.",
+    body: "Each partner below manufactures under its own licences, certifications and quality systems. Select a partner to view its capabilities and the companies it manufactures for. Where a partner's corporate documentation has not yet reached us, the profile says so rather than filling the gap.",
   },
   presence: {
     eyebrow: "Global Presence",
     headline: ["Indian manufacturing,", "international reach."],
-    body: "Zafieon Pharma's manufacturing partners are located across Himachal Pradesh, Punjab, Haryana and Gujarat. Export reach shown below is that of the individual partner named, as stated in its own corporate documentation.",
+    body: "Zafieon Pharma's manufacturing partners are located across Himachal Pradesh, Punjab, Haryana, Gujarat and Pondicherry. Export reach shown below is that of the individual partner named, as stated in its own corporate documentation.",
   },
 } as const;
 

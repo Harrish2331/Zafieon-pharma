@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import PageHero from "@/components/PageHero";
 import ProductExplorer from "@/components/ProductExplorer";
-import { products } from "@/data/products";
+import { products, usedProductCategories } from "@/data/products";
 
 export const metadata: Metadata = {
   title: "Products",
   description:
-    "Zafieon Pharma's portfolio spans prescription and nutraceutical products across gynecology, reproductive health, fertility and women's wellness.",
+    "Zafieon Pharma's gynaecology and women's health portfolio, across nutraceutical, prescription and hormone ranges — each product manufactured by a qualified partner.",
   alternates: { canonical: "/products" },
 };
 
@@ -16,8 +16,11 @@ export default function ProductsPage() {
     <>
       <PageHero
         eyebrow="Products"
-        lines={["Solutions designed", "for healthcare needs."]}
-        body={`A focused portfolio of ${products.length} products spanning prescription and nutraceutical ranges, each manufactured by a qualified partner and supplied through reliable wholesale distribution.`}
+        lines={["Gynaecology and", "women's health."]}
+        body={`A gynaecology and women's health portfolio of ${products.length} products across ${usedProductCategories
+          .map((c) => c.label.toLowerCase())
+          .join(", ")
+          .replace(/, ([^,]*)$/, " and $1")} ranges, each manufactured by a qualified partner and supplied through reliable wholesale distribution.`}
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Products", href: "/products" },

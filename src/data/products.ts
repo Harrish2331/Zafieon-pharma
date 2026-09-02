@@ -1,4 +1,4 @@
-import type { Product } from "./types";
+import type { Product, ProductCategory } from "./types";
 
 /**
  * The products currently supplied by Zafieon Pharma.
@@ -6,7 +6,37 @@ import type { Product } from "./types";
  * Every value here is read off the supplied pack artwork in /Product Images.
  * Descriptions restate what the pack states. No indication, benefit, dosage,
  * efficacy or safety claim appears anywhere in this file, because none was
- * supplied. Adding a seventh product means appending one object — no UI change.
+ * supplied. Adding a product means appending one object — no UI change.
+ *
+ * ── How `categories` is assigned ────────────────────────────────────────────
+ * Three groupings, and a product may sit in more than one. The rule is narrow
+ * and mechanical on purpose, so every assignment can be checked against the
+ * pack artwork rather than taken on trust:
+ *
+ *   prescription   The pack carries the Rx symbol.
+ *   nutraceutical  The pack is presented as a food or nutraceutical rather
+ *                  than as a licensed medicine.
+ *   hormone        The stated active is a steroid hormone or a steroid hormone
+ *                  analogue.
+ *
+ * Applying it: Femi-Dros, Luna 35 and Proluvia-AQ are hormones (drospirenone,
+ * ethinyl estradiol, cyproterone acetate, progesterone); Mifiprine is a
+ * hormone by the same rule (mifepristone is a 19-norsteroid). MISO-PRO is not
+ * — misoprostol is a prostaglandin analogue — and neither is Let Bloom, since
+ * letrozole is a non-steroidal aromatase inhibitor. Both stay in prescription.
+ *
+ * `categories` drives the catalogue filter only. `productClass` is the
+ * regulatory field, and it alone drives the prescription gate, the sitemap
+ * exclusion and the `noindex` on the detail route.
+ *
+ * ── How `therapeuticAreas` is assigned ──────────────────────────────────────
+ * Editorial placement for navigation. It is not a clinical claim, and no page
+ * presents it as one — see docs/CLAIMS.md.
+ *
+ * Every product carries `gynecology` first, at Zafieon's instruction: the whole
+ * portfolio sits inside gynaecology and women's health, so a reader filtering
+ * to that area should see the full range rather than a subset of it. The
+ * narrower areas listed after it are what actually reduce the list.
  */
 export const products: Product[] = [
   {
@@ -14,8 +44,9 @@ export const products: Product[] = [
     slug: "femi-dros-30",
     name: "Femi-Dros 30",
     productClass: "prescription",
+    categories: ["prescription", "hormone"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["reproductive-health", "gynecology"],
+    therapeuticAreas: ["gynecology", "hormonal-health"],
     description:
       "A prescription combination tablet containing Drospirenone and Ethinyl Estradiol, presented in a twenty-one tablet pack.",
     composition: "Drospirenone 3 mg + Ethinyl Estradiol 0.03 mg Tablets IP",
@@ -34,8 +65,9 @@ export const products: Product[] = [
     slug: "femi-dros-20",
     name: "Femi-Dros 20",
     productClass: "prescription",
+    categories: ["prescription", "hormone"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["reproductive-health", "gynecology"],
+    therapeuticAreas: ["gynecology", "hormonal-health"],
     description:
       "A prescription combination tablet containing Drospirenone and Ethinyl Estradiol at a lower estradiol strength, presented in a twenty-one tablet pack.",
     composition: "Drospirenone 3 mg + Ethinyl Estradiol 0.02 mg Tablets IP",
@@ -54,6 +86,7 @@ export const products: Product[] = [
     slug: "miso-pro",
     name: "MISO-PRO",
     productClass: "prescription",
+    categories: ["prescription"],
     dosageForm: "Tablets",
     therapeuticAreas: ["gynecology"],
     description:
@@ -74,8 +107,9 @@ export const products: Product[] = [
     slug: "zyfolic",
     name: "Zyfolic",
     productClass: "nutraceutical",
+    categories: ["nutraceutical"],
     dosageForm: "Softgel Capsules",
-    therapeuticAreas: ["fertility", "reproductive-health"],
+    therapeuticAreas: ["gynecology", "fertility"],
     description:
       "A softgel capsule combining L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA and Vitamin D3.",
     composition:
@@ -94,8 +128,9 @@ export const products: Product[] = [
     slug: "femulet",
     name: "Femulet",
     productClass: "nutraceutical",
+    categories: ["nutraceutical"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["womens-wellness"],
+    therapeuticAreas: ["gynecology", "womens-wellness"],
     description:
       "A nutraceutical tablet for women combining N-Acetyl L-Cysteine, Coenzyme Q10, Melatonin, Astaxanthin, Folic Acid and vitamins B6, B12 and D2.",
     composition:
@@ -116,8 +151,9 @@ export const products: Product[] = [
     slug: "florabet-ll",
     name: "Florabet LL",
     productClass: "nutraceutical",
+    categories: ["nutraceutical"],
     dosageForm: "Capsules",
-    therapeuticAreas: ["womens-wellness"],
+    therapeuticAreas: ["gynecology", "womens-wellness"],
     description:
       "A nutraceutical capsule combining prebiotic, probiotic Lactobacilli and Lactoferrin.",
     composition:
@@ -137,8 +173,9 @@ export const products: Product[] = [
     slug: "let-bloom",
     name: "Let Bloom",
     productClass: "prescription",
+    categories: ["prescription"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["fertility", "gynecology"],
+    therapeuticAreas: ["gynecology", "fertility"],
     description:
       "A prescription tablet containing Letrozole 5 mg, presented in a fifty tablet pack.",
     composition: "Letrozole Tablets 5 mg",
@@ -157,8 +194,9 @@ export const products: Product[] = [
     slug: "mifiprine",
     name: "Mifiprine",
     productClass: "prescription",
+    categories: ["prescription", "hormone"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["gynecology"],
+    therapeuticAreas: ["gynecology", "hormonal-health"],
     description:
       "A prescription tablet containing Mifepristone 200 mg, presented in a ten tablet pack.",
     composition: "Mifepristone Tablets IP 200 mg",
@@ -177,8 +215,9 @@ export const products: Product[] = [
     slug: "ferrin-xt",
     name: "Ferrin-XT",
     productClass: "nutraceutical",
+    categories: ["nutraceutical"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["reproductive-health", "womens-wellness"],
+    therapeuticAreas: ["gynecology", "womens-wellness"],
     description:
       "A tablet combining Lactoferrin, elemental iron, folic acid, DHA, Vitamin D3 and disodium guanosine 5-monophosphate, presented in a hundred tablet pack.",
     composition:
@@ -198,6 +237,65 @@ export const products: Product[] = [
     zafieonBranded: false,
     source: "source-assets/images/Ferrin XT.png",
   },
+  {
+    id: "prd-10",
+    slug: "luna-35",
+    name: "Luna 35",
+    productClass: "prescription",
+    categories: ["prescription", "hormone"],
+    dosageForm: "Tablets",
+    therapeuticAreas: ["gynecology", "hormonal-health"],
+    description:
+      "A prescription combination tablet containing Cyproterone Acetate and Ethinylestradiol, presented in blisters of twenty-one tablets.",
+    composition: "Cyproterone Acetate & Ethinylestradiol Tablets",
+    packaging: "10 x 1 x 21 Tablets",
+    packMarkings: ["Rx — Prescription only"],
+    image: "/products/luna-35.webp",
+    blurDataURL:
+      "data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAAAQBACdASoUAA8APu1iqU2ppaQiMAgBMB2JaADG9CHhgh8tG995y8oAAAD+63LUBfPV0mB2SfnWs0P3NaCu6KGAcBBzQrPsvyMYvTIkqt6U5Xx7yKnmIQGntAasQw9AxMOzd+gR1RMMNYXEnKayI+N1EohvDa4CEf6/1qeuWlrAqgAA",
+    imageAlt:
+      "Luna 35 carton — Cyproterone Acetate and Ethinylestradiol Tablets, 10 x 1 x 21 tablets",
+    zafieonBranded: false,
+    source: "source-assets/products/cyproterone acetate.png",
+  },
+  {
+    id: "prd-11",
+    slug: "proluvia-aq",
+    name: "Proluvia-AQ 50 mg",
+    productClass: "prescription",
+    categories: ["prescription", "hormone"],
+    dosageForm: "Injection",
+    therapeuticAreas: ["gynecology", "fertility", "hormonal-health"],
+    description:
+      "A prescription aqueous solution of Progesterone for injection, 50 mg, presented in five 2 ml units.",
+    composition: "Aqueous Solution of Progesterone Injection 50 mg",
+    packaging: "5 x 2 ml",
+    packMarkings: ["Rx — Prescription only", "For IM / subcutaneous use"],
+    image: "/products/proluvia-aq.webp",
+    blurDataURL:
+      "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADwAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JZQAAW9OCyHwPE+b4DuAAAP7xyf/7ssRKL01F0MhGbcOxexfN7/+TVnkEh4UNWfhz08MkJJlWGuNU/fqbABdAAAA=",
+    imageAlt:
+      "Proluvia-AQ 50 mg carton — aqueous solution of Progesterone injection, 5 x 2 ml, bearing the Zafieon Pharma mark",
+    zafieonBranded: true,
+    source: "source-assets/products/proluvia-AQ.png",
+  },
+  {
+    id: "prd-12",
+    slug: "meta-coq",
+    name: "meta-CoQ",
+    productClass: "nutraceutical",
+    categories: ["nutraceutical"],
+    therapeuticAreas: ["gynecology", "fertility"],
+    description:
+      "A nutraceutical supplied under the meta-CoQ brand. The supplied artwork carries the brand only — no composition, pack presentation or regulatory marking is printed on it, so none is stated here.",
+    image: "/products/meta-coq.webp",
+    blurDataURL:
+      "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAACQAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JZwAAW+nyD/duRK2AAP7xxOmBnlwd13X7R2Y68Gx7BRpccvwTaTbkGT/ADY+o76zVMOMVM2NxgAAA",
+    imageAlt: "meta-CoQ carton bearing the meta-CoQ brand mark",
+    zafieonBranded: false,
+    detailsPending: true,
+    source: "source-assets/products/meta coq.png",
+  },
 ];
 
 export const getProduct = (slug: string) =>
@@ -213,3 +311,24 @@ export const productClassLabel: Record<Product["productClass"], string> = {
   prescription: "Prescription",
   nutraceutical: "Nutraceutical",
 };
+
+/** The catalogue's category order and labels. */
+export const productCategories = [
+  { id: "nutraceutical", label: "Nutraceuticals" },
+  { id: "prescription", label: "Prescription" },
+  { id: "hormone", label: "Hormones" },
+] as const satisfies readonly { id: ProductCategory; label: string }[];
+
+export const productCategoryLabel: Record<ProductCategory, string> =
+  Object.fromEntries(productCategories.map((c) => [c.id, c.label])) as Record<
+    ProductCategory,
+    string
+  >;
+
+export const productsByCategory = (c: ProductCategory) =>
+  products.filter((p) => p.categories.includes(c));
+
+/** Categories at least one product occupies, in registry order. */
+export const usedProductCategories = productCategories.filter((c) =>
+  products.some((p) => p.categories.includes(c.id)),
+);

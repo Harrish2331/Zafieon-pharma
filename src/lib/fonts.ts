@@ -16,8 +16,24 @@ export const bolyar = localFont({
   ],
   variable: "--font-bolyar",
   display: "swap",
-  // Metric-matched fallback so the hero does not reflow on font load.
-  fallback: ["Poppins", "system-ui", "sans-serif"],
+  /**
+   * ── The fallback, and why it is hand-written ─────────────────────────────
+   * Bolyar is a wide, heavy display face: 1647 units of average advance width
+   * on a 2048 em. Poppins is nothing like it, so before the real font arrived
+   * every heading laid out at the wrong width, re-wrapped on swap, and shoved
+   * the page down — a measured 0.20 layout shift at 390px.
+   *
+   * `adjustFontFallback: "Arial"` is supposed to fix exactly that, and it made
+   * it worse: Next emitted `size-adjust: 1.98%` and `ascent-override: 4926%`
+   * for this file. At two per cent of size the fallback text is effectively
+   * invisible, and the page grows by three heading lines the instant the real
+   * font lands.
+   *
+   * So the fallback is declared by hand in globals.css as "Bolyar Fallback",
+   * from metrics read straight out of the TTF by tools/fontmetrics.mjs. Re-run
+   * that script if the font file is ever replaced.
+   */
+  fallback: ["Bolyar Fallback", "Poppins", "system-ui", "sans-serif"],
   adjustFontFallback: false,
 });
 

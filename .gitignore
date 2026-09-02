@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# .env.example is documentation, not a secret. It ships.
+!.env.example
 
 # vercel
 .vercel
@@ -48,3 +50,6 @@ next-env.d.ts
 # original supplied artwork, and docs/CLAIMS.md cites those paths as the
 # provenance for every product and image on the site. It is excluded from the
 # deployed bundle by living outside public/, not by being excluded from git.
+
+# Admin Dashboard uploads. Runtime state, never source.
+/.data

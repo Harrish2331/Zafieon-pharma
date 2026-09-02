@@ -14,27 +14,27 @@ export const focusAreas: FocusArea[] = [
       "A scientist examining a sample under a microscope, with gynecological and molecular motifs",
     blurDataURL:
       "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAACwAwCdASoUABAAPt1ep00opSOiMAgBEBuJQBOmUABwf9ugsUN48AD+5PUWTaC62wO8QEyvAjQE1KkKaCDSDX5uyYE9kPN4ofNojDL4bZyWJsNaQ4/kL4qVFAz5qmg8fGWhgAAA",
-    label: "Gynecology",
+    label: "Gynaecology",
     headline: "Supporting women's health at every stage.",
     description:
       "Pharmaceutical products for gynecological care, supplied through qualified manufacturing partners and prescribed by healthcare professionals.",
     detail:
-      "Gynecology is where Zafieon's prescription portfolio begins. These are products dispensed under medical supervision, and our role is to make sure that what reaches the pharmacy shelf has been made correctly, documented properly and supplied reliably.",
+      "Gynaecology is where Zafieon's prescription portfolio begins. These are products dispensed under medical supervision, and our role is to make sure that what reaches the pharmacy shelf has been made correctly, documented properly and supplied reliably.",
   },
   {
-    id: "reproductive-health",
-    slug: "reproductive-health",
-    image: "/images/focus/reproductive-health.webp",
+    id: "hormonal-health",
+    slug: "hormonal-health",
+    image: "/images/focus/hormonal-health.webp",
     imageAlt:
-      "An illustrated figure in profile with molecular and reproductive-health motifs",
+      "An illustrated figure in profile with molecular and endocrine motifs",
     blurDataURL:
       "data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAAAwAwCdASoUAA0APt1apkyopSOiMAgBEBuJQBOmUACM4XJAAP7woaHb6iTBXj0ha2PwQGESlGCfKN52C10eBFmqwtMPX66ZoAA=",
-    label: "Reproductive Health",
-    headline: "Solutions that support reproductive care.",
+    label: "Hormonal Health",
+    headline: "Hormonal therapy, made consistently.",
     description:
-      "A focused set of products addressing reproductive health, developed with attention to quality, consistency and regulatory compliance.",
+      "Products whose active ingredient is a hormone or a hormone analogue, manufactured to consistent strength under partners qualified for hormone handling.",
     detail:
-      "Reproductive health demands precision. Formulation strength, batch consistency and supply continuity are not administrative details here — they are the product. Our partner selection is built around that reality.",
+      "A hormone product is defined by its consistency. Milligram-for-milligram accuracy batch to batch is not a manufacturing statistic here — it is the product, and a course held over weeks depends on it. Hormone manufacture also carries its own containment and cleaning-validation demands, which is why a dedicated hormone capability weighs so heavily in how we qualify a partner.",
   },
   {
     id: "fertility",

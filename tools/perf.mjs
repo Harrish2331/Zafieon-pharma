@@ -13,7 +13,7 @@ await p.setViewport({ width: 1440, height: 900 });
 if (process.env.NO_3D) {
   await p.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
 }
-await p.goto(BASE, { waitUntil: "domcontentloaded" });
+await p.goto(BASE + (process.env.ROUTE ?? ""), { waitUntil: "domcontentloaded" });
 await new Promise(r => setTimeout(r, 6000));
 
 // Warm-up pass: scroll the whole page once so lazy images decode, reveals fire

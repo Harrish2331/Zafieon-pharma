@@ -256,3 +256,278 @@
     scrollbar-color: var(--color-line-strong) transparent;
   }
 }
+
+/* ============================================================================
+   THE OVERTURE
+
+   The opening curtain, driven entirely by CSS so it paints in the first frame
+   and runs on the compositor. No JavaScript participates: `data-overture` is
+   stamped on <html> by the inline script in layout.tsx before first paint, and
+   every animation below is transform/opacity only.
+
+   ── Timing ────────────────────────────────────────────────────────────────
+   1.85s end to end, which is the pace the original Framer Motion version ran
+   at. The first CSS rewrite compressed it to 1.15s and it read as hurried —
+   the point of this sequence is the hold on the mark, not the speed of the
+   wipe.
+
+   The choreography overlaps rather than running in steps: the seam begins
+   drawing while the mark is still settling, and the halves start moving while
+   the seam is still fading. Nothing waits for anything else to finish, which
+   is what stops it feeling like three separate events.
+
+     0.00 - 0.34   mark rises and resolves
+     0.34 - 1.05   mark holds
+     0.42 - 1.10   seam draws along the diagonal
+     1.05 - 1.45   mark clears, just ahead of the split
+     1.10 - 1.80   seam fades
+     0.98 - 1.85   halves part and sweep away
+
+   Every curve is an ease-out — long deceleration, no snap at either end. The
+   halves in particular use a quintic ease-out over 0.87s: at that length an
+   in-out curve reads as a lurch, because the fast middle is over before the
+   eye has followed it.
+
+   `off` (a repeat visit, or reduced motion) removes it outright.
+   ========================================================================== */
+
+.zaf-overture {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+  /* Its own compositing layer, so the halves never repaint the page beneath. */
+  contain: strict;
+}
+
+/* Not a repeat visit and motion is welcome: play. Anything else: gone. */
+html:not([data-overture="on"]):not([data-overture="done"]) .zaf-overture,
+html[data-overture="off"] .zaf-overture {
+  display: none;
+}
+
+/* The scroll lock is released by the same inline script that started this, so
+   it never waits on hydration. */
+html[data-overture="on"] {
+  overflow: hidden;
+}
+
+/* Once finished the whole overlay is inert and invisible, but it is left in
+   the tree rather than unmounted — removing it would need JavaScript, and the
+   point of this rewrite is that none is involved. */
+html[data-overture="done"] .zaf-overture {
+  display: none;
+}
+
+.zaf-overture__half {
+  position: absolute;
+  inset: 0;
+  /* Promoted before the animation starts, so the first moved frame is not the
+     one that also has to rasterise a full-screen gradient. */
+  will-change: transform;
+  backface-visibility: hidden;
+  animation-duration: 0.87s;
+  animation-delay: 0.98s;
+  /* Quintic ease-out: leaves immediately, decelerates the whole way. */
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-fill-mode: forwards;
+}
+
+.zaf-overture__half--tl {
+  clip-path: polygon(-20% -20%, 140% -20%, -20% 140%);
+  animation-name: zaf-overture-tl;
+}
+
+.zaf-overture__half--br {
+  clip-path: polygon(140% -20%, 140% 140%, -20% 140%);
+  animation-name: zaf-overture-br;
+}
+
+@keyframes zaf-overture-tl {
+  to {
+    transform: translate3d(-72%, -72%, 0);
+  }
+}
+
+@keyframes zaf-overture-br {
+  to {
+    transform: translate3d(72%, 72%, 0);
+  }
+}
+
+.zaf-overture__seam {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 220vmax;
+  height: 1px;
+  background: var(--color-magenta);
+  transform: translate(-50%, -50%) rotate(-45deg) scaleX(0);
+  transform-origin: center;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: zaf-overture-seam 1.38s cubic-bezier(0.16, 1, 0.3, 1) 0.42s
+    forwards;
+}
+
+@keyframes zaf-overture-seam {
+  0% {
+    transform: translate(-50%, -50%) rotate(-45deg) scaleX(0);
+    opacity: 0;
+  }
+  49% {
+    transform: translate(-50%, -50%) rotate(-45deg) scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(-45deg) scaleX(1);
+    opacity: 0;
+  }
+}
+
+.zaf-overture__mark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 2rem;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: zaf-overture-mark 1.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes zaf-overture-mark {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.985);
+  }
+  23% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  72% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(1.008);
+  }
+}
+
+/* A visitor who asked for reduced motion never sees any of this — the inline
+   script sets `off` — but the guard is repeated here so the CSS is correct on
+   its own terms. */
+@media (prefers-reduced-motion: reduce) {
+  .zaf-overture {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   ABOVE-THE-FOLD ENTRANCES
+
+   Framer Motion server-renders its `initial` state, so a `<Reveal>` ships as
+   `opacity: 0` in the HTML and only becomes visible once React has hydrated.
+   Below the fold that is exactly right — the content is meant to animate on
+   scroll. At the top of the page it is not: it held the hero copy invisible
+   until 3.4s on a throttled connection, which is what LCP was measuring.
+
+   These two classes are the same choreography in CSS. They start on the first
+   frame, run on the compositor, and finish whether or not JavaScript ever
+   arrives. `both` fill mode is what makes the element start hidden without a
+   separate rule, and `--d` carries the stagger.
+   ========================================================================== */
+
+.zaf-rise {
+  animation: zaf-rise-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s) both;
+  will-change: transform, opacity;
+}
+
+@keyframes zaf-rise-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--rise-y, 20px), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Masked line reveal for display type: the line slides up from beneath its own
+   baseline inside an overflow-hidden box, so the type is uncovered rather than
+   moved. The text is real and in document order either way. */
+.zaf-line {
+  display: block;
+  overflow: hidden;
+  /* A hair of vertical slack so descenders are not clipped by the mask. */
+  padding-bottom: 0.09em;
+  margin-bottom: -0.09em;
+}
+
+.zaf-line > * {
+  display: block;
+  animation: zaf-line-in 1.05s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s) both;
+  will-change: transform;
+}
+
+@keyframes zaf-line-in {
+  from {
+    transform: translate3d(0, 115%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Reduced motion: no movement, and nothing hidden waiting for an animation
+   that will not run. Handled in CSS so there is no JSX branch to break
+   hydration — the same rule the rest of the project follows. */
+@media (prefers-reduced-motion: reduce) {
+  .zaf-rise,
+  .zaf-line > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The overture locks scroll while it plays, then releases it. Without a
+   reserved gutter that release makes the scrollbar appear, narrows the
+   viewport, and re-wraps every line on the page — a measured 0.20 layout shift
+   at 390px, which is "poor" by any standard and lands squarely on mobile.
+   Reserving the gutter from the first frame means locking and unlocking scroll
+   changes nothing about the available width. The mobile menu, which locks
+   scroll the same way, gets the fix for free. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* ============================================================================
+   DISPLAY FONT FALLBACK
+
+   Arial, size-adjusted to occupy the space FM Bolyar Sans Pro occupies, so
+   headings laid out before the real face arrives do not re-wrap when it does.
+
+   The ratio is measured, not derived: every display string on this site renders
+   uppercase (Bolyar is a unicase face), so the number that matters is the
+   uppercase advance ratio, and the font tables average over the whole glyph set
+   including lowercase. Measuring five real headings in the browser gives 1.3411
+   to 1.3556 — call it 135%. Deriving it from OS/2 xAvgCharWidth gave 180% and
+   over-corrected at wide viewports; next/font's own generator gave 1.98% and
+   grew the page by three heading lines on swap.
+
+   Re-measure with .work/fontratio.mjs if the font file is ever replaced.
+   ========================================================================== */
+@font-face {
+  font-family: "Bolyar Fallback";
+  src: local("Arial");
+  size-adjust: 135%;
+  ascent-override: 94.97%;
+  descent-override: 4.74%;
+  /* The display scale sets its own line-height everywhere, so the gap is
+     pinned to zero rather than left to vary between the two faces. */
+  line-gap-override: 0%;
+}

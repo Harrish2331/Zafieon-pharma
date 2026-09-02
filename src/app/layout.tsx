@@ -5,6 +5,7 @@ import MotionProvider from "@/components/motion/MotionProvider";
 import Overture from "@/components/Overture";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SiteChrome from "@/components/SiteChrome";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -19,8 +20,9 @@ export const metadata: Metadata = {
     "Zafieon Pharma",
     "pharmaceutical company",
     "women's health",
+    "gynaecology",
     "gynecology",
-    "reproductive health",
+    "hormonal health",
     "nutraceuticals",
     "contract manufacturing",
     "pharmaceutical distribution",
@@ -58,6 +60,16 @@ export default function RootLayout({
       className={`${bolyar.variable} ${poppins.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Decides the opening before the first frame, and releases the scroll
+            lock on a timer. See src/components/Overture.tsx for why this is not
+            an effect. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "(function(){try{var d=document.documentElement;var q=window.matchMedia&&matchMedia(\"(prefers-reduced-motion: reduce)\").matches;var s=sessionStorage.getItem(\"zaf-overture\")===\"1\";if(q||s){d.dataset.overture=\"off\";return}sessionStorage.setItem(\"zaf-overture\",\"1\");d.dataset.overture=\"on\";setTimeout(function(){d.dataset.overture=\"done\"},1850)}catch(e){document.documentElement.dataset.overture=\"off\"}})()",
+          }}
+        />
+      </head>
       <body className="min-h-screen bg-paper">
         <a
           href="#main"
@@ -66,10 +78,18 @@ export default function RootLayout({
           Skip to content
         </a>
         <MotionProvider>
-          <Overture />
-          <Navbar />
+          {/* The public chrome is absent on /admin: the fixed navbar sat on
+              top of the dashboard's own header, overlapping two Zafieon logos
+              in the same corner. Navbar and Footer stay server components —
+              they are rendered here and passed through as children. */}
+          <SiteChrome>
+            <Overture />
+            <Navbar />
+          </SiteChrome>
           <main id="main">{children}</main>
-          <Footer />
+          <SiteChrome>
+            <Footer />
+          </SiteChrome>
         </MotionProvider>
       </body>
     </html>

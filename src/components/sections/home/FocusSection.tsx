@@ -99,33 +99,45 @@ export default function FocusSection() {
               className="relative isolate min-h-[24rem] overflow-hidden border border-white/12 bg-navy-900 p-8 sm:p-11"
               aria-live="polite"
             >
-              {/* Area artwork, cross-faded with the copy.
+              {/* Area artwork.
+                  All four are in the DOM from the start and cross-faded with
+                  opacity, rather than mounted and unmounted as the reader
+                  moves through the index.
+
+                  Mounting on demand meant each artwork was only requested at
+                  the moment it was needed, so the first visit to every area
+                  showed an empty panel while a fresh optimiser request went out
+                  — the "takes noticeable time to load" this section was
+                  reported for. Rendering all four lets the browser fetch them
+                  lazily as the section approaches, after which switching is a
+                  compositor-only opacity change with no network at all.
+
                   The supplied set is composed with its subject to the right and
                   negative space to the left, so the scrim below only has to
                   deepen what is already dark — the artwork stays legible and
                   the type keeps full contrast without a heavy overlay. */}
-              <AnimatePresence mode="wait">
-                {area.image && (
-                  <motion.div
-                    key={`${area.id}-art`}
-                    className="absolute inset-0 -z-10"
-                    initial={{ opacity: 0, scale: 1.04 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.8, ease: EASE }}
+              {focusAreas.map((f, i) =>
+                f.image ? (
+                  <div
+                    key={`${f.id}-art`}
+                    aria-hidden={i !== active}
+                    className={`absolute inset-0 -z-10 transition-opacity duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      i === active ? "opacity-100" : "opacity-0"
+                    }`}
                   >
                     <Image
-                      src={area.image}
-                      alt={area.imageAlt ?? ""}
+                      src={f.image}
+                      alt={i === active ? (f.imageAlt ?? "") : ""}
                       fill
+                      loading="lazy"
                       sizes="(max-width: 1024px) 100vw, 46vw"
-                      placeholder={area.blurDataURL ? "blur" : "empty"}
-                      blurDataURL={area.blurDataURL}
+                      placeholder={f.blurDataURL ? "blur" : "empty"}
+                      blurDataURL={f.blurDataURL}
                       className="object-cover object-right"
                     />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+                ) : null,
+              )}
 
               {/* Legibility scrim: strongest where the type sits, clearing to
                   almost nothing over the subject. */}

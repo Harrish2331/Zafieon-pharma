@@ -5,6 +5,7 @@ import Reveal, { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import SectionHeader from "@/components/ui/SectionHeader";
 import PartnerCard from "@/components/PartnerCard";
 import ManufacturingFootprint from "@/components/ManufacturingFootprint";
+import ManufacturingFilm from "@/components/ManufacturingFilm";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { manufacturing } from "@/data/site";
 import { partners, exportReach } from "@/data/partners";
@@ -19,15 +20,29 @@ export const metadata: Metadata = {
 export default function ManufacturingPage() {
   return (
     <>
+      {/* The standfirst is passed to the film rather than to PageHero: it is
+          set over the footage, not beside it. The heading stays exactly where
+          every other page puts it. */}
       <PageHero
         eyebrow={manufacturing.hero.eyebrow}
         lines={[manufacturing.hero.line1, manufacturing.hero.line2]}
-        body={manufacturing.hero.body}
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Manufacturing", href: "/manufacturing" },
         ]}
-      />
+      >
+        {/* The film is the hero's primary visual. It sits inside the hero
+            section so it shares the navy field rather than starting a new
+            band, and it carries the same offset register as every other
+            figure on the site. */}
+        <ManufacturingFilm
+          src={manufacturing.hero.film.src}
+          poster={manufacturing.hero.film.poster}
+          blurDataURL={manufacturing.hero.film.blurDataURL}
+          description={manufacturing.hero.film.description}
+          overlay={manufacturing.hero.body}
+        />
+      </PageHero>
 
       {/* ── What we expect of a partner ───────────────────────────── */}
       <section className="relative bg-paper py-24 lg:py-32">

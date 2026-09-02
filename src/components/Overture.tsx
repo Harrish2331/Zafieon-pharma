@@ -1,12 +1,4 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import InlineLockup from "@/components/InlineLockup";
-
-const KEY = "zaf-overture";
-const EASE = [0.76, 0, 0.24, 1] as const; // in-out expo: weighted, deliberate
-const OUT = [0.16, 1, 0.3, 1] as const;
 
 /**
  * The opening.
@@ -19,97 +11,52 @@ const OUT = [0.16, 1, 0.3, 1] as const;
  * "tube/capsule pill" the brand guidelines describe. Splitting along it means
  * the reveal is the logo's geometry performed at full-screen scale.
  *
- * Rules it obeys:
- *  · ~1.6s total, then it is gone.
- *  · Once per session, not once per navigation.
- *  · Purely an overlay — the page underneath renders and is interactive
- *    immediately, so nothing about this blocks loading or LCP.
- *  · Reduced motion or a repeat visit: never mounted at all.
+ * ── Why this is a server component with CSS animations ─────────────────────
+ * It used to be a client component driven by Framer Motion, mounted from an
+ * effect. That meant the curtain could not appear until React had hydrated —
+ * and on a throttled connection, with 456 KB of JavaScript to fetch and parse
+ * first, hydration lands around 2.5s. The splash therefore *started* at 2.5s
+ * and finished past 4s, which is precisely the "stuck before the site appears"
+ * complaint: the site had already painted at ~1s, then a navy curtain dropped
+ * over it, then lifted.
+ *
+ * Now the markup is server-rendered and the whole sequence is CSS. It paints in
+ * the first frame alongside the rest of the document, runs on the compositor
+ * (transform and opacity only — no layout, no paint, no main-thread work), and
+ * is finished at 1.85s whether or not React has hydrated. No JavaScript
+ * participates in the animation at all.
+ *
+ * The 1.85s is deliberate. A first CSS pass ran it in 1.15s and it read as
+ * hurried — the sequence is built around the hold on the mark, not the speed
+ * of the wipe. Timings and easing are documented in globals.css.
+ *
+ * ── Once per session, decided before first paint ───────────────────────────
+ * Whether to play is decided by the inline script in `layout.tsx`, which sets
+ * `data-overture` on <html> before the first frame. Reading sessionStorage in
+ * an effect would have been a frame too late: a returning visitor would see a
+ * flash of navy before the effect could suppress it. The same script releases
+ * the scroll lock on a timer, so nothing here depends on hydration either.
+ *
+ * When the attribute says `off` — a repeat visit, or reduced motion — the CSS
+ * sets `display: none` and this costs nothing but a few hundred bytes of HTML.
  */
 export default function Overture() {
-  const reduced = useReducedMotion();
-  const [play, setPlay] = useState(false);
-
-  useEffect(() => {
-    if (reduced) return;
-    if (sessionStorage.getItem(KEY) === "1") return;
-    sessionStorage.setItem(KEY, "1");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPlay(true);
-  }, [reduced]);
-
-  // Lock scroll only while the curtain is actually up.
-  useEffect(() => {
-    if (!play) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const t = window.setTimeout(() => setPlay(false), 1750);
-    return () => {
-      document.body.style.overflow = prev;
-      window.clearTimeout(t);
-    };
-  }, [play]);
-
   return (
-    <AnimatePresence>
-      {play && (
-        <motion.div
-          key="overture"
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-[300]"
-          exit={{ opacity: 0, transition: { duration: 0.25 } }}
-        >
-          {/* Upper-left half — parts along the diagonal and leaves up-left. */}
-          <motion.div
-            className="navy-field absolute inset-0"
-            style={{ clipPath: "polygon(-20% -20%, 140% -20%, -20% 140%)" }}
-            initial={{ x: 0, y: 0 }}
-            animate={{ x: "-58%", y: "-58%" }}
-            transition={{ duration: 0.95, delay: 0.78, ease: EASE }}
-          />
-          {/* Lower-right half — the mirror. */}
-          <motion.div
-            className="navy-field absolute inset-0"
-            style={{ clipPath: "polygon(140% -20%, 140% 140%, -20% 140%)" }}
-            initial={{ x: 0, y: 0 }}
-            animate={{ x: "58%", y: "58%" }}
-            transition={{ duration: 0.95, delay: 0.78, ease: EASE }}
-          />
+    <div className="zaf-overture" aria-hidden="true">
+      {/* Upper-left half — parts along the diagonal and leaves up-left. */}
+      <div className="zaf-overture__half zaf-overture__half--tl navy-field" />
+      {/* Lower-right half — the mirror. */}
+      <div className="zaf-overture__half zaf-overture__half--br navy-field" />
 
-          {/* The hairline the halves part along. */}
-          <motion.div
-            className="absolute top-1/2 left-1/2 h-px w-[220vmax] origin-center bg-magenta"
-            style={{ transform: "translate(-50%,-50%) rotate(-45deg)" }}
-            initial={{ scaleX: 0, opacity: 0 }}
-            animate={{
-              scaleX: [0, 1, 1],
-              opacity: [0, 1, 0],
-            }}
-            transition={{
-              duration: 1.4,
-              times: [0, 0.5, 1],
-              delay: 0.42,
-              ease: OUT,
-            }}
-          />
+      {/* The hairline the halves part along. */}
+      <div className="zaf-overture__seam" />
 
-          {/* Registration: the full lockup resolves, holds, then clears just
-              ahead of the split — so the identity is what the viewer is left
-              with, not a shape they had to decode. */}
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center px-8"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: [0, 1, 1, 0], y: [10, 0, 0, -6] }}
-            transition={{
-              duration: 1.2,
-              times: [0, 0.22, 0.72, 1],
-              ease: OUT,
-            }}
-          >
-            <InlineLockup className="h-auto w-[min(300px,62vw)]" />
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      {/* Registration: the full lockup resolves, holds, then clears just ahead
+          of the split — so the identity is what the viewer is left with, not a
+          shape they had to decode. */}
+      <div className="zaf-overture__mark">
+        <InlineLockup className="h-auto w-[min(300px,62vw)]" />
+      </div>
+    </div>
   );
 }

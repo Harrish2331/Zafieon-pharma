@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import BrandPattern from "@/components/BrandPattern";
-import Reveal from "@/components/motion/Reveal";
-import AnimatedText from "@/components/motion/AnimatedText";
+import CssRise from "@/components/motion/CssRise";
+import CssLines from "@/components/motion/CssLines";
 import { Eyebrow } from "@/components/ui/SectionHeader";
 
 /**
@@ -11,6 +11,18 @@ import { Eyebrow } from "@/components/ui/SectionHeader";
  * Navy by default, which is what lets the fixed navigation invert cleanly via
  * `data-hero-tone`. The magenta accent falls on the second line, so every page
  * opens with the same two-beat cadence as the homepage.
+ *
+ * ── Entrances are CSS, not Framer Motion ───────────────────────────────────
+ * Framer Motion server-renders its `initial` state, so `<Reveal>` ships as
+ * `opacity: 0` and `<AnimatedText>` ships translated out of its own mask. Both
+ * stay that way until React hydrates. This component is the first viewport on
+ * every inner page, and on a throttled connection that put LCP at 3.4s — the
+ * page had painted, but the only thing on it was invisible.
+ *
+ * `<CssRise>` and `<CssLines>` are the same choreography on the compositor.
+ * They paint on the first frame and finish whether or not the JavaScript
+ * arrives. Everything below the fold keeps Framer Motion, which is correct:
+ * those sections are meant to animate when the reader reaches them.
  */
 export default function PageHero({
   eyebrow,
@@ -58,7 +70,7 @@ export default function PageHero({
 
       <div className="shell relative">
         {breadcrumb && (
-          <Reveal y={10} duration={0.6}>
+          <CssRise y={10}>
             <nav aria-label="Breadcrumb" className="mb-8">
               <ol className="flex flex-wrap items-center gap-2 text-[0.72rem] tracking-[0.12em] uppercase">
                 {breadcrumb.map((b, i) => (
@@ -85,16 +97,16 @@ export default function PageHero({
                 ))}
               </ol>
             </nav>
-          </Reveal>
+          </CssRise>
         )}
 
-        <Reveal y={12} duration={0.7}>
+        <CssRise delay={0.06} y={12}>
           <Eyebrow tone={dark ? "dark" : "light"}>{eyebrow}</Eyebrow>
-        </Reveal>
+        </CssRise>
 
-        <AnimatedText
+        <CssLines
           as="h1"
-          delay={0.08}
+          delay={0.12}
           lines={rendered}
           className={`mt-7 text-[length:var(--text-display-1)] leading-[0.92] ${
             dark ? "text-white" : "text-navy"
@@ -103,7 +115,7 @@ export default function PageHero({
 
         {body && (
           <div className="mt-10 grid lg:grid-cols-12">
-            <Reveal delay={0.26} y={20} className="lg:col-span-6 lg:col-start-7">
+            <CssRise delay={0.26} y={20} className="lg:col-span-6 lg:col-start-7">
               <p
                 className={`text-[1.0625rem] leading-[1.75] ${
                   dark ? "text-white/60" : "text-muted"
@@ -111,7 +123,7 @@ export default function PageHero({
               >
                 {body}
               </p>
-            </Reveal>
+            </CssRise>
           </div>
         )}
 

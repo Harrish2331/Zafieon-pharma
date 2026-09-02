@@ -9,7 +9,12 @@ import { Eyebrow } from "@/components/ui/SectionHeader";
 import ProductCard from "@/components/ProductCard";
 import PrescriptionGate from "@/components/PrescriptionGate";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
-import { getProduct, products, productClassLabel } from "@/data/products";
+import {
+  getProduct,
+  products,
+  productClassLabel,
+  productCategoryLabel,
+} from "@/data/products";
 import { focusAreas } from "@/data/focus";
 import { site } from "@/data/site";
 
@@ -59,8 +64,13 @@ export default async function ProductDetailPage({
 
   // Only fields the pack artwork actually carries. Anything absent stays absent.
   const spec: { label: string; value: string }[] = [
-    { label: "Category", value: productClassLabel[product.productClass] },
-    { label: "Dosage form", value: product.dosageForm },
+    {
+      label: product.categories.length > 1 ? "Categories" : "Category",
+      value: product.categories.map((c) => productCategoryLabel[c]).join(", "),
+    },
+    ...(product.dosageForm
+      ? [{ label: "Dosage form", value: product.dosageForm }]
+      : []),
     ...(product.composition
       ? [{ label: "Composition", value: product.composition }]
       : []),
@@ -116,7 +126,9 @@ export default async function ProductDetailPage({
 
             <Reveal y={12} duration={0.7}>
               <Eyebrow tone="dark">
-                {productClassLabel[product.productClass]}
+                {product.categories
+                  .map((c) => productCategoryLabel[c])
+                  .join(" · ")}
               </Eyebrow>
             </Reveal>
 
@@ -141,8 +153,21 @@ export default async function ProductDetailPage({
               </p>
             </Reveal>
 
+            {/* Where the supplied artwork carries the brand and nothing
+                else, the page says so rather than presenting an empty
+                specification as though the product had none. */}
+            {product.detailsPending && (
+              <Reveal delay={0.36} y={16}>
+                <p className="mt-8 max-w-[48ch] border-l-2 border-magenta py-1 pl-5 text-[0.88rem] leading-[1.7] text-white/60">
+                  Composition, pack presentation and regulatory markings for
+                  this product will be published here once the finished pack
+                  artwork is confirmed.
+                </p>
+              </Reveal>
+            )}
+
             {product.packMarkings?.length ? (
-              <Reveal delay={0.38} y={16}>
+              <Reveal delay={0.42} y={16}>
                 <ul className="mt-9 flex flex-wrap gap-2.5">
                   {product.packMarkings.map((m) => (
                     <li

@@ -12,7 +12,7 @@ import { products } from "@/data/products";
 export const metadata: Metadata = {
   title: "Our Focus",
   description:
-    "Zafieon Pharma is focused on women's health, with an emphasis on gynecology, reproductive health, fertility and women's wellness.",
+    "Zafieon Pharma is focused on women's health, with an emphasis on gynaecology, hormonal health, fertility and women's wellness.",
   alternates: { canonical: "/our-focus" },
 };
 
@@ -22,7 +22,7 @@ export default function OurFocusPage() {
       <PageHero
         eyebrow="Our Focus"
         lines={["Focused on", "women's health."]}
-        body="Zafieon Pharma is beginning its journey with a focused presence in women's health, with an emphasis on gynecology, reproductive health, fertility and women's wellness. The long-term vision is to expand into multiple therapeutic divisions."
+        body="Zafieon Pharma is beginning its journey with a focused presence in women's health, with an emphasis on gynaecology, hormonal health, fertility and women's wellness. The long-term vision is to expand into multiple therapeutic divisions."
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Our Focus", href: "/our-focus" },
@@ -82,7 +82,7 @@ export default function OurFocusPage() {
                 <p className="text-[1.0625rem] leading-[1.78] text-white/75">
                   Women&apos;s health is not a category we drifted into. It is
                   where the company started, and every product currently in the
-                  portfolio sits inside it &mdash; from prescription gynecology
+                  portfolio sits inside it &mdash; from prescription gynaecology
                   through to everyday nutritional support.
                 </p>
               </Reveal>

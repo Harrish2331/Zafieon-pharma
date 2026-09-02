@@ -16,8 +16,15 @@ const PrecisionForm = dynamic(() => import("./PrecisionForm"), {
  * token amount of memory. Everything else gets StaticForm — the same
  * composition drawn flat, so the art direction never collapses.
  *
- * Loading is deferred to idle so the sculpture never competes with the hero
- * text for the main thread during first paint.
+ * Loading is deferred until after the load event AND the opening has cleared,
+ * then to the first idle period. Parsing three.js and building the scene costs
+ * roughly 1.8s of main-thread time in two long tasks — measured, not guessed —
+ * and idle alone was not enough: the main thread goes idle right after
+ * hydration, which is while the opening is still on screen. Anything expensive
+ * landing there is exactly what made the opening feel like it stuttered.
+ *
+ * The fallback is already on screen throughout, so nothing is missing while
+ * this waits.
  */
 export default function HeroVisual() {
   const [enable3D, setEnable3D] = useState(false);
@@ -44,13 +51,32 @@ export default function HeroVisual() {
       return;
     }
 
-    // Wait for idle: the hero headline should paint before three.js is parsed.
-    const ric =
-      window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 240));
-    const id = ric(() => setEnable3D(true));
+    let idleId: number | undefined;
+    let timerId: number | undefined;
+
+    const schedule = () => {
+      const ric =
+        window.requestIdleCallback ??
+        ((cb: () => void) => window.setTimeout(cb, 200));
+      idleId = ric(() => setEnable3D(true)) as unknown as number;
+    };
+
+    // After the page has finished loading and the opening has cleared, then at
+    // the first idle moment after that. The 1.3s floor is the overture's 1.15s
+    // plus margin.
+    const start = () => {
+      timerId = window.setTimeout(schedule, 1300);
+    };
+
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+
     return () => {
-      const cancel = window.cancelIdleCallback ?? window.clearTimeout;
-      cancel(id as number);
+      window.removeEventListener("load", start);
+      if (timerId !== undefined) window.clearTimeout(timerId);
+      if (idleId !== undefined) {
+        (window.cancelIdleCallback ?? window.clearTimeout)(idleId);
+      }
     };
   }, []);
 

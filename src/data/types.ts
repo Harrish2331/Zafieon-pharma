@@ -12,10 +12,21 @@
 
 export type ProductClass = "prescription" | "nutraceutical";
 
+/**
+ * The portfolio categories shown on /products.
+ *
+ * These are display groupings, not a pharmacological taxonomy, and a product
+ * may sit in more than one — an oral contraceptive is both a prescription
+ * medicine and a hormone. The rule applied in `products.ts` is deliberately
+ * narrow and written down there, so a reader can audit every assignment
+ * against the pack artwork rather than trusting a judgement call.
+ */
+export type ProductCategory = "nutraceutical" | "prescription" | "hormone";
+
 export type FocusAreaId =
   | "womens-health"
   | "gynecology"
-  | "reproductive-health"
+  | "hormonal-health"
   | "fertility"
   | "womens-wellness";
 
@@ -24,10 +35,19 @@ export interface Product {
   slug: string;
   /** Brand name exactly as printed on the pack. */
   name: string;
-  /** Regulatory class. Drives the prescription gate. */
+  /**
+   * Regulatory class. Drives the prescription gate, the sitemap exclusion and
+   * the `noindex` on the detail route — it is a legal mechanism, never a
+   * display grouping, which is why `categories` is separate.
+   */
   productClass: ProductClass;
-  /** Short human label, e.g. "Tablets", "Softgel Capsules". */
-  dosageForm: string;
+  /** Display groupings for the catalogue filter. At least one. */
+  categories: ProductCategory[];
+  /**
+   * Short human label, e.g. "Tablets", "Softgel Capsules". Omitted where the
+   * supplied artwork does not state a dosage form.
+   */
+  dosageForm?: string;
   therapeuticAreas: FocusAreaId[];
   /** Neutral, non-promotional restatement of what is printed on the pack. */
   description: string;
@@ -45,6 +65,12 @@ export interface Product {
   blurDataURL?: string;
   /** True where the Zafieon mark is printed on the supplied pack artwork. */
   zafieonBranded: boolean;
+  /**
+   * Set where the supplied artwork is a brand mock-up carrying no composition,
+   * pack count or regulatory marking. The UI shows an explicit "details to
+   * follow" note instead of guessing at what the pack would say.
+   */
+  detailsPending?: boolean;
   source: string;
 }
 
@@ -94,6 +120,27 @@ export interface Partner {
   qualifiers?: string[];
   /** Set when the supplied document contains no usable profile. */
   profilePending?: boolean;
+  /**
+   * Set where the profile is written by Zafieon as interim copy because the
+   * partner has not yet supplied a brochure. Surfaced to the reader, so an
+   * interim profile is never mistaken for a documented one.
+   */
+  profileInterim?: boolean;
+  /**
+   * National regulatory registrations and approvals the partner states it
+   * holds. Kept apart from `certifications` because these are market
+   * registrations, not quality-system certifications, and because no emblem is
+   * ever drawn for them — they appear as attributed text only.
+   */
+  regulatoryRegistrations?: string[];
+  /** Capability the partner announces as planned or under construction. */
+  planned?: { title: string; operator?: string; items: string[] };
+  /**
+   * Excluded from every listing, route and sitemap entry, while the record
+   * itself is kept. Used where the client has taken a partner off the public
+   * directory but the supplied documentation should not be thrown away.
+   */
+  retired?: boolean;
   source: string;
 }
 
@@ -125,4 +172,38 @@ export interface LifecycleStage {
   id: string;
   label: string;
   description: string;
+}
+
+/**
+ * Zafieon Insights.
+ *
+ * Editorial written from Zafieon's own stated positioning — its focus, its
+ * quality framework and its partner expectations. Nothing here reports an
+ * external event, cites a study or carries a statistic, because none was
+ * supplied. See docs/CLAIMS.md.
+ */
+export type InsightTag =
+  | "Women's Health"
+  | "Gynaecology"
+  | "Pharmaceutical Industry"
+  | "Healthcare"
+  | "Pharma Innovation"
+  | "Manufacturing"
+  | "Research & Development"
+  | "Hormonal Health"
+  | "Nutraceuticals";
+
+export interface Insight {
+  id: string;
+  slug: string;
+  /** 1-4. The slot the Admin Dashboard replaces the image for. */
+  slot: 1 | 2 | 3 | 4;
+  title: string;
+  standfirst: string;
+  body: string[];
+  tags: InsightTag[];
+  /** Fallback artwork, shipped with the build. */
+  image: string;
+  imageAlt: string;
+  blurDataURL?: string;
 }

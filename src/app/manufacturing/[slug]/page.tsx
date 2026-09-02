@@ -100,6 +100,35 @@ export default async function PartnerDetailPage({
         </Reveal>
       </PageHero>
 
+      {/* ── Interim profile ───────────────────────────────────────
+          Zafieon has supplied this partner's name and location but no
+          brochure. The copy on the page describes the standard Zafieon holds
+          every partner to; it does not claim anything on the partner's behalf,
+          and the notice says so before the reader gets to any of it. */}
+      {partner.profileInterim && (
+        <section className="relative bg-paper pt-16 lg:pt-20">
+          <div className="shell">
+            <Reveal y={18}>
+              <div className="border-l-2 border-magenta bg-paper-50 py-6 pr-7 pl-7">
+                <span className="eyebrow text-magenta-600">
+                  Interim profile
+                </span>
+                <p className="mt-4 max-w-[74ch] text-[0.92rem] leading-[1.75] text-muted">
+                  {partner.shortName} has been confirmed by Zafieon Pharma as a
+                  manufacturing partner, and its name and location are as
+                  supplied. Its corporate documentation has not yet reached us,
+                  so the profile below sets out the standard Zafieon holds every
+                  partner to rather than facts documented by{" "}
+                  {partner.shortName}. No capability, certification, facility or
+                  export market is claimed on the partner&apos;s behalf, and this
+                  page will be replaced in full once the brochure arrives.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
       {/* ── Profile pending ───────────────────────────────────────── */}
       {partner.profilePending && (
         <section className="relative bg-paper py-24 lg:py-32">
@@ -264,6 +293,103 @@ export default async function PartnerDetailPage({
           </div>
         </section>
       )}
+
+      {/* ── Regulatory registrations ──────────────────────────────
+          Market registrations, not quality-system certifications, and kept
+          visibly apart from them. No regulator's emblem is drawn for any of
+          these: they appear as attributed text and nothing more. */}
+      {partner.regulatoryRegistrations?.length ? (
+        <section className="relative bg-paper py-20 lg:py-24">
+          <div className="shell">
+            <Reveal y={16}>
+              <div className="mb-10 flex flex-wrap items-baseline justify-between gap-4 border-b border-line pb-5">
+                <h2 className="text-[length:var(--text-display-3)] text-navy">
+                  Regulatory registrations
+                </h2>
+                <span className="text-[0.72rem] tracking-[0.14em] text-muted-light uppercase">
+                  {partner.regulatoryRegistrations.length} stated by the partner
+                </span>
+              </div>
+            </Reveal>
+
+            <Stagger step={0.05} className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
+              {partner.regulatoryRegistrations.map((r) => (
+                <StaggerItem key={r}>
+                  <span className="flex items-baseline gap-3 text-[0.95rem] leading-[1.6] text-navy">
+                    <span
+                      aria-hidden="true"
+                      className="h-1 w-1 shrink-0 translate-y-[-0.3em] bg-magenta"
+                    />
+                    {r}
+                  </span>
+                </StaggerItem>
+              ))}
+            </Stagger>
+
+            <Reveal delay={0.12} y={16}>
+              <p className="mt-8 max-w-[80ch] text-[0.8rem] leading-relaxed text-muted-light">
+                These are national regulatory registrations and approvals held
+                by {partner.shortName}, as printed in its own documentation.
+                They are not certifications, they are not held by Zafieon
+                Pharma, and they say nothing about the registration status of
+                any Zafieon Pharma product in those markets.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+      ) : null}
+
+      {/* ── Announced capability ──────────────────────────────────
+          Labelled as planned throughout. Capacities a partner announces for a
+          facility it is still building are not capacity it has. */}
+      {partner.planned ? (
+        <section className="relative bg-paper-100 py-20 lg:py-24">
+          <div className="shell">
+            <Reveal y={16}>
+              <span className="eyebrow text-magenta-600">
+                Announced — not yet operational
+              </span>
+              <h2 className="mt-6 text-[length:var(--text-display-3)] text-navy">
+                {partner.planned.title}
+              </h2>
+              {partner.planned.operator && (
+                <p className="mt-4 text-[0.95rem] text-muted">
+                  To be operated by{" "}
+                  <strong className="font-medium text-navy">
+                    {partner.planned.operator}
+                  </strong>
+                  .
+                </p>
+              )}
+            </Reveal>
+
+            <Stagger
+              step={0.05}
+              className="mt-10 grid gap-x-8 gap-y-4 sm:grid-cols-2"
+            >
+              {partner.planned.items.map((it) => (
+                <StaggerItem key={it}>
+                  <span className="flex items-baseline gap-3 text-[0.95rem] leading-[1.6] text-navy">
+                    <span
+                      aria-hidden="true"
+                      className="h-1 w-1 shrink-0 translate-y-[-0.3em] bg-magenta"
+                    />
+                    {it}
+                  </span>
+                </StaggerItem>
+              ))}
+            </Stagger>
+
+            <Reveal delay={0.12} y={16}>
+              <p className="mt-8 max-w-[80ch] text-[0.8rem] leading-relaxed text-muted-light">
+                {partner.shortName} announces this facility and these capacities
+                as upcoming in its own documentation. They are planned, not
+                installed, and no Zafieon Pharma product is manufactured there.
+              </p>
+            </Reveal>
+          </div>
+        </section>
+      ) : null}
 
       {/* ── Facilities ────────────────────────────────────────────── */}
       {partner.facilities?.length ? (

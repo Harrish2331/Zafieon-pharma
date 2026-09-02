@@ -5,68 +5,84 @@ import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/motion/Reveal";
-import { products, productClassLabel } from "@/data/products";
+import { products, usedProductCategories } from "@/data/products";
 import { focusAreas } from "@/data/focus";
-import type { FocusAreaId, ProductClass } from "@/data/types";
+import type { FocusAreaId, ProductCategory } from "@/data/types";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-type ClassFilter = "all" | ProductClass;
+type CategoryFilter = "all" | ProductCategory;
 type AreaFilter = "all" | FocusAreaId;
 
 /**
  * The catalogue.
  *
- * Filtering is derived entirely from the product data — the therapeutic-area
- * chips are built from whichever areas the current products actually occupy,
- * so adding a seventh product in a new area extends the filter set with no
- * change here. Search appears only once the catalogue is large enough to need
- * it, which keeps a short catalogue from looking like an empty database.
+ * Two independent axes, both built from the data rather than listed here:
+ *
+ *   Category        Nutraceuticals · Prescription · Hormones — how the product
+ *                   is regulated and what it is made of.
+ *   Therapeutic area  Gynaecology · Hormonal Health · Fertility · Women's
+ *                   Wellness — what it is for.
+ *
+ * They are genuinely different questions, which is why both are offered.
+ * Adding a product in a new category or a new area extends the relevant chip
+ * set with no change here.
+ *
+ * Every product sits under Gynaecology, so that chip shows the whole range;
+ * the narrower areas are what actually reduce the list. Counts beside each
+ * chip make that visible before the reader clicks, rather than after.
+ *
+ * Search appears only once the catalogue is large enough to need it.
  */
 export default function ProductExplorer() {
-  // The footer deep-links to /products?class=prescription, so the initial
-  // filter honours the query string rather than silently ignoring it.
+  // The footer deep-links to /products?category=hormone, so the initial filter
+  // honours the query string rather than silently ignoring it.
   const searchParams = useSearchParams();
-  const initialClass = (() => {
-    const q = searchParams.get("class");
-    return q === "prescription" || q === "nutraceutical" ? q : "all";
+  const initial = (() => {
+    const q = searchParams.get("category");
+    return usedProductCategories.some((c) => c.id === q)
+      ? (q as ProductCategory)
+      : "all";
   })();
 
-  const [cls, setCls] = useState<ClassFilter>(initialClass);
-  const [area, setArea] = useState<AreaFilter>("all");
+  const initialArea = (() => {
+    const q = searchParams.get("area");
+    return focusAreas.some((f) => f.id === q) ? (q as FocusAreaId) : "all";
+  })();
+
+  const [cat, setCat] = useState<CategoryFilter>(initial);
+  const [area, setArea] = useState<AreaFilter>(initialArea);
   const [query, setQuery] = useState("");
 
   const showSearch = products.length > 8;
 
+  // Only areas the catalogue actually occupies, in the order Our Focus uses.
   const usedAreas = useMemo(
     () =>
-      focusAreas.filter((f) =>
-        products.some((p) => p.therapeuticAreas.includes(f.id)),
-      ),
-    [],
-  );
-
-  const classes = useMemo(
-    () =>
-      (["prescription", "nutraceutical"] as ProductClass[]).filter((c) =>
-        products.some((p) => p.productClass === c),
-      ),
+      focusAreas
+        .filter((f) => products.some((p) => p.therapeuticAreas.includes(f.id)))
+        .map((f) => ({
+          id: f.id,
+          label: f.label,
+          count: products.filter((p) => p.therapeuticAreas.includes(f.id))
+            .length,
+        })),
     [],
   );
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products.filter((p) => {
-      if (cls !== "all" && p.productClass !== cls) return false;
+      if (cat !== "all" && !p.categories.includes(cat)) return false;
       if (area !== "all" && !p.therapeuticAreas.includes(area)) return false;
       if (!q) return true;
       return (
         p.name.toLowerCase().includes(q) ||
         (p.composition ?? "").toLowerCase().includes(q) ||
-        p.dosageForm.toLowerCase().includes(q)
+        (p.dosageForm ?? "").toLowerCase().includes(q)
       );
     });
-  }, [cls, area, query]);
+  }, [cat, area, query]);
 
   const chip = (on: boolean) =>
     `border px-4 py-2.5 text-[0.68rem] font-semibold uppercase tracking-[0.14em] transition-colors duration-400 ${
@@ -89,19 +105,19 @@ export default function ProductExplorer() {
                 <div className="flex flex-wrap gap-2.5">
                   <button
                     type="button"
-                    onClick={() => setCls("all")}
-                    className={chip(cls === "all")}
+                    onClick={() => setCat("all")}
+                    className={chip(cat === "all")}
                   >
                     All
                   </button>
-                  {classes.map((c) => (
+                  {usedProductCategories.map((c) => (
                     <button
-                      key={c}
+                      key={c.id}
                       type="button"
-                      onClick={() => setCls(c)}
-                      className={chip(cls === c)}
+                      onClick={() => setCat(c.id)}
+                      className={chip(cat === c.id)}
                     >
-                      {productClassLabel[c]}
+                      {c.label}
                     </button>
                   ))}
                 </div>
@@ -119,21 +135,28 @@ export default function ProductExplorer() {
                   >
                     All
                   </button>
-                  {usedAreas.map((f) => (
+                  {usedAreas.map((a) => (
                     <button
-                      key={f.id}
+                      key={a.id}
                       type="button"
-                      onClick={() => setArea(f.id)}
-                      className={chip(area === f.id)}
+                      onClick={() => setArea(a.id)}
+                      className={chip(area === a.id)}
                     >
-                      {f.label}
+                      {a.label}
+                      <span
+                        className={`ml-2 tabular-nums ${
+                          area === a.id ? "text-white/55" : "text-muted-light"
+                        }`}
+                      >
+                        {String(a.count).padStart(2, "0")}
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-end gap-6">
+            <div className="flex flex-wrap items-end gap-6">
               {showSearch && (
                 <label className="block">
                   <span className="eyebrow mb-3.5 block text-muted-light">
@@ -189,7 +212,7 @@ export default function ProductExplorer() {
             <button
               type="button"
               onClick={() => {
-                setCls("all");
+                setCat("all");
                 setArea("all");
                 setQuery("");
               }}

@@ -18,8 +18,9 @@ import { CertificationMarkRow } from "@/components/CertificationMark";
  * name would imply a connection that does not exist. Clicking through is what
  * opens that detail, in its own context and under its own disclaimer.
  *
- * The logo sits on a fixed white plate so seven logos of differing origin,
- * colour and crop read as one consistent set.
+ * The logo sits on a fixed white plate so logos of differing origin, colour
+ * and crop read as one consistent set. `object-contain` inside a fixed box
+ * means no mark is ever stretched or cropped to fit, whatever its aspect.
  */
 export default function PartnerCard({
   partner,
@@ -52,16 +53,22 @@ export default function PartnerCard({
         className="absolute top-0 left-0 z-10 h-px w-full origin-left scale-x-0 bg-magenta transition-transform duration-[750ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/pc:scale-x-100"
       />
 
-      {/* Logo plate — always white, so every partner mark sits on the same ground */}
+      {/* Logo plate — always white, so every partner mark sits on the same ground.
+          The mark is bounded on BOTH axes rather than by height alone: the
+          supplied set runs from a 900x275 wordmark to a 900x900 square, and a
+          single height cap renders the square ones at a third of the optical
+          weight of the wide ones. Capping width and height together lets each
+          mark grow until it meets whichever edge it meets first, so they read
+          at a comparable size without any of them being scaled non-uniformly. */}
       <div className="relative flex h-[132px] items-center justify-center overflow-hidden bg-white px-8">
         {partner.logo ? (
           <Image
             src={partner.logo}
             alt={`${partner.name} logo`}
             width={260}
-            height={90}
+            height={260}
             sizes="260px"
-            className="max-h-[62px] w-auto object-contain transition-transform duration-[750ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/pc:scale-[1.06]"
+            className="max-h-[76px] w-auto max-w-[200px] object-contain transition-transform duration-[750ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/pc:scale-[1.06]"
           />
         ) : (
           <span className="font-[family-name:var(--font-display)] text-2xl tracking-[-0.02em] text-navy/70 uppercase">
@@ -96,9 +103,12 @@ export default function PartnerCard({
           {partner.region ?? partner.country}
         </p>
 
-        {/* Trust register */}
+        {/* Trust register.
+            `mt-auto` pins it to the bottom of the card, so that in a row where
+            one partner's name wraps to two lines the registers and the "View
+            partner" actions still sit on a common baseline. */}
         <div
-          className={`mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-5 text-[0.68rem] tracking-[0.11em] uppercase ${
+          className={`mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 border-t pt-5 text-[0.68rem] tracking-[0.11em] uppercase ${
             dark ? "border-white/12 text-white/45" : "border-line text-muted-light"
           }`}
         >
@@ -122,10 +132,15 @@ export default function PartnerCard({
           )}
           {/* Only the partner that genuinely supplied no profile says so. */}
           {partner.profilePending && <span>Profile in preparation</span>}
+          {/* A partner Zafieon has confirmed but whose brochure has not
+              arrived. Said on the card, so the reader knows before clicking
+              that the detail behind it is Zafieon's standard, not the
+              partner's documented record. */}
+          {partner.profileInterim && <span>Interim profile</span>}
         </div>
 
         <span
-          className={`mt-6 inline-flex items-center gap-2.5 text-[0.68rem] font-semibold tracking-[0.16em] uppercase ${
+          className={`mt-5 inline-flex items-center gap-2.5 text-[0.68rem] font-semibold tracking-[0.16em] uppercase ${
             dark ? "text-white" : "text-navy"
           }`}
         >

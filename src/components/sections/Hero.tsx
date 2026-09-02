@@ -1,7 +1,7 @@
 import HeroVisual from "@/components/three/HeroVisual";
 import BrandPattern from "@/components/BrandPattern";
-import Reveal from "@/components/motion/Reveal";
-import AnimatedText from "@/components/motion/AnimatedText";
+import CssRise from "@/components/motion/CssRise";
+import CssLines from "@/components/motion/CssLines";
 import { Eyebrow } from "@/components/ui/SectionHeader";
 import { MagneticButton, SecondaryButton } from "@/components/ui/Button";
 import { home, about } from "@/data/site";
@@ -14,6 +14,17 @@ import { home, about } from "@/data/site";
  * a photographed object rather than a widget parked in a column. Supporting
  * copy sits in a deliberately narrow measure beneath, which is what keeps the
  * layout from looking like a two-column template.
+ *
+ * ── Everything here animates in CSS, not Framer Motion ─────────────────────
+ * Framer Motion server-renders its `initial` state, so `<Reveal>` and
+ * `<AnimatedText>` ship as `opacity: 0` / translated-out-of-mask and stay that
+ * way until React hydrates. This is the first viewport: on a throttled
+ * connection that held the hero copy invisible until 3.4s, and LCP was
+ * measuring exactly that. `<CssRise>` and `<CssLines>` are the same
+ * choreography on the compositor, painting from the first frame.
+ *
+ * The rest of the page keeps Framer Motion, which is right — those sections
+ * are meant to animate when the reader scrolls to them.
  */
 export default function Hero() {
   const { hero } = home;
@@ -26,11 +37,11 @@ export default function Hero() {
       <BrandPattern tone="magenta" opacity={0.028} scale={230} fade="right" />
 
       <div className="shell relative z-10 flex min-h-[calc(100svh-96px)] flex-col justify-center pt-8 pb-14 lg:min-h-[calc(100svh-92px)] lg:pt-0 lg:pb-0">
-        <Reveal y={14} duration={0.7}>
+        <CssRise y={14}>
           <Eyebrow>{hero.eyebrow}</Eyebrow>
-        </Reveal>
+        </CssRise>
 
-        <AnimatedText
+        <CssLines
           as="h1"
           delay={0.08}
           lines={[
@@ -51,7 +62,7 @@ export default function Hero() {
         </div>
 
         <div className="mt-10 max-w-[60ch] lg:mt-14">
-          <Reveal delay={0.3} y={20}>
+          <CssRise delay={0.3} y={20}>
             <div className="flex items-start gap-5">
               <span
                 aria-hidden="true"
@@ -59,9 +70,9 @@ export default function Hero() {
               />
               <p className="lede-hero max-w-[40ch]">{hero.body}</p>
             </div>
-          </Reveal>
+          </CssRise>
 
-          <Reveal delay={0.42} y={20}>
+          <CssRise delay={0.42} y={20}>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               {/* The one magnetic control on the site — reserved for the
                   single most important action on the page. */}
@@ -72,7 +83,7 @@ export default function Hero() {
                 {hero.secondaryCta.label}
               </SecondaryButton>
             </div>
-          </Reveal>
+          </CssRise>
         </div>
       </div>
 
@@ -85,14 +96,14 @@ export default function Hero() {
                 key={v.id}
                 className="border-line py-6 lg:py-8 [&:not(:nth-child(2n+1))]:border-l sm:[&:nth-child(2n+1)]:border-l sm:[&:nth-child(3n+1)]:border-l-0 lg:[&]:border-l lg:[&:first-child]:border-l-0"
               >
-                <Reveal delay={0.5 + i * 0.06} y={14} duration={0.7}>
+                <CssRise delay={0.5 + i * 0.06} y={14}>
                   <div className="pr-4 sm:px-5 lg:px-7">
                     <span className="eyebrow block text-magenta-600">{v.index}</span>
                     <span className="mt-3 block font-[family-name:var(--font-display)] text-[0.98rem] tracking-[0.01em] text-navy uppercase">
                       {v.title}
                     </span>
                   </div>
-                </Reveal>
+                </CssRise>
               </li>
             ))}
           </ul>

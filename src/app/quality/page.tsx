@@ -6,9 +6,11 @@ import Reveal, { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import SectionHeader from "@/components/ui/SectionHeader";
 import QualityLifecycle from "@/components/QualityLifecycle";
 import CertificationBadge from "@/components/CertificationBadge";
+import PartnerCard from "@/components/PartnerCard";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { quality, disclosures } from "@/data/site";
 import { partners } from "@/data/partners";
+
 
 export const metadata: Metadata = {
   title: "Quality",
@@ -131,8 +133,47 @@ export default function QualityPage() {
         </div>
       </section>
 
+      {/* ── Manufacturing partners ────────────────────────────────
+          The directory is rendered from the same ordered `partners` export the
+          homepage and /manufacturing use, so the sequence Zafieon fixed cannot
+          drift between the three surfaces. */}
+      <section
+        id="partners"
+        className="relative scroll-mt-28 bg-paper py-24 lg:py-32"
+      >
+        <div className="shell">
+          <SectionHeader
+            eyebrow="Manufacturing Partners"
+            lines={["The network", "behind the standard."]}
+            size="display-2"
+          />
+
+          <div className="mt-10 grid lg:grid-cols-12">
+            <Reveal delay={0.14} className="lg:col-span-6 lg:col-start-7">
+              <p className="text-[1.0625rem] leading-[1.78] text-muted">
+                Every product Zafieon Pharma supplies is manufactured by one of
+                the partners below, each working under its own licences,
+                certifications and quality systems. Select a partner to see what
+                it documents.
+              </p>
+            </Reveal>
+          </div>
+
+          <Stagger
+            step={0.06}
+            className="mt-16 grid gap-5 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4"
+          >
+            {partners.map((p, i) => (
+              <StaggerItem key={p.id} className="h-full">
+                <PartnerCard partner={p} index={i} />
+              </StaggerItem>
+            ))}
+          </Stagger>
+        </div>
+      </section>
+
       {/* ── Certifications ────────────────────────────────────────── */}
-      <section id="certifications" className="relative scroll-mt-28 bg-paper py-24 lg:py-32">
+      <section id="certifications" className="relative scroll-mt-28 bg-paper-100 py-24 lg:py-32">
         <div className="shell">
           <SectionHeader
             eyebrow={quality.certifications.eyebrow}
@@ -171,6 +212,33 @@ export default function QualityPage() {
                     </StaggerItem>
                   ))}
                 </Stagger>
+
+                {/* Market registrations, listed separately and without any
+                    emblem — they are not quality-system certifications and
+                    are not presented as though they were. */}
+                {p.regulatoryRegistrations?.length ? (
+                  <Reveal delay={0.1} y={16}>
+                    <div className="mt-6 border border-line bg-paper p-6 lg:p-7">
+                      <span className="eyebrow text-muted-light">
+                        Regulatory registrations stated by {p.shortName}
+                      </span>
+                      <ul className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+                        {p.regulatoryRegistrations.map((r) => (
+                          <li
+                            key={r}
+                            className="flex items-baseline gap-3 text-[0.88rem] leading-[1.6] text-muted"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="h-1 w-1 shrink-0 translate-y-[-0.3em] bg-magenta"
+                            />
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </Reveal>
+                ) : null}
               </div>
             ))}
 

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/data/types";
-import { productClassLabel } from "@/data/products";
+import { productCategoryLabel } from "@/data/products";
 import { Arrow } from "@/components/ui/Button";
 
 /**
@@ -62,23 +62,29 @@ export default function ProductCard({
 
       {/* Detail */}
       <div className="flex flex-1 flex-col border-t border-line p-6 sm:p-7">
+        {/* The categories the product sits in, in registry order. An Rx
+            hormone reads "Prescription · Hormones" rather than picking one. */}
         <span className="eyebrow text-magenta-600">
-          {productClassLabel[product.productClass]}
+          {product.categories.map((c) => productCategoryLabel[c]).join(" · ")}
         </span>
 
         <h3 className="mt-4 text-[1.4rem] leading-[1.05] text-navy sm:text-[1.55rem]">
           {product.name}
         </h3>
 
-        {product.composition && (
+        {product.composition ? (
           <p className="mt-3.5 line-clamp-3 text-[0.875rem] leading-[1.65] text-muted">
             {product.composition}
           </p>
-        )}
+        ) : product.detailsPending ? (
+          <p className="mt-3.5 text-[0.875rem] leading-[1.65] text-muted-light italic">
+            Composition and pack details to follow
+          </p>
+        ) : null}
 
         <div className="mt-auto flex items-center justify-between gap-4 pt-7">
           <span className="text-[0.7rem] tracking-[0.14em] text-muted-light uppercase">
-            {product.dosageForm}
+            {product.dosageForm ?? ""}
           </span>
           <span className="flex items-center gap-2 text-[0.68rem] font-semibold tracking-[0.16em] text-navy uppercase">
             View

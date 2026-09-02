@@ -84,15 +84,22 @@ export default function Footer() {
                   </a>
                 )}
               </li>
-              <li>
-                {contact.address.pending ? (
-                  <span className="text-white/35 italic">
-                    Registered address to be confirmed
+              {/* Both offices, each line on its own row so the postal
+                  formatting survives the footer's narrow column. */}
+              {contact.offices.map((o) => (
+                <li key={o.id}>
+                  <span className="mb-1 block text-[0.68rem] font-semibold tracking-[0.12em] text-white/35 uppercase">
+                    {o.short}
                   </span>
-                ) : (
-                  contact.address.value
-                )}
-              </li>
+                  <address className="text-white/60 not-italic">
+                    {o.lines.map((line) => (
+                      <span key={line} className="block leading-[1.6]">
+                        {line}
+                      </span>
+                    ))}
+                  </address>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

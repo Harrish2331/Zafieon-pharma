@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import PageHero from "@/components/PageHero";
-import Reveal from "@/components/motion/Reveal";
-import ContactForm from "@/components/ContactForm";
+import Reveal, { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/SectionHeader";
-import { contact, site } from "@/data/site";
+import { PrimaryButton } from "@/components/ui/Button";
+import { contact, connect, site } from "@/data/site";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -15,17 +15,25 @@ export const metadata: Metadata = {
 /**
  * Contact.
  *
+ * There is deliberately no enquiry form. Zafieon uses this site as a company
+ * presentation in front of doctors and trade, not as a lead-capture funnel, so
+ * the space a form would occupy carries an invitation and the three reasons
+ * someone would take it up. Every route out of here lands on the same verified
+ * email — there is no second form behind the button.
+ *
  * Zafieon has not yet confirmed a registered address or telephone number, so
  * those blocks say exactly that rather than showing an invented one. Each is a
  * one-line change in `contact` once the details are supplied.
  */
 export default function ContactPage() {
+  const mailto = `mailto:${contact.email.value}`;
+
   const details = [
     {
       label: "Email",
       value: contact.email.value,
       pending: contact.email.pending,
-      href: `mailto:${contact.email.value}`,
+      href: mailto,
       note: "General and trade enquiries",
     },
     {
@@ -33,12 +41,6 @@ export default function ContactPage() {
       value: contact.phone.value,
       pending: contact.phone.pending,
       href: contact.phone.value ? `tel:${contact.phone.value}` : undefined,
-      note: "To be confirmed",
-    },
-    {
-      label: "Registered address",
-      value: contact.address.value,
-      pending: contact.address.pending,
       note: "To be confirmed",
     },
   ];
@@ -63,7 +65,7 @@ export default function ContactPage() {
               <Eyebrow>Reach us</Eyebrow>
             </Reveal>
 
-            <dl className="mt-9 border-t border-line">
+            <dl className="mt-9 border-t border-line" id="reach-us">
               {details.map((d, i) => (
                 <Reveal key={d.label} delay={i * 0.07} y={16}>
                   <div className="border-b border-line py-7">
@@ -78,7 +80,7 @@ export default function ContactPage() {
                       ) : d.href ? (
                         <a
                           href={d.href}
-                          className="text-[1.05rem] text-navy underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-magenta"
+                          className="text-[1.05rem] break-words text-navy underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-magenta"
                         >
                           {d.value}
                         </a>
@@ -96,19 +98,40 @@ export default function ContactPage() {
                   </div>
                 </Reveal>
               ))}
+
+              {/* Both offices. Each line is its own element rather than one
+                string with commas, so a narrow column breaks where the postal
+                address breaks instead of wherever the text happens to wrap. */}
+              {contact.offices.map((o, i) => (
+                <Reveal key={o.id} delay={0.18 + i * 0.07} y={16}>
+                  <div className="border-b border-line py-7">
+                    <dt className="text-[0.7rem] font-semibold tracking-[0.14em] text-muted-light uppercase">
+                      {o.label}
+                    </dt>
+                    <dd className="mt-3">
+                      <address className="text-[0.98rem] leading-[1.7] text-navy not-italic">
+                        {o.lines.map((line) => (
+                          <span key={line} className="block">
+                            {line}
+                          </span>
+                        ))}
+                      </address>
+                    </dd>
+                  </div>
+                </Reveal>
+              ))}
             </dl>
 
-            <Reveal delay={0.25} y={16}>
+            <Reveal delay={0.32} y={16}>
               <div className="mt-10 border-l-2 border-magenta py-1 pl-6">
                 <p className="max-w-[36ch] text-[0.88rem] leading-[1.75] text-muted">
-                  Zafieon Pharma&apos;s registered address and telephone number
-                  will be published here once finalised. In the meantime, email
-                  reaches us reliably.
+                  Zafieon Pharma&apos;s telephone number will be published here
+                  once finalised. In the meantime, email reaches us reliably.
                 </p>
               </div>
             </Reveal>
 
-            <Reveal delay={0.32} y={16}>
+            <Reveal delay={0.4} y={16}>
               <p className="mt-10 font-[family-name:var(--font-display)] text-[1.6rem] leading-[1.05] tracking-[-0.02em] text-navy uppercase">
                 Every Dose <span className="accent">Matters.</span>
               </p>
@@ -118,21 +141,57 @@ export default function ContactPage() {
             </Reveal>
           </div>
 
-          {/* ── Form ──────────────────────────────────────────────── */}
+          {/* ── Let's connect ─────────────────────────────────────── */}
           <div className="lg:col-span-7 lg:col-start-6">
             <Reveal y={20}>
               <h2 className="text-[length:var(--text-display-2)] text-navy">
-                Send an enquiry
+                {connect.headline.map((line, i) => (
+                  <span key={i} className="block">
+                    {line}
+                  </span>
+                ))}
               </h2>
-              <p className="lede mt-6 max-w-[46ch]">
-                Tell us what you need and the right person will come back to
-                you.
-              </p>
+              <p className="lede mt-7 max-w-[48ch]">{connect.body}</p>
             </Reveal>
 
-            <div className="mt-12">
-              <ContactForm />
-            </div>
+            <Stagger step={0.08} className="mt-14 border-t border-line">
+              {connect.strands.map((s, i) => (
+                <StaggerItem key={s.id}>
+                  <div className="group flex items-baseline gap-6 border-b border-line py-7 sm:gap-9">
+                    <span className="eyebrow shrink-0 text-magenta-600">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="text-[1.15rem] leading-[1.15] text-navy sm:text-[1.3rem]">
+                        {s.label}
+                      </h3>
+                      <p className="mt-2.5 text-[0.92rem] leading-[1.7] text-muted">
+                        {s.body}
+                      </p>
+                    </div>
+                  </div>
+                </StaggerItem>
+              ))}
+            </Stagger>
+
+            <Reveal delay={0.28} y={18}>
+              <div className="mt-12">
+                <PrimaryButton href={mailto} tone="magenta">
+                  {connect.cta.label}
+                </PrimaryButton>
+                <p className="mt-5 max-w-[46ch] text-[0.82rem] leading-[1.7] text-muted-light">
+                  Writes to{" "}
+                  <a
+                    href={mailto}
+                    className="break-words text-muted underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-magenta"
+                  >
+                    {contact.email.value}
+                  </a>
+                  . We read everything that arrives and route it to the right
+                  person.
+                </p>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>

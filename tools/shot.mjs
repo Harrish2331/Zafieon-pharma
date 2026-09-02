@@ -17,7 +17,7 @@ import puppeteer from "puppeteer-core";
 import { readFileSync, mkdirSync } from "node:fs";
 
 const CHROME = "C:/Program Files/Google/Chrome/Application/chrome.exe";
-const BASE = "http://localhost:3000";
+const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const targets = JSON.parse(readFileSync(process.argv[2] ?? "tools/shots.json", "utf8"));
 
 mkdirSync(".shots", { recursive: true });

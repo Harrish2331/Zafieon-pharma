@@ -3,15 +3,17 @@ import type { Partner } from "./types";
 /**
  * Zafieon Pharma's qualified manufacturing partners.
  *
- * Sourced entirely from the six brochures in /Manufacturing network. Where a
- * brochure supplied nothing, the field is omitted rather than filled.
+ * Sourced from the brochures in /Manufacturing network and from the Ravenbhel
+ * Healthcare product catalogue. Where a document supplied nothing, the field is
+ * omitted rather than filled; where Zafieon has supplied only a name and a
+ * location, the record is marked `profileInterim` and says so on the page.
  *
  * IMPORTANT — `associatedBrands` lists companies that THE PARTNER manufactures
  * for, as printed in that partner's own brochure. They are not Zafieon
  * relationships and are never surfaced on the homepage; they appear only on the
  * partner's own detail page, under an explicit disclaimer.
  */
-export const partners: Partner[] = [
+const partnerRecords: Partner[] = [
   {
     id: "ptr-01",
     slug: "symbiosis-group",
@@ -135,6 +137,7 @@ export const partners: Partner[] = [
   {
     id: "ptr-02",
     slug: "systole-remedies",
+    retired: true,
     name: "Systole Remedies Private Limited",
     shortName: "Systole Remedies",
     logo: "/partners/systole-remedies.webp",
@@ -295,6 +298,7 @@ export const partners: Partner[] = [
   {
     id: "ptr-06",
     slug: "unilite-india",
+    retired: true,
     name: "Unilite India",
     shortName: "Unilite India",
     logo: "/partners/unilite-india.webp",
@@ -335,7 +339,210 @@ export const partners: Partner[] = [
     profilePending: true,
     source: "Manufacturing network/janus biotech india.pdf",
   },
+
+  {
+    id: "ptr-08",
+    slug: "ravenbhel-healthcare",
+    name: "Ravenbhel Healthcare Pvt. Ltd.",
+    shortName: "Ravenbhel Healthcare",
+    logo: "/partners/ravenbhel-healthcare.webp",
+    country: "India",
+    region: "Punjab",
+    tagline: "Your dependable formulation partner.",
+    about: [
+      "Ravenbhel Healthcare Pvt. Ltd. is an Indian formulation company working across contract development, scale-up and commercial manufacture, with its head office in Amritsar, Punjab.",
+      "The business traces its origins to 1981 and to Macmillon Pharmaceutical Ltd. The group has since added Ravenbhel Pharmaceutical Pvt. Ltd. in 2001, Ravenbhel Healthcare Pvt. Ltd. in 2004, Ravenmac Pharmaceuticals Pvt. Ltd. in 2010, Oswin Pharmaceutical in 2013 and Ravenbhel Biotech in 2014.",
+      "Manufacturing is organised across three units. Unit I serves domestic contract manufacturing and rest-of-world markets, Unit II — Ravenbhel Biotech — serves regulated markets, and Unit III — Macmillon Pharma — is dedicated to hormones.",
+      "The catalogue runs across gynaecology, anti-diabetic, pain management, ortho, gastro, neuro, general and supplement ranges. The gynaecology range is hormone-led — dydrogesterone, progesterone, norethisterone, medroxyprogesterone acetate, allylestrenol, levonorgestrel and hydroxyprogesterone caproate — which is the capability most directly relevant to Zafieon Pharma's portfolio.",
+      "The company states that it has sponsored and conducted six Phase IV clinical trials and twenty-six bioequivalence studies, and that it maintains in-house research and development alongside its manufacturing.",
+    ],
+    capabilities: [
+      "Contract formulation development",
+      "Scale-up and commercial manufacture",
+      "Hormones — dedicated unit",
+      "Tablets",
+      "Capsules",
+      "Oral liquids",
+      "Sachets",
+      "Sustained-release formulations",
+      "In-house research and development",
+      "Bioequivalence studies",
+    ],
+    regulatoryRegistrations: [
+      "Ethiopian Food & Drug Authority (EFDA)",
+      "Food and Drug Administration, Philippines",
+      "Direction de la Pharmacie et du Medicament (DPM)",
+      "Pharmacy and Poisons Board, Ministry of Health, Republic of Kenya",
+      "National Agency for Food and Drug Administration and Control (NAFDAC), Nigeria",
+      "Ministry of Health & Prevention, United Arab Emirates",
+    ],
+    certifications: ["WHO"],
+    people: [
+      { name: "Naresh Mahajan", role: "Founder" },
+      { name: "Sahil Mahajan", role: "Successor" },
+    ],
+    facilities: [
+      {
+        name: "Ravenbhel Healthcare Pvt. Ltd.",
+        location: "Amritsar, Punjab",
+        role: "Unit I — domestic contract manufacturing and ROW markets",
+      },
+      {
+        name: "Ravenbhel Biotech",
+        location: "Amritsar, Punjab",
+        role: "Unit II — regulated markets",
+      },
+      {
+        name: "Macmillon Pharma",
+        location: "Amritsar, Punjab",
+        role: "Unit III — dedicated to hormones",
+      },
+      {
+        name: "Head office",
+        location: "17/2 Kennedy Avenue, Amritsar – 143 001, Punjab",
+      },
+    ],
+    exportMarkets: [
+      "Afghanistan", "Bolivia", "Cambodia", "Cameroon", "Costa Rica",
+      "Dominican Republic", "Ecuador", "El Salvador", "Ethiopia", "Fiji",
+      "Guatemala", "Honduras", "Ivory Coast", "Kenya", "Mali", "Mauritius",
+      "Myanmar", "Nicaragua", "Nigeria", "Panama", "Philippines", "Thailand",
+      "Uzbekistan", "Venezuela", "Vietnam", "Yemen", "Zimbabwe",
+    ],
+    associatedBrands: [
+      { id: "rb-01", name: "Abbott" },
+      { id: "rb-02", name: "Ajanta Pharma" },
+      { id: "rb-03", name: "Alembic" },
+      { id: "rb-04", name: "Alkem Laboratories" },
+      { id: "rb-05", name: "Aristo Pharmaceuticals" },
+      { id: "rb-06", name: "BDR Pharmaceuticals" },
+      { id: "rb-07", name: "Cadila" },
+      { id: "rb-08", name: "Cipla" },
+      { id: "rb-09", name: "Corona Remedies" },
+      { id: "rb-10", name: "Dr. Reddy’s Laboratories" },
+      { id: "rb-11", name: "Emcure Pharmaceuticals" },
+      { id: "rb-12", name: "Eris Lifesciences" },
+      { id: "rb-13", name: "Glenmark Pharmaceuticals" },
+      { id: "rb-14", name: "Hetero" },
+      { id: "rb-15", name: "Intas Pharmaceuticals" },
+      { id: "rb-16", name: "Ipca Laboratories" },
+      { id: "rb-17", name: "Lupin" },
+      { id: "rb-18", name: "Macleods Pharmaceuticals" },
+      { id: "rb-19", name: "Mankind Pharma" },
+      { id: "rb-20", name: "MSN Laboratories" },
+      { id: "rb-21", name: "Novartis" },
+      { id: "rb-22", name: "Sun Pharma" },
+      { id: "rb-23", name: "Systopic Laboratories" },
+      { id: "rb-24", name: "Torrent Pharmaceuticals" },
+      { id: "rb-25", name: "Walter Bushnell" },
+      { id: "rb-26", name: "Zydus" },
+    ],
+    planned: {
+      title: "Sterile injectables and R&D facility",
+      operator: "Biovonic Healthcare Pvt. Ltd.",
+      items: [
+        "Liquid vials — 3 million per annum",
+        "Liquid ampoules — 200 million per annum",
+        "Dry powder injections — 2 million per annum",
+        "Lyophilized injectables — 18 million per annum",
+        "Pre-filled syringes and cartridges — 5 million per annum",
+      ],
+    },
+    website: "www.ravenbhel.com",
+    qualifiers: [
+      "The company is named Ravenbhel Healthcare Pvt. Ltd. throughout its own product catalogue. It appears as “Revenbhel” in Zafieon’s brief; the brochure spelling is used here.",
+      "The catalogue states that Unit III is compliant with USFDA, UK MHRA and PIC/S requirements. That is the partner’s own statement of the standard the unit is built to — not evidence of an inspection outcome or an approval held — and no regulator’s emblem is shown against it.",
+      "The regulatory registrations listed are those printed on the partner’s certifications page. They are market registrations held by Ravenbhel, and they say nothing about the registration status of any Zafieon Pharma product.",
+      "The sterile injectables and R&D facility is announced in the catalogue as upcoming, under Biovonic Healthcare Pvt. Ltd. The capacities stated are planned, not installed.",
+      "The catalogue states forty-three years of experience and dates the group’s origins to 1981. The figure is reproduced as printed.",
+    ],
+    source:
+      "source-assets/partners/ravenbhel-healthcare-product-catalogue.pdf",
+  },
+
+  {
+    id: "ptr-09",
+    slug: "heliyac-healthcare",
+    name: "Heliyac Healthcare Pvt. Ltd.",
+    shortName: "Heliyac Healthcare",
+    logo: "/partners/heliyac-healthcare.webp",
+    country: "India",
+    region: "Pondicherry",
+    profileInterim: true,
+    tagline:
+      "A qualified manufacturing partner in the Pondicherry formulation cluster.",
+    about: [
+      "Heliyac Healthcare Pvt. Ltd. is a manufacturing partner in Zafieon Pharma’s network, located in Pondicherry.",
+      "Pondicherry is one of India’s established formulation manufacturing centres. Partners there are qualified against the same expectations Zafieon applies across its whole network: manufacture under applicable Good Manufacturing Practice standards, compliance with the regulatory requirements that apply to each product and market, complete and traceable batch documentation, packaging that protects the product and carries accurate information, and dependable supply.",
+      "A full company profile — facilities, dosage-form capability, quality systems and certification records — will be published here once Heliyac Healthcare’s corporate documentation has been received and verified.",
+    ],
+    facilities: [{ name: "Manufacturing unit", location: "Pondicherry" }],
+    qualifiers: [
+      "Zafieon Pharma has supplied this partner’s name and location. No corporate brochure has been received yet, so the profile above sets out the expectations Zafieon applies to every partner rather than facts documented by Heliyac Healthcare. No capability, certification, facility or export market is claimed on the partner’s behalf.",
+    ],
+    source:
+      "Client-supplied name and location (source-assets/partners/heliyac.png). Corporate documentation pending.",
+  },
+
+  {
+    id: "ptr-10",
+    slug: "amagen-pharma",
+    name: "Amagen Pharma Private Limited",
+    shortName: "Amagen Pharma",
+    logo: "/partners/amagen-pharma.webp",
+    country: "India",
+    region: "Himachal Pradesh",
+    profileInterim: true,
+    tagline:
+      "A qualified manufacturing partner in the Himachal Pradesh pharmaceutical belt.",
+    about: [
+      "Amagen Pharma Private Limited is a manufacturing partner in Zafieon Pharma’s network, located in Himachal Pradesh.",
+      "Himachal Pradesh holds the largest concentration of formulation manufacturing in India, and it is where most of Zafieon’s network already sits. Partners there are qualified against the same expectations Zafieon applies everywhere: manufacture under applicable Good Manufacturing Practice standards, compliance with the regulatory requirements that apply to each product and market, complete and traceable batch documentation, packaging that protects the product and carries accurate information, and dependable supply.",
+      "A full company profile — facilities, dosage-form capability, quality systems and certification records — will be published here once Amagen Pharma’s corporate documentation has been received and verified.",
+    ],
+    facilities: [{ name: "Manufacturing unit", location: "Himachal Pradesh" }],
+    qualifiers: [
+      "Zafieon Pharma has supplied this partner’s name and location. No corporate brochure has been received yet, so the profile above sets out the expectations Zafieon applies to every partner rather than facts documented by Amagen Pharma. No capability, certification, facility or export market is claimed on the partner’s behalf.",
+      "The supplied logo is a photograph of dimensional signage rather than flat artwork. Vector or transparent artwork would sit more consistently beside the other partner marks.",
+    ],
+    source: "Client-supplied name and location. Corporate documentation pending.",
+  },
 ];
+
+/**
+ * The public directory order, fixed by Zafieon Pharma.
+ *
+ * Listed by slug rather than by array position so the order survives edits to
+ * the records above, and so a typo fails the build instead of silently
+ * dropping a partner from the site.
+ */
+const DIRECTORY_ORDER = [
+  "symbiosis-group",
+  "bionexy-pharma",
+  "ravenbhel-healthcare",
+  "philanto-wellness",
+  "eurocrit-labs",
+  "janus-biotech-india",
+  "heliyac-healthcare",
+  "amagen-pharma",
+] as const;
+
+/** Every record, retired partners included. Used by the claims audit only. */
+export const allPartners = partnerRecords;
+
+/**
+ * The partners the site shows, in Zafieon's order.
+ *
+ * Systole Remedies and Unilite India are retained in `partnerRecords` with
+ * `retired: true` — their supplied documentation is not discarded — but they
+ * are absent from every listing, route and sitemap entry.
+ */
+export const partners: Partner[] = DIRECTORY_ORDER.map((slug) => {
+  const p = partnerRecords.find((x) => x.slug === slug);
+  if (!p) throw new Error(`DIRECTORY_ORDER names an unknown partner: ${slug}`);
+  if (p.retired) throw new Error(`DIRECTORY_ORDER names a retired partner: ${slug}`);
+  return p;
+});
 
 export const getPartner = (slug: string) =>
   partners.find((p) => p.slug === slug);

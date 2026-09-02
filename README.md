@@ -1,12 +1,17 @@
 # Zafieon Pharma — Website
 
 The digital flagship for ZAFIEON PHARMA. Next.js 16 (App Router) · TypeScript ·
-Tailwind v4 · Framer Motion · React Three Fiber. Fully statically generated.
+Tailwind v4 · Framer Motion · React Three Fiber.
+
+Almost entirely prerendered. The four Zafieon Insights images can be replaced at
+runtime from the Admin Dashboard, so `/` and `/insights` carry a revalidate
+window and the dashboard needs a Node runtime — everything else is static.
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # 30 static routes
+cp .env.example .env.local   # only needed for the Admin Dashboard
+npm run dev                  # http://localhost:3000
+npm run build
 ```
 
 ---
@@ -21,6 +26,8 @@ npm run build    # 30 static routes
 | `products.ts` | The product catalogue |
 | `partners.ts` | Manufacturing partners, facilities, certifications, associated brands |
 | `focus.ts` | Therapeutic focus areas |
+| `insights.ts` | The four Zafieon Insights pieces and their tags |
+| `certifications.ts` | The certification registry — claim strings to marks |
 | `legal.ts` | Privacy, Terms, Disclaimer |
 | `types.ts` | The content model, with rules on what may and may not be filled in |
 
@@ -34,6 +41,12 @@ new therapeutic area also extends the catalogue filter chips. **No UI changes.**
 Set `productClass: "prescription"` and the page is automatically gated,
 `noindex`, and excluded from the sitemap.
 
+`categories` drives the catalogue filter — `nutraceutical`, `prescription`,
+`hormone` — and a product may sit in more than one. It is a display grouping
+and nothing else; `productClass` is the regulatory field and the only one that
+changes behaviour. The rule for assigning `hormone` is written at the top of
+`products.ts` so every assignment can be checked against the pack artwork.
+
 **Never invent a field.** Omit what the pack does not state — every field is
 optional and the UI renders nothing when a value is absent. That is deliberate.
 
@@ -44,8 +57,21 @@ homepage network list, the directory, the footprint diagram (grouped by the
 states named in `region`), the certifications table on `/quality`, its own
 detail page, and the sitemap.
 
+Then add its slug to `DIRECTORY_ORDER` in the same file. That array is the
+public order Zafieon fixed, and a partner missing from it does not appear on the
+site — a typo throws at module load rather than silently dropping a partner.
+
 `associatedBrands` — companies **the partner** manufactures for — renders only
 on that partner's detail page, never on the homepage. See `docs/CLAIMS.md`.
+
+**Retiring a partner.** Set `retired: true` on the record and remove its slug
+from `DIRECTORY_ORDER`. The record stays in the file, so the supplied
+documentation is never lost, but it leaves every listing, route and sitemap
+entry. Systole Remedies and Unilite India are retired this way.
+
+**A partner with no brochure.** Set `profileInterim: true`. The card and the
+detail page both say so, and the page states plainly that the copy describes
+Zafieon's expectations rather than facts documented by that partner.
 
 ---
 
@@ -83,6 +109,32 @@ texture, never a subject: low opacity, always masked.
 ---
 
 ## The opening
+
+**It is CSS, and it is server-rendered.** The markup ships in the HTML and the
+whole sequence runs on the compositor — transform and opacity only, no
+JavaScript in the animation at all. An inline script in `layout.tsx` decides
+before the first frame whether to play it, and releases the scroll lock on a
+timer.
+
+That rewrite was the fix for "the site feels stuck when it opens". As a Framer
+Motion client component mounted from an effect, the curtain could not appear
+until React had hydrated — around 2.5s on a throttled connection, with 456 KB
+of JavaScript to fetch and parse first. So the site painted at ~1s, a navy
+curtain dropped over it at ~2.5s, and it lifted past 4s. Now it paints with the
+document and is finished at 1.15s regardless of hydration.
+
+`data-overture` on `<html>` is the whole state machine: `on` while it plays,
+`done` once it clears, `off` for a repeat visit or reduced motion. `off` sets
+`display: none`, so it costs a few hundred bytes of HTML and nothing else.
+
+**It runs for 1.85s**, which is the pace the original Framer Motion version had.
+A first CSS pass compressed it to 1.15s and it read as hurried — the sequence is
+built around the hold on the mark, not the speed of the wipe. The phases overlap
+rather than running in steps, and every curve is an ease-out; the full timing
+table is in `globals.css`. **Change the animation and the release timer in
+`layout.tsx` together** — the script that starts it is also what unlocks scroll.
+
+
 
 `src/components/Overture.tsx` — a navy curtain closes the viewport, the Zafieon
 lockup registers, then the curtain parts along a 45° diagonal and sweeps away.
@@ -168,9 +220,254 @@ WHO and ISO entries need a decision before launch.
 Partner logos are client-supplied artwork; see `docs/CLAIMS.md` for the consent
 still outstanding.
 
+### The manufacturing film
+
+`ManufacturingFilm` puts the supplied 1280×720 film at the top of
+`/manufacturing`, inside the hero rather than in a band of its own.
+
+### Replacing the film
+
+Drop the new file in `public/video/`, then **run the remuxer before anything
+else**:
+
+```bash
+node tools/faststart.mjs "public/video/<new file>.mp4" public/video/manufacturing.mp4
+```
+
+That moves the `moov` atom — the index — ahead of `mdat`, the payload. Written
+the other way round, which most editing-suite export presets do by default, a
+browser cannot begin playback until it has fetched essentially the whole file.
+On a 30 MB hero video that is the difference between playing at once and
+looking broken for several seconds on a fast connection, or indefinitely on a
+slow one. The transform re-orders the container and rebases the chunk offsets;
+the media is copied byte for byte, so nothing is re-encoded and no quality is
+lost. It is idempotent — a file that is already faststart is passed through.
+
+Then regenerate the poster from a frame of the new footage, keep the original
+in `source-assets/video/` for provenance, and update the `blurDataURL` in
+`site.ts`. `flowtest.mjs` asserts the shipped film is faststart and that the
+host answers byte-range requests, so a future replacement that skips this step
+fails the suite rather than reaching production.
+
+**On size:** the current film is 30 MB at 1920×1080. It is served `immutable`
+and never blocks render, but it is still by far the largest thing on the site.
+A 1280×720 encode at a sane bitrate would cut it to single-digit megabytes with
+no visible loss at the size it is displayed. That needs an encoder this project
+does not carry — worth doing in the editing suite before final handover.
+
+It is the single largest asset on the site, so nothing about it is left to the
+browser's judgement:
+
+- `preload="metadata"` — a visitor who never scrolls to it pays for a header,
+  not the file.
+- Playback starts from an `IntersectionObserver` and pauses again off screen.
+  A page left open does not decode twelve seconds of video on a loop forever.
+- It never autoplays under `prefers-reduced-motion`, under `Save-Data`, or on a
+  connection reporting 2G/3G. The poster stands and the control offers playback.
+- A visible play/pause button, because a video that starts on its own needs one.
+- The poster is a real frame at the same aspect ratio, so the plate reserves its
+  height before either asset arrives and nothing shifts.
+- `next.config.ts` sets `immutable` caching on `/video/*`. The file is replaced
+  by a rebuild, never in place.
+- The file is faststart, so playback begins on the first chunk rather than the
+  last.
+
+**There is no `autoPlay` attribute and no `prefers-reduced-motion` branch in the
+JSX.** Server and client render byte-identical markup — poster, paused — and an
+effect decides whether to start. Branching markup on a media query is what
+caused a hydration mismatch on this project once already.
+
+**Media state is read from the element, not only listened for.** `src` is in the
+server-rendered HTML, so the browser starts loading well before React hydrates:
+`loadeddata` and `play` have already fired by the time React attaches its
+synthetic handlers, and those events are simply lost. Gating the reveal on
+`onLoadedData` left the film playing at `opacity: 0` behind its own poster —
+running, invisible, with the button still offering to start it. The effect now
+reads `readyState` and `paused` on mount and attaches native listeners in the
+same pass, so anything that happened pre-hydration is recovered. `flowtest.mjs`
+asserts the film is *visible* while playing, not merely playing.
+
+The caption states that the film is illustrative of pharmaceutical manufacturing
+practice and is not footage of a named partner facility, because it isn't.
+
+### The overlaid standfirst
+
+The hero paragraph is set over the film rather than beside it. The heading stays
+in the shell with every other page's; only the standfirst moves, and it is
+passed to `ManufacturingFilm` as `overlay` rather than to `PageHero` as `body`.
+
+From `md` up it sits in the right 48% of the frame over a right-to-left scrim
+that clears to nothing by the middle, so the machinery reads through it and the
+block never becomes a panel. Below `md` the right-hand column is too narrow to
+hold the copy inside a 16:9 plate — it overflowed vertically at exactly the
+`sm` breakpoint — so the plate opens to a `min-h-[24rem]` full-width frame and
+the scrim runs bottom-up instead. The play control swaps corners at the same
+breakpoint so it never lands on the type.
+
+**`w-full` on the plate is load-bearing.** With `aspect-ratio` set and
+`width: auto`, a `min-height` that beats the ratio-derived height makes Chrome
+re-derive the *width* from that height: the plate came out 512px wide inside a
+390px viewport, clipped silently by the hero's `overflow-hidden`, taking the
+right third of the copy with it. `tools/layoutcheck.mjs` guards it: the sweep asserts no clip on any edge, no
+collision with the control, and no document overflow from 360px to 1920px.
+
+---
+
+## Zafieon Insights
+
+Four pieces in `src/data/insights.ts`, surfaced on `/insights`, on
+`/insights/[slug]`, and in a four-up band on the homepage. Each carries category
+tags drawn from a closed `InsightTag` union, so a tag cannot be invented at the
+call site.
+
+**Read the header of `insights.ts` before editing the copy.** These are company
+viewpoint pieces written from Zafieon's own stated positioning. They deliberately
+carry no reported news, no dated events, no market statistics, no references to
+studies, and no product claims — because none of that was supplied and none of it
+can be generated. If Zafieon wants genuine industry news here, that copy has to
+come from the company with its sources.
+
+### The four images
+
+`image` on each piece is the fallback that ships with the build, taken from the
+manufacturing film. Each piece also has a `slot` — 1 to 4 — which is what the
+Admin Dashboard replaces.
+
+`src/lib/insight-store.ts` answers "what is the current URL for slot *n*". The
+rendering side never knows which storage driver is in use.
+
+---
+
+## Admin Dashboard
+
+`/admin` — one operator, one password, one job: **replace the four Zafieon
+Insights images.** Nothing else on the site can be changed from it, on purpose.
+Everything else is content in `src/data` under version control, where a change
+is reviewable and a mistake is revertable.
+
+```bash
+node tools/admin-hash.mjs "a long password"
+```
+
+That prints `ADMIN_SESSION_SECRET` and `ADMIN_PASSWORD_HASH`. Put both in the
+deployment's environment. **Until both are set, the dashboard refuses every
+login and says so** — it never ships as an open door.
+
+- `src/lib/admin-auth.ts` — scrypt password verification, an HMAC-signed
+  httpOnly cookie with an eight-hour expiry, constant-time comparison, and
+  in-process login throttling. No dependency beyond `node:crypto`.
+- Authorisation is checked **in each route handler and in the page**, not in a
+  proxy matcher. Next's own guidance is that proxy/middleware is for optimistic
+  checks, not authorization.
+- Uploads accept WebP, JPEG, PNG and AVIF up to 8 MB. SVG is rejected — an SVG
+  is a script vector, and nothing here needs one.
+- Saving calls `revalidatePath` on `/` and `/insights`, so a replacement is live
+  immediately rather than after the revalidate window.
+- **Restore original** drops the override and the image shipped with the build
+  comes back.
+
+### Where uploads are stored
+
+| Driver | When | Persistence |
+|---|---|---|
+| Filesystem | Default | `INSIGHT_STORAGE_DIR`, default `.data/insights`. Survives redeploys **only if that path is a persistent volume.** |
+| Vercel Blob | `BLOB_READ_WRITE_TOKEN` is set | Always. Uses the Blob REST API directly — no SDK dependency. |
+
+Uploads are written **outside `public/`** on purpose: Next does not serve files
+added to `public/` after the build. The filesystem driver serves them back
+through `/api/insight-image/[slot]/[version]`.
+
+**On a serverless host, set `BLOB_READ_WRITE_TOKEN`.** The filesystem there is
+ephemeral and uploads would vanish on the next deploy. The dashboard shows which
+driver is active and warns accordingly.
+
+The version is a **path segment, not a query string**. `next/image` only
+optimises a local src whose `search` is declared verbatim in
+`images.localPatterns`, and a timestamp cannot be declared verbatim — a src it
+cannot match throws and 500s the page. Moving the version into the path keeps
+the URL unique per upload with an empty `search`. This was found by
+`tools/admintest.mjs` and would otherwise have broken the site the first time
+the client uploaded an image.
+
 ---
 
 ## Performance
+
+### What the first load actually costs
+
+`tools/loadcheck.mjs` measures it against a production build over a simulated
+1.6 Mbps / 150ms link. Numbers here are from that harness; Chrome runs without
+GPU acceleration in it, so treat the deltas as the signal.
+
+| Page | FCP | LCP | CLS |
+|---|---|---|---|
+| `/` | ~1.2s | ~1.3s | 0 |
+| `/products` | ~0.9s | ~1.1s | 0 |
+| `/quality` | ~1.0s | ~1.2s | 0.049 |
+| `/contact` | ~1.1s | ~1.2s | 0 |
+| `/about` | ~1.2s | ~1.3s | 0 |
+| `/our-focus` | ~1.0s | ~1.0s | 0 |
+| `/insights` | ~1.1s | ~2.3s warm | 0 |
+| `/manufacturing` | ~1.1s | ~3.9s | 0 |
+
+Three of those deserve an explanation.
+
+**LCP was 3.4s on every page** until the entrances moved to CSS. Framer Motion
+server-renders its `initial` state, so a `<Reveal>` ships as `opacity: 0` and
+an `<AnimatedText>` ships translated out of its own mask — and both stay that
+way until React hydrates. Above the fold that meant the page had painted but
+the only thing on it was invisible. `<CssRise>` and `<CssLines>` are the same
+choreography in CSS, used by `Hero` and `PageHero`; everything below the fold
+still uses Framer Motion, which is correct.
+
+**`/manufacturing` is 3.9s because the film is 30 MB.** Chrome makes the video
+element the LCP candidate whichever way it is loaded — `preload="none"` was
+tried and pushed it to 6.5s. The fix is a smaller encode, not a loading flag:
+720p at a sane bitrate would put this in line with every other page.
+
+**`/insights` is ~3.9s cold and ~2.3s warm.** The first request for an image
+size makes the optimiser do the work; every request after that is cached. Any
+CDN, or the first visitor, absorbs it.
+
+### Layout shift
+
+Every page measures 0 at 390px, 1024px and 1440px, except `/quality` at desktop
+widths (0.049 — inside "good", and its hero copy is the longest on the site,
+sitting right on a wrap boundary).
+
+Getting there took two fixes, neither of which was the obvious one:
+
+**The scroll lock.** The overture locks scroll, then releases it. Without a
+reserved gutter that release makes the scrollbar appear, narrows the viewport
+and re-wraps the page — 0.20 at 390px, which is "poor". `scrollbar-gutter:
+stable` on `html` reserves it from the first frame. The mobile menu, which
+locks scroll the same way, gets the fix for free.
+
+**The display font's fallback.** Bolyar is a wide, heavy unicase face — 1.35×
+Arial's advance width for uppercase text, which is all this site sets it in.
+Poppins was standing in for it and was nothing like it, so headings laid out at
+the wrong width and re-wrapped on swap. `adjustFontFallback: "Arial"` is
+supposed to solve exactly this and made it worse: next/font emitted
+`size-adjust: 1.98%` for this file, rendering fallback headings at two per cent
+of size and growing the page by three lines the moment the real font landed.
+
+The fallback is now hand-written in `globals.css` from a ratio measured in the
+browser across five real headings (1.3411–1.3556, so 135%). Deriving it from
+OS/2 `xAvgCharWidth` gave 180% and over-corrected at wide viewports, because
+that average includes lowercase glyphs this site never renders in Bolyar.
+`node tools/fontmetrics.mjs` prints the table-derived numbers; `.work/fontratio.mjs`
+measures the real one. **Re-measure if the font file is ever replaced.**
+
+### Long tasks
+
+Parsing three.js and building the hero scene costs ~1.8s of main thread in two
+tasks. `HeroVisual` now waits for the `load` event, then 1.3s — past the
+overture — then the first idle period. Idle alone was not enough: the main
+thread goes idle right after hydration, which is while the opening is still on
+screen, and that is what made it stutter. The flat fallback is on screen the
+whole time, so nothing is missing while it waits.
+
+
 
 Pack shots arrived as 1.4–1.8 MB PNGs — 6.5 MB across six products. Converted to
 WebP at 1400px, they total 511 KB (**93% smaller**), and each carries an inline
@@ -239,27 +536,45 @@ document.** Anything added without a row there should not ship.
 
 ## Deploying
 
-The site is fully static — every route is prerendered at build time and there is
-no server runtime, no database and no API. It will run on any static host.
+Every public page is prerendered. `/` and `/insights` carry a 60-second
+revalidate window because they read the replaceable Insights images, and the
+dashboard and its API routes are dynamic. **That means a Node runtime, not a
+static host** — `npm start`, a container, or a platform that runs Next.
+
+There is still no database and no third-party service. The only mutable state is
+the Insights image manifest.
 
 ```bash
 npm ci
-npm run build     # 33 prerendered routes
-npm start         # or serve the build output
+npm run build
+npm start
 ```
 
 **Before the first deploy**
 
 1. Set the real domain in `src/data/site.ts` → `site.url`. It drives
    `metadataBase`, canonical URLs, Open Graph and `sitemap.xml`.
-2. Work through the open items in `docs/CLAIMS.md` — several are legal rather
+2. `node tools/admin-hash.mjs "a long password"` and set both printed values in
+   the environment. Until then the dashboard refuses every login.
+3. Decide where uploads live — see **Admin Dashboard → Where uploads are
+   stored**. On a serverless host this means setting `BLOB_READ_WRITE_TOKEN`;
+   anywhere else, point `INSIGHT_STORAGE_DIR` at a persistent volume.
+4. Work through the open items in `docs/CLAIMS.md` — several are legal rather
    than technical, and two of them (the WHO emblem and the ISO seal) are
    one-line changes.
-3. Confirm the FM Bolyar webfont licence.
+5. Confirm the FM Bolyar webfont licence.
 
-**What ships:** `public/` is 1.8 MB in total. `source-assets/` holds the
-client's original artwork and is tracked in git for provenance, but sits outside
-`public/` so it is never served or bundled.
+**What ships:** `public/` is 14 MB, of which 11.8 MB is the manufacturing film;
+everything else totals under 2 MB. `source-assets/` holds the client's original
+artwork and the Ravenbhel catalogue, tracked in git for provenance but outside
+`public/` so none of it is served.
+
+`next.config.ts` excludes `public/**` from the server bundle's file trace. The
+Insights store resolves its directory at runtime, which makes Turbopack trace
+the whole project by default — and that would drag the film into every server
+function. The build still prints a warning about the dynamic filesystem access;
+the exclusion is what actually resolves it, and `node tools/trace-check.mjs`
+asserts no route references `public/`.
 
 ---
 
@@ -271,15 +586,85 @@ probe. None of it is imported by the app, so nothing reaches the bundle; the
 only dependency is `puppeteer-core`, which is a devDependency.
 
 ```bash
-node tools/shot.mjs        # segmented screenshots into .shots/
-node tools/linkcheck.mjs   # crawl every internal route
-node tools/flowtest.mjs    # Rx gate, filters, menu, partner/brand separation
-node tools/perf.mjs        # frame pacing + long tasks during a full scroll
+node tools/shot.mjs         # segmented screenshots into .shots/
+node tools/linkcheck.mjs    # crawl every internal route
+node tools/flowtest.mjs     # Rx gate, filters, nav, contact, partner order, film
+node tools/admintest.mjs    # login, upload, public update, restore, sign out
+node tools/perf.mjs         # frame pacing + long tasks during a full scroll
+node tools/trace-check.mjs  # assert public/ is out of the server bundle
+node tools/layoutcheck.mjs  # overlaid hero copy across every breakpoint
+node tools/faststart.mjs    # remux a replacement film for streaming
+node tools/loadcheck.mjs    # FCP, LCP, CLS, long tasks, bytes by type
+node tools/fontmetrics.mjs  # metrics for a size-adjusted font fallback
+node tools/admin-hash.mjs   # generate the dashboard credentials (not a test)
 ```
 
-`flowtest.mjs` reads the expected prescription-product count from the
-environment so it cannot go stale:
+All of them honour `BASE_URL`, so the same suite runs against the dev server, a
+local production build, or a deployed URL.
+
+`linkcheck.mjs` seeds itself from the running site's `sitemap.xml` rather than
+from a list kept in the file, so a route added to the data cannot be missed.
+
+`flowtest.mjs` reads its expected counts from the environment so they cannot go
+stale as the catalogue grows:
 
 ```bash
-RX_COUNT=$(grep -c 'productClass: "prescription"' src/data/products.ts) node tools/flowtest.mjs
+BASE_URL=http://localhost:3001 \
+RX_COUNT=7 NUTRA_COUNT=5 HORMONE_COUNT=5 \
+node tools/flowtest.mjs
 ```
+
+`admintest.mjs` needs the dashboard password, and leaves the image store exactly
+as it found it:
+
+```bash
+BASE_URL=http://localhost:3001 ADMIN_TEST_PASSWORD="…" node tools/admintest.mjs
+```
+
+---
+
+## Zafieon Insights — editing
+
+The dashboard maintains two things per slot, **saved separately**: the image,
+and the text beside it.
+
+| | Endpoint | Storage |
+|---|---|---|
+| Image | `POST /api/admin/insight-image` | Manifest `images` branch + a file (or blob) |
+| Text | `POST /api/admin/insight-text` | Manifest `text` branch |
+
+Neither request carries the other's data, so replacing artwork cannot disturb
+copy and editing copy cannot disturb artwork. `tools/admintest.mjs` asserts both
+directions: it uploads an image, edits the text, and checks the image is still
+byte-identical afterwards — then resets the text and checks the image survived
+that too.
+
+Text fields are independent of each other as well. A save touches only the
+fields it sends, and an empty string clears one field back to what shipped with
+the build rather than publishing nothing. That is why **Restore original text**
+and clearing every field do the same thing.
+
+`resolvedInsights()` is what the public pages read: the build's content with any
+stored overrides applied on top. It reads the manifest once for all four
+entries, so a page never fans out into eight round trips.
+
+---
+
+## Assets cut from the film
+
+The four Zafieon Insights stills and the manufacturing poster are frames of the
+supplied film. **They do not update themselves when the film is replaced.**
+
+That bit once: an earlier 1280×720 export carried a visible AI-provenance
+sparkle burned into one shot, the stills were cut from it, and the mark survived
+on `insight-03` long after the film had been swapped for a clean 1920×1080 file.
+
+After replacing the film, re-cut them:
+
+```bash
+node .work/reinsight.mjs      # frames at chosen timestamps
+```
+
+…then regenerate the WebPs and their `blurDataURL`s, and update
+`src/data/insights.ts` and `manufacturing.hero.film.blurDataURL` in `site.ts`.
+`docs/CLAIMS.md` §8 records why this matters.

@@ -14,12 +14,19 @@ import CertificationMark from "@/components/CertificationMark";
  * The only genuine photograph in the supplied material is the office. It is
  * given the weight it deserves: large, cropped tall, and set against the
  * headline rather than beside it.
+ *
+ * Where a years-of-experience figure used to sit, the standards behind the
+ * portfolio sit instead. Zafieon holds no corporate certifications of its own
+ * yet — so what is shown here is what its manufacturing partners hold, derived
+ * from their own claims and labelled as theirs. That distinction is the whole
+ * point of the block, which is why it is stated in the heading rather than
+ * buried in a footnote.
  */
 export default function AboutSection() {
   const { about } = home;
   // Derived from what partners claim — never a fixed list of logos.
-  // Only marks with real artwork — a drawn seal carries no meaning in a
-  // logo row detached from the claim it belongs to.
+  // Only marks with real artwork: a drawn seal carries no meaning in a logo
+  // row detached from the claim it belongs to.
   const networkMarks = marksAcross(partners).filter((m) => m.logo);
 
   return (
@@ -69,46 +76,52 @@ export default function AboutSection() {
             ))}
           </div>
 
-          {/* The statistic, set as display type rather than a badge. */}
-          <Reveal delay={0.3} y={22}>
-            <div className="mt-14 flex items-start gap-7 border-t border-line pt-9">
-              <span className="font-[family-name:var(--font-display)] text-[clamp(3rem,5vw,4.5rem)] leading-[0.8] tracking-[-0.03em] text-magenta">
-                {about.stat.value}
-              </span>
-              <span className="max-w-[19ch] pt-1 text-[0.78rem] leading-[1.6] font-medium tracking-[0.13em] text-navy uppercase">
-                {about.stat.label}
-              </span>
-            </div>
-          </Reveal>
-
-          {/* Certification coverage across the network.
-              These marks belong to the manufacturing partners, not to Zafieon,
-              and the label says so — the section is about Zafieon's own
-              experience, so the distinction has to be unmissable here of all
-              places. Only marks a partner actually claims are shown. */}
+          {/* ── Standards ──────────────────────────────────────────────
+              Held at the weight of a supporting register rather than a
+              badge wall: one hairline plate, marks at a modest size, the
+              attribution set as the heading so it cannot be skimmed past. */}
           {networkMarks.length > 0 && (
-            <Reveal delay={0.38} y={20}>
-              <div className="mt-10 border-t border-line pt-8">
-                <span className="eyebrow block text-muted-light">
-                  Certifications held across our manufacturing network
-                </span>
-                <div className="mt-6 flex flex-wrap items-center gap-x-7 gap-y-5">
+            <Reveal delay={0.3} y={22}>
+              <div className="mt-14 border-t border-line pt-9">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+                  <span className="eyebrow text-magenta-600">
+                    Certifications
+                  </span>
+                  <span className="text-[0.7rem] tracking-[0.12em] text-muted-light uppercase">
+                    Held across our manufacturing network
+                  </span>
+                </div>
+
+                <ul className="mt-7 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
                   {networkMarks.map((m) => (
-                    <div key={m.id} className="flex items-center gap-3">
+                    <li
+                      key={m.id}
+                      className="flex flex-col items-center gap-3 bg-paper-50 px-3 py-6 text-center"
+                    >
                       <CertificationMark mark={m} size="md" />
-                      <span className="text-[0.72rem] leading-[1.35] font-semibold tracking-[0.1em] text-navy uppercase">
+                      <span className="text-[0.68rem] leading-[1.3] font-semibold tracking-[0.09em] text-navy uppercase">
                         {m.label}
                       </span>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
+
+                <p className="mt-5 max-w-[54ch] text-[0.8rem] leading-[1.65] text-muted-light">
+                  These certifications are held by the manufacturing partners
+                  named against them on our Quality page, as stated in each
+                  partner&apos;s own documentation. They are not certifications
+                  held by Zafieon Pharma.
+                </p>
               </div>
             </Reveal>
           )}
 
-          <Reveal delay={0.46} y={18}>
-            <div className="mt-10">
+          <Reveal delay={0.42} y={18}>
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <TextLink href="/about">Learn more about us</TextLink>
+              <TextLink href="/quality#certifications">
+                See the certification register
+              </TextLink>
             </div>
           </Reveal>
         </div>
