@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
     "/insights/[slug]": ["./public/**"],
     "/api/insight-image/[slot]/[version]": ["./public/**"],
     "/api/admin/insight-image": ["./public/**"],
+    "/api/admin/insight-text": ["./public/**"],
     "/admin": ["./public/**"],
   },
 

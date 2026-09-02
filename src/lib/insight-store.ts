@@ -3,6 +3,15 @@ import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { insights } from "@/data/insights";
 import type { Insight } from "@/data/types";
+import {
+  type BlobAccess,
+  blobDel,
+  blobGet,
+  blobGetTextAnyAccess,
+  blobPut,
+  knownAccess,
+  usingBlob,
+} from "@/lib/insight-blob";
 
 /**
  * Persistence for the four Zafieon Insights entries.
@@ -22,36 +31,36 @@ import type { Insight } from "@/data/types";
  *   filesystem (default)
  *     Writes to INSIGHT_STORAGE_DIR, default `.data/insights`, which is
  *     OUTSIDE `public/` on purpose — Next does not serve files added to
- *     `public/` after the build, and writing into the served tree at runtime
- *     is not something to rely on. Images are read back through
- *     /api/insight-image/[slot]/[version]. Works on any Node host — a VPS,
- *     Docker with a mounted volume, Railway, Render, Fly. On a serverless
- *     platform the filesystem is ephemeral, so use the blob driver there.
+ *     `public/` after the build. Works on any host with a writable, persistent
+ *     disk: a VPS, Docker with a mounted volume, Railway, Render, Fly.
  *
  *   vercel blob
- *     Active when BLOB_READ_WRITE_TOKEN is set. Uploads over the Blob REST API
- *     and stores the returned public URL. No SDK dependency.
+ *     Active when BLOB_READ_WRITE_TOKEN is set. **Everything** goes to Blob
+ *     under this driver — images and the manifest alike.
  *
- * Text lives in the manifest under both drivers — it is a few kilobytes of
- * JSON, and giving it its own storage backend would buy nothing.
+ * That last sentence is load-bearing, and getting it wrong broke production.
+ * The manifest used to be written to disk regardless of driver, on the
+ * reasoning that a few kilobytes of JSON did not need a storage backend of its
+ * own. On Vercel the filesystem is read-only, so every text save died on
+ * `ENOENT: mkdir '/var/task/.data'` while image uploads appeared to work. A
+ * serverless deployment has no writable disk at all; there is no "small
+ * enough" exception to that.
  *
  * ── Why a manifest ─────────────────────────────────────────────────────────
- * Both drivers write the same small JSON file, so the rendering side never
- * needs to know which driver is in use: it asks for a slot and gets a URL, or
- * nothing, in which case what shipped with the build stands. The image record
- * carries `updatedAt`, which the filesystem driver puts into the URL path as a
- * cache buster so a replaced image is never served stale from a CDN. It is a
- * path segment rather than a query string because `next/image` will not
- * optimise a local src whose `search` is not declared verbatim in
- * `images.localPatterns` — see the route handler for the full reasoning.
+ * Both drivers keep the same JSON shape, so the rendering side never needs to
+ * know which is in use: it asks for a slot and gets a URL, or nothing, in
+ * which case what shipped with the build stands. The image record carries
+ * `updatedAt`, which goes into the URL path as a cache buster so a replaced
+ * image is never served stale. It is a path segment rather than a query string
+ * because `next/image` will not optimise a local src whose `search` is not
+ * declared verbatim in `images.localPatterns` — see the route handler.
  *
  * ── A note on output tracing ───────────────────────────────────────────────
  * The storage directory is chosen at runtime, so Turbopack cannot statically
  * scope the filesystem calls below and warns that it will trace the whole
  * project into the server bundle — which would drag all of `public/`, the
  * manufacturing film included, into the deployed function. That is handled
- * once in `next.config.ts` with `outputFileTracingExcludes` rather than by
- * scattering ignore comments over every `path.join` in this file.
+ * once in `next.config.ts` with `outputFileTracingExcludes`.
  *
  * The paths here are built from an environment variable and from a basename
  * this module generates. Request input never reaches them, and `basename()` is
@@ -62,13 +71,20 @@ export type Slot = 1 | 2 | 3 | 4;
 export const SLOTS: Slot[] = [1, 2, 3, 4];
 
 export type SlotRecord = {
-  /** Public URL, or a path this app serves. */
+  /**
+   * What the page should point at. A public Blob store gives a CDN URL that
+   * can go straight into `next/image`; a private store and the filesystem both
+   * resolve to /api/insight-image/[slot]/[version], which streams the bytes.
+   */
   url: string;
   contentType: string;
   bytes: number;
   updatedAt: number;
-  /** Filesystem driver only: the file on disk backing this slot. */
+  /** Filesystem driver: the file on disk backing this slot. */
   file?: string;
+  /** Blob driver: the object key, and the access level it was written with. */
+  pathname?: string;
+  access?: BlobAccess;
 };
 
 /**
@@ -117,29 +133,33 @@ const EXT: Record<string, string> = {
 export const isSlot = (v: unknown): v is Slot =>
   typeof v === "number" && SLOTS.includes(v as Slot);
 
-/* ── Filesystem driver ───────────────────────────────────────────────────── */
+export const driver = (): "blob" | "filesystem" =>
+  usingBlob() ? "blob" : "filesystem";
+
+/* ── Manifest ────────────────────────────────────────────────────────────── */
 
 const dir = () =>
   path.resolve(process.env.INSIGHT_STORAGE_DIR ?? ".data/insights");
 const manifestPath = () => path.join(dir(), "manifest.json");
+const BLOB_MANIFEST = "zafieon-insights/manifest.json";
 
 const empty = (): Manifest => ({ v: 2, images: {}, text: {} });
 
-async function readManifest(): Promise<Manifest> {
-  let raw: unknown;
-  try {
-    raw = JSON.parse(await readFile(manifestPath(), "utf8"));
-  } catch {
-    // No manifest yet is the normal first-run state, not an error.
-    return empty();
-  }
-  if (!raw || typeof raw !== "object") return empty();
+/**
+ * A very short read-through cache. One admin page load asks for images,
+ * records and text; without this that is three round trips to Blob for the
+ * same object. Cleared on every write, so it can never serve a value this
+ * instance has just superseded.
+ */
+let cached: { at: number; manifest: Manifest } | null = null;
+const CACHE_MS = 2000;
 
+function parseManifest(raw: unknown): Manifest {
+  if (!raw || typeof raw !== "object") return empty();
   const m = raw as Partial<Manifest> & LegacyManifest;
   if (m.v === 2 && m.images && m.text) {
     return { v: 2, images: m.images, text: m.text };
   }
-
   // Migrate v1 in place: slot keys held image records directly. Text is new,
   // so it starts empty and nothing is lost.
   const images: Manifest["images"] = {};
@@ -150,45 +170,45 @@ async function readManifest(): Promise<Manifest> {
   return { v: 2, images, text: {} };
 }
 
-async function writeManifest(m: Manifest): Promise<void> {
-  await mkdir(dir(), { recursive: true });
-  await writeFile(manifestPath(), JSON.stringify(m, null, 2), "utf8");
-}
+async function readManifest(): Promise<Manifest> {
+  if (cached && Date.now() - cached.at < CACHE_MS) return cached.manifest;
 
-/* ── Vercel Blob driver ──────────────────────────────────────────────────── */
-
-const blobToken = () => process.env.BLOB_READ_WRITE_TOKEN;
-
-async function blobPut(
-  key: string,
-  body: Buffer,
-  contentType: string,
-): Promise<string> {
-  const res = await fetch(
-    `https://blob.vercel-storage.com/${encodeURIComponent(key)}`,
-    {
-      method: "PUT",
-      headers: {
-        authorization: `Bearer ${blobToken()}`,
-        "x-content-type": contentType,
-        "x-add-random-suffix": "1",
-        "x-api-version": "7",
-      },
-      body: new Uint8Array(body),
-    },
-  );
-  if (!res.ok) {
-    throw new Error(
-      `Blob upload failed (${res.status}). ${await res.text().catch(() => "")}`.trim(),
-    );
+  let manifest: Manifest;
+  if (usingBlob()) {
+    const text = await blobGetTextAnyAccess(BLOB_MANIFEST);
+    manifest = text ? parseManifest(safeJson(text)) : empty();
+  } else {
+    try {
+      manifest = parseManifest(
+        safeJson(await readFile(manifestPath(), "utf8")),
+      );
+    } catch {
+      // No manifest yet is the normal first-run state, not an error.
+      manifest = empty();
+    }
   }
-  const json = (await res.json()) as { url?: string };
-  if (!json.url) throw new Error("Blob upload returned no URL.");
-  return json.url;
+  cached = { at: Date.now(), manifest };
+  return manifest;
 }
 
-export const driver = (): "blob" | "filesystem" =>
-  blobToken() ? "blob" : "filesystem";
+function safeJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+async function writeManifest(m: Manifest): Promise<void> {
+  const json = JSON.stringify(m, null, 2);
+  if (usingBlob()) {
+    await blobPut(BLOB_MANIFEST, json, "application/json");
+  } else {
+    await mkdir(dir(), { recursive: true });
+    await writeFile(manifestPath(), json, "utf8");
+  }
+  cached = { at: Date.now(), manifest: m };
+}
 
 /* ── Public API — images ─────────────────────────────────────────────────── */
 
@@ -229,12 +249,30 @@ export async function slotRecords(): Promise<Partial<Record<Slot, SlotRecord>>> 
   return out;
 }
 
-/** The bytes backing a slot, for /api/insight-image/[slot]/[version]. */
-export async function readSlotFile(
-  slot: Slot,
-): Promise<{ body: Buffer; contentType: string } | null> {
+/**
+ * The bytes behind a slot, for /api/insight-image/[slot]/[version].
+ *
+ * Returns a stream for a private Blob object and a buffer for a file on disk,
+ * so the caller can hand either straight to a Response without loading a
+ * whole image into memory when it does not have to.
+ */
+export async function readSlotFile(slot: Slot): Promise<
+  | { body: Buffer; contentType: string }
+  | { stream: ReadableStream; contentType: string }
+  | null
+> {
   const rec = (await readManifest()).images[`${slot}`];
-  if (!rec?.file) return null;
+  if (!rec) return null;
+
+  if (rec.pathname) {
+    try {
+      return await blobGet(rec.pathname, rec.access ?? "private");
+    } catch {
+      return null;
+    }
+  }
+
+  if (!rec.file) return null;
   try {
     const abs = path.join(dir(), path.basename(rec.file));
     return { body: await readFile(abs), contentType: rec.contentType };
@@ -261,13 +299,27 @@ export async function saveSlot(
   const previous = m.images[`${slot}`];
   let record: SlotRecord;
 
-  if (driver() === "blob") {
-    const url = await blobPut(
-      `zafieon-insights/slot-${slot}.${EXT[contentType]}`,
-      body,
+  if (usingBlob()) {
+    // The key carries the version, so a replacement never collides with a
+    // cached copy of the one before it.
+    const pathname = `zafieon-insights/slot-${slot}-${updatedAt}.${EXT[contentType]}`;
+    const res = await blobPut(pathname, body, contentType);
+    record = {
+      // A public store hands back a CDN URL worth using directly. A private
+      // one does not, so the page points at our own route instead.
+      url:
+        res.access === "public"
+          ? res.url
+          : `/api/insight-image/${slot}/${updatedAt}`,
       contentType,
-    );
-    record = { url, contentType, bytes: body.byteLength, updatedAt };
+      bytes: body.byteLength,
+      updatedAt,
+      pathname: res.pathname,
+      access: res.access,
+    };
+    if (previous?.pathname && previous.pathname !== res.pathname) {
+      await blobDel(previous.pathname);
+    }
   } else {
     const file = `slot-${slot}-${updatedAt}.${EXT[contentType]}`;
     await mkdir(dir(), { recursive: true });
@@ -298,7 +350,9 @@ export async function saveSlot(
 export async function resetSlot(slot: Slot): Promise<void> {
   const m = await readManifest();
   const rec = m.images[`${slot}`];
-  if (rec?.file) {
+  if (rec?.pathname) {
+    await blobDel(rec.pathname);
+  } else if (rec?.file) {
     await rm(path.join(dir(), path.basename(rec.file)), { force: true }).catch(
       () => {},
     );
@@ -419,3 +473,6 @@ export async function resolvedInsight(
 ): Promise<Insight | undefined> {
   return (await resolvedInsights()).find((i) => i.slug === slug);
 }
+
+/** Which access level the Blob store turned out to have, once known. */
+export const blobAccess = () => knownAccess();

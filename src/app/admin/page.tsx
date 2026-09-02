@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { isAuthenticated } from "@/lib/admin-auth";
 import {
   allSlotImages,
+  blobAccess,
   driver,
   slotRecords,
   slotText,
@@ -35,6 +36,7 @@ export default async function AdminPage() {
     slotText(),
   ]);
   const store = driver();
+  const access = blobAccess();
 
   return (
     <div className="shell py-14 lg:py-20">
@@ -97,8 +99,26 @@ export default async function AdminPage() {
         <p className="mt-4 max-w-[74ch] text-[0.88rem] leading-[1.75] text-muted">
           {store === "blob" ? (
             <>
-              Uploads are stored in Vercel Blob and served from its CDN. They
-              survive redeployment.
+              Images and text are stored in Vercel Blob. They survive
+              redeployment.
+              {access === "private" ? (
+                <>
+                  {" "}
+                  This store is <strong className="text-navy">private</strong>,
+                  so images are streamed back through the site rather than
+                  served from the Blob CDN — correct, and a little slower on
+                  first load. A public store would let them come straight from
+                  the CDN.
+                </>
+              ) : access === "public" ? (
+                <>
+                  {" "}
+                  This store is <strong className="text-navy">public</strong>,
+                  so images are served straight from the Blob CDN.
+                </>
+              ) : (
+                <> The store&apos;s access level is detected on first save.</>
+              )}
             </>
           ) : (
             <>

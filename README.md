@@ -371,7 +371,26 @@ login and says so** — it never ships as an open door.
 | Driver | When | Persistence |
 |---|---|---|
 | Filesystem | Default | `INSIGHT_STORAGE_DIR`, default `.data/insights`. Survives redeploys **only if that path is a persistent volume.** |
-| Vercel Blob | `BLOB_READ_WRITE_TOKEN` is set | Always. Uses the Blob REST API directly — no SDK dependency. |
+| Vercel Blob | `BLOB_READ_WRITE_TOKEN` is set | Always. Images *and the manifest* both go to Blob. |
+
+**Under the blob driver nothing touches the filesystem — including the
+manifest.** That is not a detail. The manifest was originally written to disk
+regardless of driver, on the reasoning that a few kilobytes of JSON did not
+need a backend of its own; on Vercel the filesystem is read-only, so every text
+save died on `ENOENT: mkdir /var/task/.data` while image uploads appeared to
+work. `tools/blobtest.mjs` guards it: it runs the app with a deliberately
+invalid token and fails if any save produces an ENOENT instead of a Blob error.
+
+**The store's access level is detected, not configured.** `access` is required
+on every Blob write and passing the wrong one is a hard error in both
+directions — a store created private rejects a public write with *"Cannot use
+public access on a private store"*, which is what broke image uploads on the
+first deploy. Rather than add another environment variable to get wrong, the
+first write tries `private`, and flips to `public` and retries once if the store
+says otherwise. A public store's CDN URL is used directly; a private store's
+objects are streamed back through `/api/insight-image/[slot]/[version]`, since
+they need an Authorization header. The dashboard's Storage panel shows which
+applies.
 
 Uploads are written **outside `public/`** on purpose: Next does not serve files
 added to `public/` after the build. The filesystem driver serves them back
@@ -595,6 +614,7 @@ node tools/shot.mjs         # segmented screenshots into .shots/
 node tools/linkcheck.mjs    # crawl every internal route
 node tools/flowtest.mjs     # Rx gate, filters, nav, contact, partner order, film
 node tools/admintest.mjs    # login, upload, public update, restore, sign out
+node tools/blobtest.mjs     # assert the blob driver never writes to disk
 node tools/perf.mjs         # frame pacing + long tasks during a full scroll
 node tools/trace-check.mjs  # assert public/ is out of the server bundle
 node tools/layoutcheck.mjs  # overlaid hero copy across every breakpoint
