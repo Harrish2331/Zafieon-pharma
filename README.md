@@ -477,6 +477,48 @@ that average includes lowercase glyphs this site never renders in Bolyar.
 `node tools/fontmetrics.mjs` prints the table-derived numbers; `.work/fontratio.mjs`
 measures the real one. **Re-measure if the font file is ever replaced.**
 
+### Interaction cost
+
+`tools/interactioncheck.mjs` measures what the app costs once someone starts
+using it, which is a different question from load and the one "laggy" usually
+means. It records the longest frame and the blocking time after each input.
+
+Three things were fixed against it:
+
+**The product grid dropped Framer Motion's `layout` animation.** Layout
+animation measures every participating element on every frame; across twelve
+cards each holding an optimised image, one filter click cost **798ms and five
+dropped frames**. It now fades and rises instead — opacity and transform only,
+no measurement. Same click: **~25ms**. What was lost is cards sliding to new
+grid positions, which in a three-column grid that reflows by whole rows barely
+reads as motion.
+
+**Search is deferred.** Re-filtering and re-animating twelve cards on every
+keystroke put six janky frames into one word typed at normal speed.
+`useDeferredValue` keeps the input as responsive as the keyboard and lets the
+grid lag a frame — nobody reads results while still typing.
+
+**Our Focus warms its four artworks on approach.** They were rendered from the
+start with `loading="lazy"`, on the assumption that being in the DOM was enough
+to get them fetched. It was not: held at `opacity: 0` they measured
+`complete: false` with the panel on screen, and the first switch paid for the
+fetch and the decode in one frame — **2707ms**. They now mount eagerly once the
+section is within 1600px, which puts the first switch at **~200ms** and later
+ones at 30-90ms.
+
+`visibility: hidden` on the inactive layers was tried as a further saving and
+made it worse — it defers rasterisation, so the decode cost simply returns on
+first reveal (198ms went back to 941ms) with no gain when warm. It is not in
+the code; this note is here so it is not tried again.
+
+A note on reading these numbers: the harness runs Chrome on SwiftShader with no
+GPU, and anything compositing-bound swings wildly run to run — the same
+unchanged page measured 40ms, 207ms, 109ms and 728ms on four consecutive runs.
+Trust a consistent before/after gap with a known mechanism; do not tune against
+a single number. The homepage's scroll jank, for instance, measures the same
+with and without these changes (janky 23 vs 23-27): it is three.js
+initialising, deferred past the opening by design.
+
 ### Long tasks
 
 Parsing three.js and building the hero scene costs ~1.8s of main thread in two
@@ -620,6 +662,7 @@ node tools/trace-check.mjs  # assert public/ is out of the server bundle
 node tools/layoutcheck.mjs  # overlaid hero copy across every breakpoint
 node tools/faststart.mjs    # remux a replacement film for streaming
 node tools/loadcheck.mjs    # FCP, LCP, CLS, long tasks, bytes by type
+node tools/interactioncheck.mjs # frame cost of filters, search, menus, scroll
 node tools/fontmetrics.mjs  # metrics for a size-adjusted font fallback
 node tools/admin-hash.mjs   # generate the dashboard credentials (not a test)
 ```

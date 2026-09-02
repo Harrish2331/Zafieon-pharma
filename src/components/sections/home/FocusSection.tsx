@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
@@ -26,6 +26,44 @@ const EASE = [0.16, 1, 0.3, 1] as const;
  */
 export default function FocusSection() {
   const [active, setActive] = useState(0);
+
+  /**
+   * All four artworks are warmed as the section approaches, and not before.
+   *
+   * They used to be rendered from the start with `loading="lazy"`, on the
+   * assumption that having them in the DOM was enough to get them fetched. It
+   * was not: the inactive ones sit at `opacity: 0`, and measured cold, all four
+   * reported `complete: false` even with the panel on screen. The first switch
+   * then paid for the fetch and the decode in one frame — 2.7 seconds of it.
+   * Warm, the same switch costs 30-90ms.
+   *
+   * So the images mount only once the section is within 1600px, and mount
+   * eagerly when they do. A visitor who never scrolls this far still pays
+   * nothing; a visitor who does has all four decoded before they can click.
+   */
+  const panel = useRef<HTMLDivElement>(null);
+  const [warm, setWarm] = useState(false);
+
+  useEffect(() => {
+    const el = panel.current;
+    if (!el || warm) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setWarm(true);
+          io.disconnect();
+        }
+      },
+      // Generous on purpose: the four artworks have to be fetched AND decoded
+      // before the reader reaches the index, and a reader who scrolls fast can
+      // arrive within a second. Starting a viewport-and-a-half early means the
+      // work is finished by the time the section is on screen; starting at
+      // 800px left a click landing mid-decode at ~870ms.
+      { rootMargin: "1600px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [warm]);
   const area = focusAreas[active];
   const count = products.filter((p) =>
     p.therapeuticAreas.includes(area.id),
@@ -55,7 +93,10 @@ export default function FocusSection() {
             {focusAreas.map((f, i) => {
               const on = i === active;
               return (
-                <li key={f.id} className="border-b border-white/12 first:border-t">
+                <li
+                  key={f.id}
+                  className="border-b border-white/12 first:border-t"
+                >
                   <button
                     type="button"
                     onMouseEnter={() => setActive(i)}
@@ -96,6 +137,7 @@ export default function FocusSection() {
           {/* ── Panel ─────────────────────────────────────────────── */}
           <div className="lg:col-span-6 lg:col-start-7">
             <div
+              ref={panel}
               className="relative isolate min-h-[24rem] overflow-hidden border border-white/12 bg-navy-900 p-8 sm:p-11"
               aria-live="polite"
             >
@@ -104,40 +146,43 @@ export default function FocusSection() {
                   opacity, rather than mounted and unmounted as the reader
                   moves through the index.
 
-                  Mounting on demand meant each artwork was only requested at
-                  the moment it was needed, so the first visit to every area
-                  showed an empty panel while a fresh optimiser request went out
-                  — the "takes noticeable time to load" this section was
-                  reported for. Rendering all four lets the browser fetch them
-                  lazily as the section approaches, after which switching is a
+                  They mount once the section is within 1600px and mount
+                  eagerly, so every one is fetched and decoded before the reader
+                  can reach the index. After that, switching is a
                   compositor-only opacity change with no network at all.
+
+                  `loading="lazy"` was not enough on its own: an image held at
+                  `opacity: 0` is not treated as worth fetching, and all four
+                  measured `complete: false` with the panel on screen. The first
+                  switch then paid 2.7s for a fetch and a decode in one frame.
 
                   The supplied set is composed with its subject to the right and
                   negative space to the left, so the scrim below only has to
                   deepen what is already dark — the artwork stays legible and
                   the type keeps full contrast without a heavy overlay. */}
-              {focusAreas.map((f, i) =>
-                f.image ? (
-                  <div
-                    key={`${f.id}-art`}
-                    aria-hidden={i !== active}
-                    className={`absolute inset-0 -z-10 transition-opacity duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      i === active ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    <Image
-                      src={f.image}
-                      alt={i === active ? (f.imageAlt ?? "") : ""}
-                      fill
-                      loading="lazy"
-                      sizes="(max-width: 1024px) 100vw, 46vw"
-                      placeholder={f.blurDataURL ? "blur" : "empty"}
-                      blurDataURL={f.blurDataURL}
-                      className="object-cover object-right"
-                    />
-                  </div>
-                ) : null,
-              )}
+              {warm &&
+                focusAreas.map((f, i) =>
+                  f.image ? (
+                    <div
+                      key={`${f.id}-art`}
+                      aria-hidden={i !== active}
+                      className={`absolute inset-0 -z-10 transition-opacity duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        i === active ? "opacity-100" : "opacity-0"
+                      }`}
+                    >
+                      <Image
+                        src={f.image}
+                        alt={i === active ? (f.imageAlt ?? "") : ""}
+                        fill
+                        loading="eager"
+                        sizes="(max-width: 1024px) 100vw, 46vw"
+                        placeholder={f.blurDataURL ? "blur" : "empty"}
+                        blurDataURL={f.blurDataURL}
+                        className="object-cover object-right"
+                      />
+                    </div>
+                  ) : null,
+                )}
 
               {/* Legibility scrim: strongest where the type sits, clearing to
                   almost nothing over the subject. */}

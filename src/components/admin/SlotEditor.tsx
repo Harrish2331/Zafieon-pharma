@@ -22,6 +22,21 @@ const kb = (n: number) =>
  * A plain `<img>` is used rather than `next/image`: the sources here are a
  * `blob:` URL and a runtime-uploaded file, neither of which the image
  * optimiser can or should process.
+ *
+ * ── What is on screen after a save ─────────────────────────────────────────
+ * The picked file stays on screen until the server has confirmed and the page
+ * data has caught up. That ordering matters more than it looks.
+ *
+ * The first version cleared the preview the instant the upload returned, which
+ * dropped the card back to `currentUrl` — still the OLD prop, because
+ * `router.refresh()` had only just been fired and was not awaited. Locally that
+ * gap is a few milliseconds. On Vercel, against a private Blob store, it is a
+ * server round trip plus a manifest fetch: long enough to look exactly like
+ * "I pressed replace and it kept the old image".
+ *
+ * So: hold the preview, await the refresh, and only then release it. `busy`
+ * stays true for the whole of it, so the button reports the real duration
+ * instead of claiming success early.
  */
 export default function SlotEditor({
   slot,
@@ -43,6 +58,12 @@ export default function SlotEditor({
   const [busy, setBusy] = useState<false | "save" | "reset">(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
+  /**
+   * The URL the server returned for the image it just stored. Bridges the gap
+   * between releasing the local preview and the props catching up, so the card
+   * never falls back to the image that was just replaced.
+   */
+  const [savedUrl, setSavedUrl] = useState<string | null>(null);
 
   // The object URL is created and revoked in the event handler that changes
   // the selection, not in an effect reacting to it. A ref carries the live URL
@@ -90,6 +111,7 @@ export default function SlotEditor({
     if (!file) return;
     setBusy("save");
     setError(null);
+    setDone(null);
     try {
       const body = new FormData();
       body.set("slot", String(slot));
@@ -98,11 +120,23 @@ export default function SlotEditor({
         method: "POST",
         body,
       });
-      const json = (await res.json()) as { ok: boolean; error?: string };
+      const json = (await res.json()) as {
+        ok: boolean;
+        error?: string;
+        record?: { url?: string };
+      };
       if (!json.ok) throw new Error(json.error ?? "Upload failed.");
-      discard();
+
+      // Take the stored URL before letting go of the preview, so there is
+      // never a frame showing the image this one replaced.
+      if (json.record?.url) setSavedUrl(json.record.url);
       setDone("Saved. The website is showing this image now.");
-      router.refresh();
+
+      // Awaited: the button keeps saying "Saving…" until the page data has
+      // actually caught up, rather than claiming success and then changing
+      // under the operator a second later.
+      await router.refresh();
+      discard();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Upload failed.");
     } finally {
@@ -113,15 +147,17 @@ export default function SlotEditor({
   async function reset() {
     setBusy("reset");
     setError(null);
+    setDone(null);
     try {
       const res = await fetch(`/api/admin/insight-image?slot=${slot}`, {
         method: "DELETE",
       });
       const json = (await res.json()) as { ok: boolean; error?: string };
       if (!json.ok) throw new Error(json.error ?? "Could not restore.");
-      discard();
+      setSavedUrl(null);
       setDone("Restored the original image.");
-      router.refresh();
+      await router.refresh();
+      discard();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not restore.");
     } finally {
@@ -129,7 +165,10 @@ export default function SlotEditor({
     }
   }
 
-  const shown = preview ?? currentUrl;
+  // Once the props carry the URL we stored, the bridge has done its job.
+  if (savedUrl && currentUrl === savedUrl) setSavedUrl(null);
+
+  const shown = preview ?? savedUrl ?? currentUrl;
 
   return (
     <section className="flex flex-col">

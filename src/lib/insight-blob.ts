@@ -102,13 +102,27 @@ export async function blobGet(
   };
 }
 
-/** Read a small blob as text — used for the manifest. */
+/**
+ * Read a small blob as text — used for the manifest.
+ *
+ * `useCache: false` is not optional here. `get` caches by default, and the
+ * manifest is read immediately after it is written: the dashboard reloads the
+ * moment a save returns. A cached read at that instant hands back the previous
+ * manifest and the operator sees the image they just replaced still sitting
+ * there. Images can be cached hard because their URL carries a version; the
+ * manifest is the thing that tells you what that version is, so it has to be
+ * the live copy.
+ */
 export async function blobGetText(
   pathname: string,
   access: BlobAccess,
 ): Promise<string | null> {
   try {
-    const res = await get(pathname, { access, token: blobToken() });
+    const res = await get(pathname, {
+      access,
+      token: blobToken(),
+      useCache: false,
+    });
     if (!res || res.statusCode !== 200) return null;
     return await new Response(res.stream as ReadableStream).text();
   } catch {

@@ -146,10 +146,16 @@ const BLOB_MANIFEST = "zafieon-insights/manifest.json";
 const empty = (): Manifest => ({ v: 2, images: {}, text: {} });
 
 /**
- * A very short read-through cache. One admin page load asks for images,
- * records and text; without this that is three round trips to Blob for the
- * same object. Cleared on every write, so it can never serve a value this
- * instance has just superseded.
+ * A very short read-through cache. One page render asks for images, records
+ * and text; without this that is three round trips to Blob for the same
+ * object.
+ *
+ * It is deliberately NOT used by the dashboard or by any write. The cache is
+ * per-instance, and on a serverless host the request that reloads the
+ * dashboard after a save can land on a different instance from the one that
+ * did the writing — which would serve a manifest up to CACHE_MS old and show
+ * the operator the image they just replaced. Freshness is worth a round trip
+ * on the one surface where someone is watching for the change.
  */
 let cached: { at: number; manifest: Manifest } | null = null;
 const CACHE_MS = 2000;
@@ -170,8 +176,10 @@ function parseManifest(raw: unknown): Manifest {
   return { v: 2, images, text: {} };
 }
 
-async function readManifest(): Promise<Manifest> {
-  if (cached && Date.now() - cached.at < CACHE_MS) return cached.manifest;
+async function readManifest(fresh = false): Promise<Manifest> {
+  if (!fresh && cached && Date.now() - cached.at < CACHE_MS) {
+    return cached.manifest;
+  }
 
   let manifest: Manifest;
   if (usingBlob()) {
@@ -238,9 +246,9 @@ export async function allSlotImages(): Promise<Record<Slot, string>> {
   return out;
 }
 
-/** Image records, for the dashboard's "replaced on …" line. */
+/** Image records, for the dashboard's "replaced on …" line. Always fresh. */
 export async function slotRecords(): Promise<Partial<Record<Slot, SlotRecord>>> {
-  const m = await readManifest();
+  const m = await readManifest(true);
   const out: Partial<Record<Slot, SlotRecord>> = {};
   for (const slot of SLOTS) {
     const rec = m.images[`${slot}`];
@@ -295,7 +303,7 @@ export async function saveSlot(
   }
 
   const updatedAt = Date.now();
-  const m = await readManifest();
+  const m = await readManifest(true);
   const previous = m.images[`${slot}`];
   let record: SlotRecord;
 
@@ -317,8 +325,12 @@ export async function saveSlot(
       pathname: res.pathname,
       access: res.access,
     };
+    // Deleting the object this one supersedes is housekeeping: it has no
+    // bearing on whether the save succeeded, and awaiting it adds a whole
+    // round trip to the time the operator spends watching a spinner. It is
+    // already failure-tolerant, so let it finish on its own.
     if (previous?.pathname && previous.pathname !== res.pathname) {
-      await blobDel(previous.pathname);
+      void blobDel(previous.pathname);
     }
   } else {
     const file = `slot-${slot}-${updatedAt}.${EXT[contentType]}`;
@@ -348,10 +360,10 @@ export async function saveSlot(
 
 /** Drop a slot's image override. Leaves that slot's text untouched. */
 export async function resetSlot(slot: Slot): Promise<void> {
-  const m = await readManifest();
+  const m = await readManifest(true);
   const rec = m.images[`${slot}`];
   if (rec?.pathname) {
-    await blobDel(rec.pathname);
+    void blobDel(rec.pathname);
   } else if (rec?.file) {
     await rm(path.join(dir(), path.basename(rec.file)), { force: true }).catch(
       () => {},
@@ -363,9 +375,9 @@ export async function resetSlot(slot: Slot): Promise<void> {
 
 /* ── Public API — text ───────────────────────────────────────────────────── */
 
-/** Text overrides, for the dashboard's editor fields. */
+/** Text overrides, for the dashboard's editor fields. Always fresh. */
 export async function slotText(): Promise<Partial<Record<Slot, TextRecord>>> {
-  const m = await readManifest();
+  const m = await readManifest(true);
   const out: Partial<Record<Slot, TextRecord>> = {};
   for (const slot of SLOTS) {
     const rec = m.text[`${slot}`];
@@ -385,7 +397,7 @@ export async function saveText(
   slot: Slot,
   fields: { title?: string; standfirst?: string; body?: string[] },
 ): Promise<TextRecord> {
-  const m = await readManifest();
+  const m = await readManifest(true);
   const current = m.text[`${slot}`] ?? { updatedAt: 0 };
   const next: TextRecord = { ...current, updatedAt: Date.now() };
 
@@ -435,7 +447,7 @@ export async function saveText(
 
 /** Drop a slot's text override. Leaves that slot's image untouched. */
 export async function resetText(slot: Slot): Promise<void> {
-  const m = await readManifest();
+  const m = await readManifest(true);
   delete m.text[`${slot}`];
   await writeManifest(m);
 }
