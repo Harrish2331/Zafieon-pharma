@@ -477,6 +477,48 @@ that average includes lowercase glyphs this site never renders in Bolyar.
 `node tools/fontmetrics.mjs` prints the table-derived numbers; `.work/fontratio.mjs`
 measures the real one. **Re-measure if the font file is ever replaced.**
 
+### The hero sculpture arriving
+
+The hero holds two versions of one composition: `StaticForm`, an SVG capsule
+that server-renders, and `PrecisionForm`, the three.js scene. The scene is
+gated to machines that can afford it — 1024px and up, a fine pointer, WebGL,
+four cores, four gigabytes — and everything else keeps the flat form for good.
+
+On machines that *do* get the scene, the flat form was visible on arrival and
+then popped. The cause was the scheduling, not the scene: nothing requested the
+237 KB chunk until an effect had run after the `load` event, plus a 1.3s timer,
+plus an idle callback. The request went out at ~1.9s, landed at 2.3s, and the
+canvas appeared at 3.1s — against an opening that lifts at 1.85s.
+
+The chunk is now requested at module evaluation, which is the earliest the
+browser can be asked, ahead of hydration:
+
+| | before | after |
+| --- | --- | --- |
+| fast desktop | 3D at 2201ms — **351ms of flat capsule** | 1104ms — **never seen**, 746ms inside the opening |
+| 4× CPU / 4 Mbps | 4354ms — 2504ms visible | 3376ms — 1526ms visible |
+
+LCP is unchanged: three throttled runs each gave 1112-1272ms before and
+1104-1328ms after, CLS 0 in both, and the same long-task total. On a slow
+connection the chunk still cannot start until the bundle that asks for it has
+arrived (~2.2s at 1.6 Mbps), which is the floor without preloading 237 KB
+against the critical path — not worth it for a fallback that is already a
+designed state.
+
+The timer being removed had a comment justifying it: main-thread work during
+the opening made it stutter. That was true of the Framer Motion overture it was
+written for. The opening is now pure CSS on the compositor with
+`contain: strict`, and nothing here can stutter it.
+
+**The handover cross-fades**, which matters wherever the scene still lands in
+the open — a slow machine, or a repeat visit, where the opening is suppressed
+and the scene arrives at ~550ms from cache. The flat form holds at full opacity
+until the canvas is actually in the DOM, not merely until React has been told
+to render it: fading on the state flag alone left ~300ms where the flat had
+gone and the scene had not arrived, and the hero was very nearly empty — worse
+than the pop it replaced. Traced frame by frame, the order is now canvas
+present → flat fades → flat unmounts.
+
 ### Interaction cost
 
 `tools/interactioncheck.mjs` measures what the app costs once someone starts

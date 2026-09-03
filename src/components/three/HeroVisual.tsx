@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const PrecisionForm = dynamic(() => import("./PrecisionForm"), {
   ssr: false,
@@ -9,86 +9,148 @@ const PrecisionForm = dynamic(() => import("./PrecisionForm"), {
 });
 
 /**
- * Gate for the hero sculpture.
+ * Can this device afford the 3D scene?
  *
- * The 3D scene loads only when it can pay for itself: a pointer-capable
- * viewport of reasonable width, real WebGL, and a device reporting more than a
- * token amount of memory. Everything else gets StaticForm — the same
- * composition drawn flat, so the art direction never collapses.
+ * A pointer-capable viewport of reasonable width, real WebGL, and a device
+ * reporting more than a token amount of memory. Everything else gets
+ * StaticForm — the same composition drawn flat, so the art direction never
+ * collapses.
  *
- * Loading is deferred until after the load event AND the opening has cleared,
- * then to the first idle period. Parsing three.js and building the scene costs
- * roughly 1.8s of main-thread time in two long tasks — measured, not guessed —
- * and idle alone was not enough: the main thread goes idle right after
- * hydration, which is while the opening is still on screen. Anything expensive
- * landing there is exactly what made the opening feel like it stuttered.
+ * Reduced motion is deliberately NOT a gate: a user asking for less motion is
+ * asking for less movement, not less design. PrecisionForm freezes instead.
  *
- * The fallback is already on screen throughout, so nothing is missing while
- * this waits.
+ * Returns false during server rendering, which is what we want — the server
+ * always emits the flat form.
  */
+function canAfford3D(): boolean {
+  if (typeof window === "undefined") return false;
+
+  if (!window.matchMedia("(min-width: 1024px)").matches) return false;
+  if (!window.matchMedia("(pointer: fine)").matches) return false;
+
+  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  if (typeof mem === "number" && mem < 4) return false;
+  if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) {
+    return false;
+  }
+
+  try {
+    const c = document.createElement("canvas");
+    const gl =
+      c.getContext("webgl2") ??
+      c.getContext("webgl") ??
+      c.getContext("experimental-webgl");
+    if (!gl) return false;
+  } catch {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * The scene chunk is requested the moment this module is evaluated, which is
+ * as early as the browser can possibly ask for it — during the main bundle's
+ * evaluation, ahead of hydration.
+ *
+ * This is the whole fix for the flat capsule being visible on arrival. The
+ * chunk is 237 KB of three.js and the scene takes a further ~800ms to build,
+ * so the work has to start well before the opening lifts at 1.85s if the
+ * visitor is never to see the flat form. Previously nothing was requested
+ * until an effect had run after the 'load' event plus a 1.3s timer plus an
+ * idle callback: the request went out at ~1.9s, landed at 2.3s and the canvas
+ * appeared at 3.1s — 1.2s of watching the flat capsule, then a pop.
+ *
+ * Starting here instead overlaps the download and the parse with hydration and
+ * with the opening, both of which are happening anyway, and puts the canvas up
+ * behind the curtain.
+ *
+ * The old timer was justified in a comment claiming main-thread work during
+ * the opening made it stutter. That was true of the Framer Motion overture it
+ * was written for; the opening is now pure CSS on the compositor, with
+ * 'contain: strict', and cannot be stuttered by anything happening here.
+ */
+const sceneChunk = canAfford3D() ? import("./PrecisionForm") : null;
+
 export default function HeroVisual() {
+  const host = useRef<HTMLDivElement>(null);
   const [enable3D, setEnable3D] = useState(false);
+  /**
+   * The flat form is kept mounted underneath for the length of the cross-fade,
+   * then dropped so it stops costing a composited layer for the rest of the
+   * visit.
+   */
+  const [retireFlat, setRetireFlat] = useState(false);
 
   useEffect(() => {
-    // Reduced motion is deliberately NOT a gate — a user asking for less motion
-    // is asking for less movement, not less design. PrecisionForm freezes.
-    const wideEnough = window.matchMedia("(min-width: 1024px)").matches;
-    const finePointer = window.matchMedia("(pointer: fine)").matches;
-    if (!wideEnough || !finePointer) return;
-
-    const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
-    if (typeof mem === "number" && mem < 4) return;
-    if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) return;
-
-    try {
-      const c = document.createElement("canvas");
-      const gl =
-        c.getContext("webgl2") ??
-        c.getContext("webgl") ??
-        c.getContext("experimental-webgl");
-      if (!gl) return;
-    } catch {
-      return;
-    }
-
-    let idleId: number | undefined;
-    let timerId: number | undefined;
-
-    const schedule = () => {
-      const ric =
-        window.requestIdleCallback ??
-        ((cb: () => void) => window.setTimeout(cb, 200));
-      idleId = ric(() => setEnable3D(true)) as unknown as number;
-    };
-
-    // After the page has finished loading and the opening has cleared, then at
-    // the first idle moment after that. The 1.3s floor is the overture's 1.15s
-    // plus margin.
-    const start = () => {
-      timerId = window.setTimeout(schedule, 1300);
-    };
-
-    if (document.readyState === "complete") start();
-    else window.addEventListener("load", start, { once: true });
-
+    if (!sceneChunk) return;
+    let live = true;
+    // Already in flight, and usually already resolved by the time this runs.
+    sceneChunk.then(() => {
+      if (live) setEnable3D(true);
+    });
     return () => {
-      window.removeEventListener("load", start);
-      if (timerId !== undefined) window.clearTimeout(timerId);
-      if (idleId !== undefined) {
-        (window.cancelIdleCallback ?? window.clearTimeout)(idleId);
-      }
+      live = false;
     };
   }, []);
+
+  /**
+   * The flat form holds at full opacity until the canvas is actually in the
+   * DOM, not merely until React has been told to render it. Fading on
+   * `enable3D` alone left roughly 300ms where the flat had gone and the scene
+   * had not arrived, and the hero was very nearly empty — measured, and worse
+   * than the pop it was meant to replace.
+   */
+  const [sceneUp, setSceneUp] = useState(false);
+
+  useEffect(() => {
+    if (!enable3D) return;
+    let raf = 0;
+    const look = () => {
+      if (host.current?.querySelector("canvas")) setSceneUp(true);
+      else raf = requestAnimationFrame(look);
+    };
+    raf = requestAnimationFrame(look);
+    return () => cancelAnimationFrame(raf);
+  }, [enable3D]);
+
+  useEffect(() => {
+    if (!sceneUp) return;
+    const t = window.setTimeout(() => setRetireFlat(true), 900);
+    return () => window.clearTimeout(t);
+  }, [sceneUp]);
 
   return (
     // Promoted to its own composited layer. The flat fallback is a large SVG
     // with gradients; without this it is re-rasterised on every scroll frame,
     // which made the low-power path jankier than the WebGL one.
     <div
+      ref={host}
       className="absolute inset-0 [backface-visibility:hidden] [transform:translateZ(0)]"
       aria-hidden="true"
     >
-      {enable3D ? <PrecisionForm /> : <StaticForm />}
+      {/* The two forms are the same composition — one drawn flat, one drawn in
+          WebGL — so the handover reads as the object resolving rather than as
+          one image being swapped for another.
+
+          On a fast desktop this happens behind the opening and nobody sees it.
+          It matters on slower machines, where three.js can still be building
+          after the curtain has lifted: without the fade the flat capsule sat
+          there and then popped, which is the artefact this was reported as. */}
+      {!retireFlat ? (
+        <div
+          className={`absolute inset-0 transition-opacity duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+            sceneUp ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <StaticForm />
+        </div>
+      ) : null}
+
+      {enable3D ? (
+        <div className="absolute inset-0 zaf-hero-3d">
+          <PrecisionForm />
+        </div>
+      ) : null}
     </div>
   );
 }

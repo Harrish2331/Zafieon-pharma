@@ -531,3 +531,29 @@ html {
      pinned to zero rather than left to vary between the two faces. */
   line-gap-override: 0%;
 }
+
+/* The hero sculpture arriving.
+
+   The WebGL scene replaces the flat SVG of the same composition. On a fast
+   desktop the handover happens behind the opening; on a slower machine three.js
+   can still be building after the curtain has lifted, and without this the flat
+   capsule sat on screen and then popped. Fading it in over its flat twin makes
+   that read as the object resolving. Opacity only, so it composites for free. */
+.zaf-hero-3d {
+  animation: zaf-hero-3d-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes zaf-hero-3d-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zaf-hero-3d {
+    animation-duration: 0.01ms;
+  }
+}
