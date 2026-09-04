@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHero from "@/components/PageHero";
@@ -11,6 +12,7 @@ import CertificationMark, {
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { getPartner, partners } from "@/data/partners";
 import { markFor, resolve } from "@/data/certifications";
+import { markForRegistration } from "@/data/regulator-marks";
 import { disclosures } from "@/data/site";
 
 export function generateStaticParams() {
@@ -296,8 +298,13 @@ export default async function PartnerDetailPage({
 
       {/* ── Regulatory registrations ──────────────────────────────
           Market registrations, not quality-system certifications, and kept
-          visibly apart from them. No regulator's emblem is drawn for any of
-          these: they appear as attributed text and nothing more. */}
+          visibly apart from them.
+
+          Where the partner has supplied the authority's own artwork, the mark
+          is shown beside the registration it belongs to. Nothing is drawn: the
+          marks are cut from the partner's own certifications sheet, and one
+          only ever appears because that partner lists the registration. A
+          registration with no supplied artwork keeps the plain marker. */}
       {partner.regulatoryRegistrations?.length ? (
         <section className="relative bg-paper py-20 lg:py-24">
           <div className="shell">
@@ -312,18 +319,38 @@ export default async function PartnerDetailPage({
               </div>
             </Reveal>
 
-            <Stagger step={0.05} className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-              {partner.regulatoryRegistrations.map((r) => (
-                <StaggerItem key={r}>
-                  <span className="flex items-baseline gap-3 text-[0.95rem] leading-[1.6] text-navy">
-                    <span
-                      aria-hidden="true"
-                      className="h-1 w-1 shrink-0 translate-y-[-0.3em] bg-magenta"
-                    />
-                    {r}
-                  </span>
-                </StaggerItem>
-              ))}
+            <Stagger step={0.05} className="grid gap-x-8 gap-y-5 sm:grid-cols-2">
+              {partner.regulatoryRegistrations.map((r) => {
+                const mark = markForRegistration(r);
+                return (
+                  <StaggerItem key={r}>
+                    <span className="flex items-center gap-4 text-[0.95rem] leading-[1.6] text-navy">
+                      {mark ? (
+                        /* White plate, as every other supplied mark on the site
+                           sits on. Bounded on both axes so a wide wordmark and
+                           a square crest reach a comparable optical size
+                           without either being scaled non-uniformly. */
+                        <span className="flex h-[92px] w-[148px] shrink-0 items-center justify-center overflow-hidden border border-line bg-white px-4 py-3">
+                          <Image
+                            src={mark.logo}
+                            alt={mark.alt}
+                            width={296}
+                            height={184}
+                            sizes="148px"
+                            className="max-h-full w-auto max-w-full object-contain"
+                          />
+                        </span>
+                      ) : (
+                        <span
+                          aria-hidden="true"
+                          className="h-1 w-1 shrink-0 bg-magenta"
+                        />
+                      )}
+                      {r}
+                    </span>
+                  </StaggerItem>
+                );
+              })}
             </Stagger>
 
             <Reveal delay={0.12} y={16}>
