@@ -230,30 +230,45 @@ export const about = {
       index: "01",
       title: "Science",
       body: "Sound science is the foundation of responsible pharmaceutical innovation.",
+      image: "/images/about/science.webp",
+      imageAlt:
+        "A laboratory microscope in use, with molecular and formulation motifs overlaid",
     },
     {
       id: "quality",
       index: "02",
       title: "Quality",
       body: "Maintaining quality and consistency throughout products and processes.",
+      image: "/images/about/quality.webp",
+      imageAlt:
+        "An analyst inspecting a filled vial against a quality control display on a packaging line",
     },
     {
       id: "integrity",
       index: "03",
       title: "Integrity",
       body: "Trust through transparency, ethical practices and responsible relationships.",
+      image: "/images/about/integrity.webp",
+      imageAlt:
+        "Two people shaking hands in a laboratory, with governance and assurance motifs overlaid",
     },
     {
       id: "innovation",
       index: "04",
       title: "Innovation",
       body: "Seeking better ways to address changing healthcare needs.",
+      image: "/images/about/innovation.webp",
+      imageAlt:
+        "A gloved hand holding a capsule, with research and data motifs overlaid",
     },
     {
       id: "people",
       index: "05",
       title: "People",
       body: "Behind every product is a healthcare professional, a partner and ultimately a person whose health matters.",
+      image: "/images/about/people.webp",
+      imageAlt:
+        "A clinician in a white coat listening to an older patient, a hand resting on their shoulder",
     },
   ],
   commitment: {
