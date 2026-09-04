@@ -14,12 +14,16 @@ import { about } from "@/data/site";
  * bleeds off the edge of the page. Moving through the list is the whole
  * interaction — the artwork cross-fades and nothing else on screen moves.
  *
- * ── The curve ──────────────────────────────────────────────────────────────
- * The supplied artwork carried a curved left edge painted into the pixels,
- * against paper-100. It is a CSS shape here instead, because the five files
- * did not agree: the centre of the painted arc sat at 21%, 21%, 37%, 55% and
- * 73% of the way down its own image, so keeping them would have made the edge
- * jump as the reader moved down the index. One shape, five photographs.
+ * ── The panel's geometry, measured from the supplied comps ────────────────
+ * The three section comps agree closely, and the panel follows them: 1.22
+ * wide for 1 tall, beginning at 52% across the page and bleeding off the
+ * right edge. Getting this wrong is what made an earlier pass look wrong —
+ * a portrait panel meant `object-fit: cover` had to magnify a landscape
+ * photograph to fill it, which read as both oversized and soft.
+ *
+ * The curve is not drawn here. It is the alpha channel of each photograph,
+ * lifted from the comps by tools/aboutcrop.mjs, so the shape is exactly the
+ * supplied one and the section's own pattern shows through it.
  */
 export default function ValuesIndex() {
   const [active, setActive] = useState(0);
@@ -108,21 +112,22 @@ export default function ValuesIndex() {
           </ul>
 
           {/* ── Artwork ───────────────────────────────────────────── */}
-          <div className="lg:col-span-5 lg:col-start-8">
+          <div className="lg:col-span-6 lg:col-start-7">
             <div
               ref={panel}
-              className="relative aspect-4/5 overflow-hidden bg-paper-200 lg:sticky lg:top-32 lg:aspect-5/6 lg:mr-(--drives-bleed)"
+              className="relative aspect-[1.22] lg:mr-(--drives-bleed)"
               style={{
-                /* The left edge is one ellipse: a horizontal radius across a
-                   third of the panel, and a vertical radius of half its height
-                   on both corners so they meet mid-height in a single bulge. */
-                borderRadius: "34% 0 0 34% / 50% 0 0 50%",
-                /* Out to the right edge of the page, as the artwork does. The
-                   column's right edge is the shell's, so the distance left to
-                   travel is half of whatever the shell is not using. The
-                   section clips, so this can never scroll the page sideways. */
+                /* Out to the right edge of the page, as the artwork does.
+                   The column ends at the shell's content edge, so the distance
+                   left to travel is the shell's centring margin plus its own
+                   padding — both, which is what an earlier pass got wrong: it
+                   counted only the margin and so fell short by a gutter on any
+                   viewport wide enough for the shell to reach its max-width.
+                   The overshoot from 100vw including the scrollbar is a few
+                   pixels, and the section clips, so this can never scroll the
+                   page sideways. */
                 ["--drives-bleed" as string]:
-                  "calc((100vw - min(100vw - 2 * var(--spacing-gutter), 1560px)) / -2)",
+                  "calc(((100vw - min(100vw, 1560px)) / 2 + var(--spacing-gutter)) * -1)",
               }}
             >
               {warm
@@ -133,7 +138,7 @@ export default function ValuesIndex() {
                       alt={i === active ? v.imageAlt : ""}
                       fill
                       loading="eager"
-                      sizes="(min-width: 1024px) 48vw, 100vw"
+                      sizes="(min-width: 1024px) 50vw, 100vw"
                       aria-hidden={i !== active}
                       className={`object-cover transition-opacity duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
                         i === active ? "opacity-100" : "opacity-0"
