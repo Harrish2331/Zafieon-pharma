@@ -20,10 +20,14 @@
  * a regulator's emblem to make a claim look official is exactly the thing this
  * project exists not to do.
  *
- * Two marks on that sheet are not here. One carries no name this project can
- * verify and matches no stated registration. The other is the WHO emblem,
- * which already renders from the certification registry and would otherwise
- * appear twice on the same page.
+ * The UAE mark is the exception: Zafieon supplied the ministry's gold crest
+ * separately at 1309x1202, against 344x300 on the sheet, so that file is used
+ * instead of either sheet crop. The sheet carries the same authority twice —
+ * the crest and a falcon wordmark lockup — and neither is written out.
+ *
+ * The WHO emblem is on the sheet and is extracted, but is not listed here: it
+ * already renders from the certification registry and would otherwise appear
+ * twice on the same page.
  */
 
 export interface RegulatorMark {
@@ -70,7 +74,7 @@ export const regulatorMarks: RegulatorMark[] = [
   {
     id: "mohap-uae",
     logo: "/certifications/revenbhel/mohap-uae.webp",
-    alt: "Ministry of Health and Prevention, United Arab Emirates emblem",
+    alt: "United Arab Emirates Ministry of Health & Prevention emblem",
     match: [/ministry of health\s*&?\s*prevention/i, /united arab emirates/i],
   },
 ];

@@ -51,7 +51,15 @@ export default async function InsightsPage() {
               className="group/lead grid gap-10 lg:grid-cols-12 lg:gap-12"
             >
               <figure className="relative isolate lg:col-span-7">
-                <div className="relative aspect-16/10 overflow-hidden bg-paper-200">
+                {/* On a wide screen the picture fills the row rather than
+                    holding 16:10, because the decorative frame behind it is
+                    sized to this figure — and the figure is a grid item, so it
+                    stretches to whatever the headline column needs. At 16:10
+                    the frame was left hanging 68-115px below the picture with
+                    nothing inside it. Measured across every offset frame on
+                    the site; this was the only one that did not hug its
+                    image. */}
+                <div className="relative aspect-16/10 overflow-hidden bg-paper-200 lg:aspect-auto lg:h-full">
                   <Image
                     src={lead.image}
                     alt={lead.imageAlt}

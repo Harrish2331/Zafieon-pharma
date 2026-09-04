@@ -103,20 +103,21 @@ for (let i = 0; i < grown.length; i++) {
 /* The sheet's marks, in reading order — top row left to right, then the next.
    The sort below is deterministic, so position is a stable identity.
 
-   Two are deliberately not wired into the page:
-     · sheet-04 carries no name this project can verify, and the partner does
-       not list a matching registration. Naming a regulator by guesswork to
-       caption an emblem is the one thing this codebase exists not to do.
-     · who is already rendered from the certification registry, and would
-       otherwise appear twice on the same page. */
+   Three of the eight are not written out:
+     · positions 4 and 7 are both the UAE Ministry of Health & Prevention —
+       the gold crest and the falcon wordmark lockup. Zafieon supplied the
+       crest separately at 1309x1202, so that file is used instead of either
+       sheet crop and both are skipped here.
+     · who is written but not wired into the page: it already renders from the
+       certification registry and would otherwise appear twice. */
 const NAMES = [
   "efda-ethiopia",
   "fda-philippines",
   "dpm",
-  "sheet-04-unidentified",
+  null, // the UAE crest, at sheet resolution — superseded, see MOHAP below
   "ppb-kenya",
   "nafdac-nigeria",
-  "mohap-uae",
+  null, // the UAE wordmark lockup — the crest is the mark Zafieon shows
   "who",
 ];
 
@@ -131,7 +132,8 @@ await mkdir(OUT, { recursive: true });
 
 console.log(`sheet ${W}x${H} — ${regions.length} mark(s)\n`);
 for (const [i, r] of regions.entries()) {
-  const name = NAMES[i] ?? `mark-${String(i + 1).padStart(2, "0")}`;
+  const name = NAMES[i];
+  if (!name) continue;
   let out;
   try {
     out = await sharp(SRC)
@@ -152,3 +154,15 @@ for (const [i, r] of regions.entries()) {
       `${out.width}x${out.height}  ${(out.size / 1024).toFixed(0)} KB`,
   );
 }
+
+/* The UAE mark comes from Zafieon directly, not from the sheet: a 1309x1202
+   crest against the sheet's 344x300. Same treatment as the rest — no redraw,
+   transparency kept, sized to the same 320px height. */
+const uae = await sharp("public/certifications/revenbhel/UAE.png")
+  .resize({ height: 320, withoutEnlargement: true, fit: "inside" })
+  .webp({ quality: 92, alphaQuality: 100, effort: 6 })
+  .toFile(`${OUT}/mohap-uae.webp`);
+console.log(
+  `${"mohap-uae".padEnd(22)} from UAE.png (supplied)     ->  ` +
+    `${uae.width}x${uae.height}  ${(uae.size / 1024).toFixed(0)} KB`,
+);
