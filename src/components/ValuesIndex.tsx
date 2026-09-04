@@ -115,7 +115,7 @@ export default function ValuesIndex() {
           <div className="lg:col-span-6 lg:col-start-7">
             <div
               ref={panel}
-              className="relative aspect-[1.22] lg:mr-(--drives-bleed)"
+              className="@container relative aspect-[1.05] sm:aspect-[1.22] lg:mr-(--drives-bleed)"
               style={{
                 /* Out to the right edge of the page, as the artwork does.
                    The column ends at the shell's content edge, so the distance
@@ -146,14 +146,64 @@ export default function ValuesIndex() {
                     />
                   ))
                 : null}
+
+              {/* ── The statement, over the artwork ──────────────────────
+                  A light pool behind it. The photographs are bright on
+                  average — 133 to 201 mean luminance where this sits — but
+                  their darkest pixels run to 0, and navy type over those is
+                  unreadable. The scrim is paper-100, the section's own
+                  ground, so it reads as the artwork resolving into the page
+                  rather than as a panel laid on top. */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse 60% 54% at 28% 76%, rgba(244,246,249,0.97), rgba(244,246,249,0.82) 48%, rgba(244,246,249,0) 78%)",
+                }}
+              />
+
+              {/* Sized in container units so the block holds the same
+                  proportions against the panel at every width, which is how
+                  it is drawn in the supplied artwork: the numeral about 14.5%
+                  of the panel's width, the rule about 9%. */}
+              <div
+                className="pointer-events-none absolute bottom-[8%] left-[5%] flex w-[72%] flex-col items-center text-center lg:w-[50%]"
+                style={{ gap: "max(0.55rem, 2.4cqw)" }}
+                aria-live="polite"
+              >
+                {/* The gaps are container units, not percentages of this
+                    block: on a phone the block is narrow, a percentage of it
+                    collapses to a few pixels, and the figure's ink runs into
+                    the statement. line-height is 1.06 rather than the display
+                    face's usual 0.78 for the same reason — at 0.78 the figure
+                    overflows its own line box. */}
+                <span
+                  aria-hidden="true"
+                  className="block font-[family-name:var(--font-display)] tracking-[-0.04em] text-magenta/45"
+                  style={{
+                    fontSize: "clamp(2.1rem, 16cqw, 9.5rem)",
+                    lineHeight: 1.06,
+                  }}
+                >
+                  {value.index}
+                </span>
+                <p
+                  className="text-navy"
+                  style={{
+                    fontSize: "clamp(0.78rem, 2.7cqw, 1.1rem)",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {value.body}
+                </p>
+                <span
+                  aria-hidden="true"
+                  className="block bg-magenta"
+                  style={{ width: "max(48px, 9cqw)", height: "max(2px, 0.5cqw)" }}
+                />
+              </div>
             </div>
-            {/* The statement each value carries is no longer set on screen —
-                the artwork occupies that column now. It is kept for assistive
-                technology, which otherwise loses the only description of what
-                the value means. */}
-            <p className="sr-only" aria-live="polite">
-              {value.title}. {value.body}
-            </p>
           </div>
         </div>
 

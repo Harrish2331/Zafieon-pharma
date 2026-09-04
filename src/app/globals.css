@@ -462,9 +462,16 @@ html[data-overture="done"] .zaf-overture {
 .zaf-line {
   display: block;
   overflow: hidden;
-  /* A hair of vertical slack so descenders are not clipped by the mask. */
-  padding-bottom: 0.09em;
-  margin-bottom: -0.09em;
+  /* Slack so the mask does not cut the type.
+     Display lines are set at 0.92 line-height, which makes the line box
+     SHORTER than the em box — so the glyphs' own ink reaches below the box
+     the mask clips to. At 0.09em the mask was shaving the bottom of every
+     display line on the site, measured by diffing against overflow: visible
+     at 320, 390 and 1440. On mobile, where a heading wraps to three tight
+     lines, that shaved edge is what read as the letters running together.
+     Padding and negative margin cancel, so this costs no layout. */
+  padding-bottom: 0.25em;
+  margin-bottom: -0.25em;
 }
 
 .zaf-line > * {
@@ -475,7 +482,10 @@ html[data-overture="done"] .zaf-overture {
 
 @keyframes zaf-line-in {
   from {
-    transform: translate3d(0, 115%, 0);
+    /* Far enough down to clear the mask's slack above. At 115% a line's own
+       top edge sat inside the taller box and a sliver showed before the
+       reveal began. */
+    transform: translate3d(0, 145%, 0);
   }
   to {
     transform: translate3d(0, 0, 0);
@@ -501,6 +511,22 @@ html[data-overture="done"] .zaf-overture {
    Reserving the gutter from the first frame means locking and unlocking scroll
    changes nothing about the available width. The mobile menu, which locks
    scroll the same way, gets the fix for free. */
+/* ── Display type on small screens ─────────────────────────────────────────
+   The display scale's floors do not scale down, and below about 430px that
+   leaves single long words wider than the page. "Gynaecology" sets 367px at
+   the 36px floor with 350px of room at 390px wide, so it was being cut off
+   mid-word — and it cannot wrap, being one word.
+
+   These floors are set from the longest word the site actually sets in each
+   size, measured, with the caps chosen so each meets the base scale exactly
+   at the breakpoint and nothing jumps. */
+@media (max-width: 480px) {
+  :root {
+    --text-display-1: clamp(1.6rem, 8.4vw, 2.25rem);
+    --text-display-2: clamp(1.3rem, 6.9vw, 1.85rem);
+  }
+}
+
 html {
   scrollbar-gutter: stable;
 }
