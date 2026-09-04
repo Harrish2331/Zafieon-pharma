@@ -474,14 +474,15 @@ const partnerRecords: Partner[] = [
     about: [
       "Heliyac Healthcare Pvt. Ltd. is a manufacturing partner in Zafieon Pharma’s network, located in Pondicherry.",
       "Pondicherry is one of India’s established formulation manufacturing centres. Partners there are qualified against the same expectations Zafieon applies across its whole network: manufacture under applicable Good Manufacturing Practice standards, compliance with the regulatory requirements that apply to each product and market, complete and traceable batch documentation, packaging that protects the product and carries accurate information, and dependable supply.",
-      "A full company profile — facilities, dosage-form capability, quality systems and certification records — will be published here once Heliyac Healthcare’s corporate documentation has been received and verified.",
+      "A full company profile — facilities, dosage-form capability and quality systems — will be published here once Heliyac Healthcare’s corporate documentation has been received and verified.",
     ],
     facilities: [{ name: "Manufacturing unit", location: "Pondicherry" }],
+    certifications: ["WHO", "ISO 9001:2015", "GMP", "GLP"],
     qualifiers: [
-      "Zafieon Pharma has supplied this partner’s name and location. No corporate brochure has been received yet, so the profile above sets out the expectations Zafieon applies to every partner rather than facts documented by Heliyac Healthcare. No capability, certification, facility or export market is claimed on the partner’s behalf.",
+      "Zafieon Pharma has supplied this partner’s name and location. Zafieon Pharma holds Heliyac Healthcare’s certification records, and the certifications listed are taken from them. A full corporate brochure has not been received yet, so the profile above otherwise sets out the expectations Zafieon applies to every partner rather than facts documented by Heliyac Healthcare. Beyond those certifications, no capability, facility or export market is claimed on the partner’s behalf.",
     ],
     source:
-      "Client-supplied name and location (source-assets/partners/heliyac.png). Corporate documentation pending.",
+      "Client-supplied name, location and certification records (source-assets/partners/heliyac.png). Full corporate brochure pending.",
   },
 
   {
@@ -498,14 +499,16 @@ const partnerRecords: Partner[] = [
     about: [
       "Amagen Pharma Private Limited is a manufacturing partner in Zafieon Pharma’s network, located in Himachal Pradesh.",
       "Himachal Pradesh holds the largest concentration of formulation manufacturing in India, and it is where most of Zafieon’s network already sits. Partners there are qualified against the same expectations Zafieon applies everywhere: manufacture under applicable Good Manufacturing Practice standards, compliance with the regulatory requirements that apply to each product and market, complete and traceable batch documentation, packaging that protects the product and carries accurate information, and dependable supply.",
-      "A full company profile — facilities, dosage-form capability, quality systems and certification records — will be published here once Amagen Pharma’s corporate documentation has been received and verified.",
+      "A full company profile — facilities, dosage-form capability and quality systems — will be published here once Amagen Pharma’s corporate documentation has been received and verified.",
     ],
     facilities: [{ name: "Manufacturing unit", location: "Himachal Pradesh" }],
+    certifications: ["WHO", "ISO 9001:2015", "GMP", "GLP"],
     qualifiers: [
-      "Zafieon Pharma has supplied this partner’s name and location. No corporate brochure has been received yet, so the profile above sets out the expectations Zafieon applies to every partner rather than facts documented by Amagen Pharma. No capability, certification, facility or export market is claimed on the partner’s behalf.",
+      "Zafieon Pharma has supplied this partner’s name and location. Zafieon Pharma holds Amagen Pharma’s certification records, and the certifications listed are taken from them. A full corporate brochure has not been received yet, so the profile above otherwise sets out the expectations Zafieon applies to every partner rather than facts documented by Amagen Pharma. Beyond those certifications, no capability, facility or export market is claimed on the partner’s behalf.",
       "The supplied logo is a photograph of dimensional signage rather than flat artwork. Vector or transparent artwork would sit more consistently beside the other partner marks.",
     ],
-    source: "Client-supplied name and location. Corporate documentation pending.",
+    source:
+      "Client-supplied name, location and certification records. Full corporate brochure pending.",
   },
 ];
 

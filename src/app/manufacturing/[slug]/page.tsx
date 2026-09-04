@@ -242,7 +242,17 @@ export default async function PartnerDetailPage({
             ) : null}
 
             {partner.certifications?.length ? (
-              <div className="lg:col-span-5 lg:col-start-8">
+              /* Beside the capabilities where a partner has them, and across
+                 the full width where it does not — a partner with no capability
+                 list left the whole left half of this section empty, with the
+                 marks stranded in a narrow column against it. */
+              <div
+                className={
+                  partner.capabilities?.length
+                    ? "lg:col-span-5 lg:col-start-8"
+                    : "lg:col-span-12"
+                }
+              >
                 <Reveal y={16}>
                   <h2 className="text-[length:var(--text-display-2)] text-white">
                     Quality &amp;
@@ -250,14 +260,21 @@ export default async function PartnerDetailPage({
                     regulatory
                   </h2>
                 </Reveal>
-                <Stagger step={0.05} className="mt-10 space-y-5">
+                <Stagger
+                  step={0.05}
+                  className={
+                    partner.capabilities?.length
+                      ? "mt-10 space-y-5"
+                      : "mt-10 grid gap-5 sm:grid-cols-2"
+                  }
+                >
                   {partner.certifications.map((c) => {
                     // Resolved from this partner's own claim string — a mark
                     // can only appear because the partner claims it.
                     const mark = markFor(c);
                     return (
                       <StaggerItem key={c}>
-                        <div className="flex items-start gap-5 border border-white/15 p-5">
+                        <div className="flex h-full items-start gap-5 border border-white/15 p-5">
                           {mark && (
                             <CertificationMark mark={mark} size="md" tone="dark" />
                           )}
@@ -286,7 +303,7 @@ export default async function PartnerDetailPage({
                   })}
                 </Stagger>
                 <Reveal delay={0.14} y={16}>
-                  <p className="mt-7 text-[0.8rem] leading-relaxed text-white/35">
+                  <p className="mt-7 max-w-[80ch] text-[0.8rem] leading-relaxed text-white/35">
                     {disclosures.certifications}
                   </p>
                 </Reveal>
