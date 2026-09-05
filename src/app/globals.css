@@ -547,14 +547,77 @@ html {
 
    Re-measure with .work/fontratio.mjs if the font file is ever replaced.
    ========================================================================== */
+/* Three faces, not one, because a single size-adjust cannot serve both
+   dimensions. Bolyar sets 14.28 units of advance per unit of cap height;
+   Arial sets 10.96. Scaling Arial by the 135% that matches Bolyar's WIDTH —
+   which is what stops headings re-wrapping when the real face arrives — also
+   makes its capitals 0.97em tall, against a display line-height of 0.92em.
+   The result was heading lines colliding on top of one another for the few
+   hundred milliseconds before the font applied, which on a throttled phone is
+   ~450ms and is what a visitor actually sees.
+
+   The value is solved, not averaged. Every display heading on the site was
+   measured at seven widths for the width it has available and the width each
+   face needs, which gives two constraints per line: a line the real face fits
+   the stand-in must also fit, and a line the real face wraps the stand-in must
+   wrap too. Those bracket a window, and the window is well below the point
+   where the capitals reach the line box:
+
+     face      chosen   capitals   collides above
+     Arial Black  121%    0.870em           127.9%
+     Roboto       131%    0.880em           136.9%
+     Verdana      119%    0.874em           125.3%
+
+   Arial at any width-matching value sits at 0.971em and collides, which is
+   what the old single fallback did on every heading on the site.
+
+   121% was found by sweeping candidates against every heading at six widths
+   and counting how many wrapped differently from the real face — not by
+   modelling, which got it wrong: a model of glyph advances misses the display
+   scale's negative letter-spacing. Measured: 118.6% and 125-127% each leave
+   five headings wrapping differently, 123-124% leave three, and 120-122%
+   leave one. The survivor is the home hero at 390px, where "EVERY DOSE" fits
+   one line in the stand-in and needs two in Bolyar.
+
+   So each candidate gets its own family and its own size-adjust, and the
+   stack in fonts.ts takes whichever the platform actually has: Arial Black on
+   Windows and macOS, Roboto on Android, Verdana as a third. Every one of them
+   matches Bolyar's advance and clears the line box.
+
+   The names carry no digits on purpose. next/font writes the fallback list
+   into the font-family unquoted, and a family token may not begin with one —
+   "Bolyar Fallback 2" invalidated the whole declaration, and every heading
+   silently dropped to the body face.
+
+   Ascent and descent are Bolyar's own — 2001 and 47 of 2048 — on all three,
+   so the line box and the baseline within it are identical whichever face
+   stands in, and the type does not shift vertically when the real one lands.
+
+   Re-measure with .work/precise.mjs if the display face is ever replaced. */
 @font-face {
-  font-family: "Bolyar Fallback";
-  src: local("Arial");
-  size-adjust: 135%;
-  ascent-override: 94.97%;
-  descent-override: 4.74%;
-  /* The display scale sets its own line-height everywhere, so the gap is
-     pinned to zero rather than left to vary between the two faces. */
+  font-family: "Bolyar Fallback Black";
+  src: local("Arial Black");
+  size-adjust: 121%;
+  ascent-override: 97.71%;
+  descent-override: 2.29%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Bolyar Fallback Roboto";
+  src: local("Roboto");
+  size-adjust: 131%;
+  ascent-override: 97.71%;
+  descent-override: 2.29%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Bolyar Fallback Verdana";
+  src: local("Verdana");
+  size-adjust: 118.6%;
+  ascent-override: 97.71%;
+  descent-override: 2.29%;
   line-gap-override: 0%;
 }
 

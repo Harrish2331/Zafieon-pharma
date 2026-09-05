@@ -33,7 +33,14 @@ export const bolyar = localFont({
    * from metrics read straight out of the TTF by tools/fontmetrics.mjs. Re-run
    * that script if the font file is ever replaced.
    */
-  fallback: ["Bolyar Fallback", "Poppins", "system-ui", "sans-serif"],
+  fallback: [
+    "Bolyar Fallback Black",
+    "Bolyar Fallback Roboto",
+    "Bolyar Fallback Verdana",
+    "Poppins",
+    "system-ui",
+    "sans-serif",
+  ],
   adjustFontFallback: false,
 });
 
