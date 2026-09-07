@@ -38,6 +38,9 @@ import * as THREE from "three";
  *  · No postprocessing. DPR capped. Reduced motion freezes rather than removes.
  */
 
+/** The diagonal the reference stands the capsule on, in radians. */
+const TILT = 0.52;
+
 const NAVY = "#14274b";
 const MAGENTA = "#e5188a";
 
@@ -106,22 +109,32 @@ function Core({ still }: { still: boolean }) {
           r,
           a,
           speed: 0.12 + Math.random() * 0.3,
-          scale: 0.024 + Math.random() * 0.04,
+          scale: 0.05 + Math.random() * 0.055,
           hot: Math.random() > 0.72,
+          // Each pill sits at its own angle and tumbles slowly, so the fill
+          // reads as loose granules rather than a pattern.
+          rx: Math.random() * Math.PI,
+          ry: Math.random() * Math.PI,
+          rz: Math.random() * Math.PI,
+          tumble: 0.1 + Math.random() * 0.22,
         };
       }),
     [],
   );
 
-  const geo = useMemo(() => new THREE.IcosahedronGeometry(1, 0), []);
+  /* Pills rather than pellets. The reference fills the capsule with small
+     rounded granules, which is also what an actual filled capsule looks like;
+     a sphere reads as a bubble. Kept to four radial segments — there are 56 of
+     them and none is ever more than a few pixels across. */
+  const geo = useMemo(() => new THREE.CapsuleGeometry(0.4, 0.85, 3, 8), []);
   const mat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: "#ff9fd2",
+        color: "#ff6fbe",
         emissive: new THREE.Color(MAGENTA),
-        emissiveIntensity: 3.4,
-        roughness: 0.25,
-        metalness: 0.1,
+        emissiveIntensity: 2.4,
+        roughness: 0.3,
+        metalness: 0.05,
       }),
     [],
   );
@@ -138,7 +151,8 @@ function Core({ still }: { still: boolean }) {
         s.y + Math.sin(t * 0.35 + s.a) * 0.055,
         Math.sin(a) * s.r,
       );
-      dummy.scale.setScalar(s.scale * (s.hot ? 1.35 : 1));
+      dummy.rotation.set(s.rx + t * s.tumble, s.ry, s.rz + t * s.tumble * 0.6);
+      dummy.scale.setScalar(s.scale * (s.hot ? 1.3 : 1));
       dummy.updateMatrix();
       ref.current!.setMatrixAt(i, dummy.matrix);
     });
@@ -147,6 +161,67 @@ function Core({ still }: { still: boolean }) {
 
   return (
     <instancedMesh ref={ref} args={[geo, mat, COUNT]} frustumCulled={false} />
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   The printed lockup.
+
+   Zafieon's reference shows the identity printed down the barrel of the
+   capsule. The artwork is the supplied file — public/brand/logo-horizontal-
+   white.svg, turned a quarter turn and baked to a texture by
+   tools/capsulelabel.mjs — not a redrawn approximation. The rule the rest of
+   the project follows holds here: the logo is a supplied asset wherever it
+   appears.
+
+   It is printed on the OUTSIDE of the shell, a hair proud of it, which is
+   where a real capsule carries its print — and it has to be: three renders the
+   transmission pass without transparent objects, so a label inside the glass
+   is simply not composited and never appears.
+   ------------------------------------------------------------------------- */
+function Label() {
+  const [map, setMap] = useState<THREE.Texture | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    const loader = new THREE.TextureLoader();
+    loader.load("/brand/capsule-label.webp", (t) => {
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.anisotropy = 4;
+      // One face, not wrapped: the print occupies the middle of the texture
+      // and the rest is transparent.
+      t.wrapS = THREE.ClampToEdgeWrapping;
+      t.wrapT = THREE.ClampToEdgeWrapping;
+      if (live) setMap(t);
+      else t.dispose();
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  /* An open band around the barrel rather than a whole capsule.
+     three's cylinder puts theta = 0 at +Z, so starting the sweep at -SPAN/2
+     centres the print on the face that meets the camera — no guessing at a
+     lathe's winding order, which is what left the print on the far side. */
+  const SPAN = 1.15;
+  const geo = useMemo(
+    () =>
+      new THREE.CylinderGeometry(0.772, 0.772, 1.78, 28, 1, true, -SPAN / 2, SPAN),
+    [],
+  );
+
+  if (!map) return null;
+  return (
+    <mesh geometry={geo} renderOrder={3}>
+      <meshBasicMaterial
+        map={map}
+        transparent
+        depthWrite={false}
+        side={THREE.FrontSide}
+        toneMapped={false}
+      />
+    </mesh>
   );
 }
 
@@ -200,16 +275,18 @@ function Field({ still }: { still: boolean }) {
    ------------------------------------------------------------------------- */
 function Registers({ still }: { still: boolean }) {
   const g = useRef<THREE.Group>(null);
+  /* Wider than the capsule and further apart than they were, which is how
+     they sit in the reference — the object is ringed rather than collared. */
   const rings = useMemo(
     () => [
-      { r: 1.42, o: 0.6 },
-      { r: 1.72, o: 0.3 },
-      { r: 2.04, o: 0.13 },
+      { r: 1.56, o: 0.62 },
+      { r: 1.94, o: 0.34 },
+      { r: 2.32, o: 0.15 },
     ],
     [],
   );
   const geos = useMemo(
-    () => rings.map((x) => new THREE.TorusGeometry(x.r, 0.006, 6, 170)),
+    () => rings.map((x) => new THREE.TorusGeometry(x.r, 0.005, 6, 190)),
     [rings],
   );
 
@@ -267,16 +344,19 @@ function Scene({
         transmission: 1,
         specularIntensity: 1,
         reflectivity: 0.6,
-        thickness: 1.05,
-        ior: 1.42,
-        roughness: 0.025,
+        thickness: 0.82,
+        ior: 1.4,
+        roughness: 0.035,
         metalness: 0,
         clearcoat: 1,
         clearcoatRoughness: 0.03,
         envMap: env,
         envMapIntensity: 1.9,
-        attenuationColor: new THREE.Color("#1b3a63"),
-        attenuationDistance: 2.6,
+        /* The reference capsule is near-clear with the fill glowing through
+           it. The old navy attenuation tinted the whole body and read as a
+           blue object rather than as glass. */
+        attenuationColor: new THREE.Color("#dce8f7"),
+        attenuationDistance: 3.6,
         transparent: true,
       }),
     [env],
@@ -297,7 +377,7 @@ function Scene({
     lean.current.scale.setScalar(0.93 + 0.07 * e);
 
     if (still) {
-      lean.current.rotation.set(0.1, -0.34, 0.16);
+      lean.current.rotation.set(0.1, -0.28, TILT);
       return;
     }
 
@@ -314,7 +394,7 @@ function Scene({
     );
     lean.current.rotation.z = THREE.MathUtils.lerp(
       lean.current.rotation.z,
-      0.16 + p.x * 0.05,
+      TILT + p.x * 0.05,
       0.05,
     );
     lean.current.position.y = Math.sin(state.clock.elapsedTime * 0.42) * 0.075;
@@ -338,10 +418,11 @@ function Scene({
 
       <Field still={still} />
 
-      <group ref={lean} rotation={[0.08, 0, 0.16]}>
+      <group ref={lean} rotation={[0.08, 0, TILT]}>
         <pointLight position={[0, 0, 0]} intensity={7} distance={4.2} color={MAGENTA} />
         <pointLight position={[0, 0.9, 0]} intensity={3} distance={3} color="#ff8fcf" />
         <Core still={still} />
+        <Label />
         <mesh geometry={capsule} material={shell} />
         <Registers still={still} />
       </group>

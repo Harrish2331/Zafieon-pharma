@@ -38,7 +38,7 @@ import type { Product, ProductCategory } from "./types";
  * to that area should see the full range rather than a subset of it. The
  * narrower areas listed after it are what actually reduce the list.
  */
-export const products: Product[] = [
+const productRecords: Product[] = [
   {
     id: "prd-01",
     slug: "femi-dros-30",
@@ -297,6 +297,48 @@ export const products: Product[] = [
     source: "source-assets/products/meta coq.png",
   },
 ];
+
+/**
+ * The catalogue order, fixed by Zafieon Pharma.
+ *
+ * Listed by slug rather than by array position, so the order survives edits to
+ * the records above and a typo fails the build instead of silently dropping a
+ * product from the site. Every record must be named: a product left out of
+ * this list is a build error, not a quiet disappearance from the catalogue.
+ *
+ * The first five are the order Zafieon supplied. The rest keep the order they
+ * were entered in.
+ */
+const CATALOGUE_ORDER = [
+  "femulet",
+  "florabet-ll",
+  "zyfolic",
+  "meta-coq",
+  "proluvia-aq",
+  "femi-dros-30",
+  "femi-dros-20",
+  "miso-pro",
+  "let-bloom",
+  "mifiprine",
+  "ferrin-xt",
+  "luna-35",
+] as const;
+
+/** Every product the site shows, in Zafieon's order. */
+export const products: Product[] = CATALOGUE_ORDER.map((slug) => {
+  const p = productRecords.find((x) => x.slug === slug);
+  if (!p) throw new Error(`CATALOGUE_ORDER names an unknown product: ${slug}`);
+  return p;
+});
+
+const missing = productRecords.filter(
+  (p) => !CATALOGUE_ORDER.includes(p.slug as (typeof CATALOGUE_ORDER)[number]),
+);
+if (missing.length) {
+  throw new Error(
+    `CATALOGUE_ORDER is missing: ${missing.map((p) => p.slug).join(", ")}`,
+  );
+}
 
 export const getProduct = (slug: string) =>
   products.find((p) => p.slug === slug);
