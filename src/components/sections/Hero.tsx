@@ -1,3 +1,4 @@
+import ReactDOM from "react-dom";
 import HeroVisual from "@/components/three/HeroVisual";
 import BrandPattern from "@/components/BrandPattern";
 import CssRise from "@/components/motion/CssRise";
@@ -27,6 +28,16 @@ import { home, about } from "@/data/site";
  * are meant to animate when the reader scrolls to them.
  */
 export default function Hero() {
+  /* The flat form carries the printed lockup as a real image, which makes it
+     the largest element in the hero — and therefore the LCP element. Left to
+     be discovered when the SVG lays out, it arrived at the tail of the
+     critical chain and pushed LCP from 1.26s to 2.1s on a cold throttled load.
+     Twelve kilobytes, asked for up front. */
+  ReactDOM.preload("/brand/capsule-label.webp", {
+    as: "image",
+    fetchPriority: "high",
+  });
+
   const { hero } = home;
 
   return (
