@@ -386,17 +386,20 @@ export const manufacturing = {
       src: "/video/manufacturing.mp4",
       poster: "/video/manufacturing-poster.webp",
       blurDataURL:
-        "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAACQAwCdASoUAAsAPulgqE2pJaQiMAgBIB0JZwAAMrrcGzJwKo0AAP4nIlf80h705YgHBbWrAWC/yMuxMW+KJn6NtI/Le0YQN2LC/apw3YmfyDJ6v98Yj9nAAAA=",
+        "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASoUAAsAPulgqU2pJaQiMAgBIB0JZwDImBjZa4moC05+AAD9Uz7pze6LKUj0U6MApv88WjDK2taRi63kVDHlQgAGQ/LnKH4C2/BhfAAA",
       /** Described for screen readers; the film carries no audio narration.
-          Describes the client MASTER — source-assets/video/Video Project.mp4,
-          sha256 5e893df9…, 1920x1080, 12.3s — which is the file this page
-          serves. It is NOT the shorter re-encode that stood here previously:
-          that one ended on a Proluvia-AQ carton, and this film has no carton
-          footage in it at all. Re-check this line against the frames if the
-          film is ever replaced; a description of footage that is not there is
-          worse than none. */
+          Describes the BRANDED edit — 848x480, 15.33s — which is the file this
+          page serves, and which ends on the Proluvia-AQ product reveal.
+
+          Note for whoever changes this next: the client master held at
+          source-assets/video/Video Project.mp4 (sha256 5e893df9…, 1920x1080,
+          12.3s) is a DIFFERENT CUT with no carton footage in it at all. It was
+          served here briefly and the product reveal disappeared from the page,
+          which is what prompted this note. Sample the frames before swapping
+          the file; a description of footage that is not there is worse than
+          none, and so is a hero film that drops the product. */
       description:
-        "A scientist at a microscope in a laboratory, empty capsule shells in a tray, a gowned operator inspecting a vial in a cleanroom, an automated analyser, a robotic filling line, and a syringe drawn from a vial beside a dish of capsules.",
+        "Empty capsule shells in a tray, a gowned operator in a cleanroom, a vial under automated inspection, a robotic filling line, and a ZAFIEON PHARMA carton of Proluvia-AQ.",
     },
   },
   principles: [

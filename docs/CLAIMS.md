@@ -281,9 +281,22 @@ the supplied documentation is not lost.
 
 | What is shown | Where | Source | Status |
 |---|---|---|---|
-| Manufacturing film, 1920×1080, 12s | `/manufacturing` hero | `public/video/manufacturing.mp4`, supplied by Zafieon | ✅ Client-supplied |
+| Manufacturing film, 848×480, 15.3s | `/manufacturing` hero | `public/video/manufacturing.mp4`, supplied by Zafieon | ✅ Client-supplied |
 | Poster frame | Same | Frame extracted from that film | ✅ Derived from the supplied file |
-| Four Zafieon Insights images | `/insights`, homepage | Frames extracted from the same film | ✅ Derived from the supplied file |
+| Four Zafieon Insights images | `/insights`, homepage | Frames extracted from the 1920×1080 master | ✅ Derived from a supplied file |
+
+⚠️ **Two different cuts of this footage exist, and they are not
+interchangeable.** The one served is the **branded edit**: it closes on a
+six-second reveal of a ZAFIEON PHARMA Proluvia-AQ carton, which is the point of
+putting it on this page. The **master** held at `source-assets/video/Video
+Project.mp4` is longer per shot and far higher resolution, but it is generic
+stock with **no product reveal and no Zafieon branding anywhere in it**.
+
+The branded edit has only ever reached this project as an 848×480, 1.5 MB copy
+sent through chat, which is why the served file is not the full-resolution
+export. **A 1920×1080 export of the branded edit, placed in
+`source-assets/video/`, is an open item** — it would give the product reveal at
+master quality, which neither file on hand does.
 
 The film is **not presented as footage of a Zafieon Pharma facility or of any
 named manufacturing partner.** The caption beneath it states in plain words that
@@ -373,17 +386,22 @@ Zafieon supplied the film twice under two names, byte for byte identical:
   source-assets/video/AI video..mp4     (exact duplicate, deleted)
 ```
 
-`public/video/manufacturing.mp4` is that same master with its `moov` atom moved
-ahead of `mdat` so it can stream — a lossless container re-order, not a
-re-encode. Its own hash therefore differs while the media is identical:
+`source-assets/video/` is git-ignored, so the master is held on disk beside the
+repository rather than inside it — a second 30 MB copy of the same footage
+bought nothing but repository weight. Running `node tools/faststart.mjs` on the
+master moves its `moov` atom ahead of `mdat` and yields
+`15b031ed…c8f5` — a lossless container re-order, not a re-encode.
+
+**The served file is not that.** `public/video/manufacturing.mp4` is the
+branded edit, a different cut supplied separately through chat:
 
 ```
-15b031edc05c262c30da83ae1feae42a2acf8e6e76dcc126f1710775247ac8f5
-  public/video/manufacturing.mp4
+84e18418eef824d8046e08f9b41283a4af02a339105e6e62f6d4f71c83b3e9ae
+  public/video/manufacturing.mp4      848x480, 15.33s, 1.48 MB
 ```
 
-Only that file is under version control. Keeping a second 30 MB copy of the
-same footage bought nothing but repository weight, so `source-assets/video/` is
-git-ignored and the master is held outside it. The hash above is what makes the
-provenance verifiable: re-run `sha256sum` on the supplied file and it must
-match, and `node tools/faststart.mjs` reproduces the served file from it.
+It is served as delivered, byte for byte — nothing in this project re-encoded
+it, and it already had `moov` before `mdat`. The master's hash is kept above so
+that cut stays verifiable too, but the two must not be confused: serving the
+master in place of the branded edit silently removes the product reveal from
+the hero, which has happened once already.

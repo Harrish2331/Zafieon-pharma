@@ -30,9 +30,9 @@ type Connection = {
  * OS-level preference is that mechanism, so it is honoured rather than ignored.
  * Save-Data and 2G/3G connections hold at the poster for a plainer reason: a
  * video is not a reasonable thing to push at a metered phone uninvited. The
- * file is the 30 MB client master, so that courtesy matters more here than it
- * did while a 1.5 MB re-encode stood in for it. Nobody else sees any
- * difference: everyone gets the loop.
+ * encode is 1.5 MB rather than the 30 MB that first prompted this, so the
+ * courtesy costs those visitors little — but it is still their choice to make,
+ * not ours. Nobody else sees any difference: everyone gets the loop.
  *
  * ── Why the media state is read, not just listened for ─────────────────────
  * `src` is in the server-rendered HTML, so the browser starts loading the file
@@ -153,11 +153,10 @@ export default function ManufacturingFilm({
         {/* Two different jobs at two sizes.
 
             From `md` the plate takes the film's own ratio, so `cover` has
-            nothing to crop — the frame and the source are both 16:9, the
-            master being 1920x1080.
+            nothing to crop — the frame and the source are both 1.7667.
 
             Below `md` the plate has to be tall enough to hold the standfirst
-            that sits over it, which on a phone makes it portrait: a 16:9 film
+            that sits over it, which on a phone makes it portrait: a 1.77 film
             in a 0.73 frame. `cover` there showed about two fifths of the
             film's width, which is a crop of the supplied footage — and the
             brief is explicit that the film is not to be cropped. So it is
@@ -171,7 +170,7 @@ export default function ManufacturingFilm({
             came out 512px wide inside a 390px viewport, clipped silently by the
             hero's `overflow-hidden`. Pinning the width means the ratio can only
             ever drive the height. */}
-        <div className="relative min-h-[24rem] w-full overflow-hidden bg-navy-950 md:aspect-[16/9] md:min-h-0">
+        <div className="relative min-h-[24rem] w-full overflow-hidden bg-navy-950 md:aspect-[848/480] md:min-h-0">
           {/* Poster as a real image beneath the film: it decodes early, blurs
               up from its own LQIP, and covers the gap before the first frame
               paints. The video sits above it and simply reveals when ready. */}
@@ -197,19 +196,16 @@ export default function ManufacturingFilm({
             poster={poster}
             muted
             loop
-            // `metadata`, the file being the 30 MB client master again.
+            // `auto`, the file being 1.5 MB.
             //
-            // `auto` was right while the file was a 1.5 MB re-encode: at that
-            // size holding the body back only bought a stall on first play.
-            // The brief now requires the master itself, uncompressed, so the
-            // reasoning inverts back — a visitor who never scrolls to this
-            // section should not be made to pay 30 MB for it. The file is
-            // faststart, so `metadata` still yields a first frame promptly and
-            // the rest streams in while it plays. `none` is worse than either:
-            // Chrome attributes LCP to this element regardless, so deferring
-            // the fetch entirely pushed LCP from 3.9s to 6.5s throttled.
+            // `metadata` is right for the 30 MB master: a visitor who never
+            // reaches this section should not pay for it. At a megabyte and a
+            // half that reasoning inverts — holding back the body only buys a
+            // stall when playback starts. `none` was tried and is worse still:
+            // Chrome attributes LCP to this element either way, so deferring
+            // the fetch pushed LCP from 3.9s to 6.5s throttled.
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-hidden="true"
             tabIndex={-1}
             disablePictureInPicture
