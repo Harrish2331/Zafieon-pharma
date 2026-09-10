@@ -124,6 +124,34 @@ const productRecords: Product[] = [
     source: "Product Images/Zyfolic softgel capsules.png",
   },
   {
+    /**
+     * A separate product from Zyfolic, not a second photograph of it. The
+     * actives are the same, but the pack is branded "ZYFOLIC Q4" in its own
+     * right and the dose is pressed as a TABLET rather than filled as a
+     * softgel — a different dosage form is a different product. Every value
+     * below is read off that carton.
+     */
+    id: "prd-13",
+    slug: "zyfolic-q4",
+    name: "Zyfolic Q4",
+    productClass: "nutraceutical",
+    categories: ["nutraceutical"],
+    dosageForm: "Tablets",
+    therapeuticAreas: ["gynecology", "fertility"],
+    description:
+      "A tablet combining L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA and Vitamin D3.",
+    composition:
+      "L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA & Vitamin D3 Tablets",
+    packaging: "1 x 10 x 1 Tablets",
+    image: "/products/zyfolic-q4.webp",
+    blurDataURL:
+      "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAQBACdASoUAA8APu1iqk2ppaQiMAgBMB2JZADKACHf46ez9bBoQWzdMAD+7eC9xzLn7Mxn8VGgBzKgK8bQxpSXuptCijxOCG4KcvsK4wpmLwfvkFRUfxJy0wwWCoTFBw25h+EJlmp4sChnmCUdY0tyfdmosAAA",
+    imageAlt:
+      "Zyfolic Q4 carton — L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA and Vitamin D3 tablets, 1 x 10 x 1",
+    zafieonBranded: false,
+    source: "public/products/zyfolic Q4.jpeg",
+  },
+  {
     id: "prd-05",
     slug: "femulet",
     name: "Femulet",
@@ -313,6 +341,10 @@ const productRecords: Product[] = [
  *
  * The first five are the order Zafieon supplied. The rest keep the order they
  * were entered in.
+ *
+ * Zyfolic Q4 sits sixth rather than beside Zyfolic on purpose: the five above
+ * it are the order Zafieon fixed by name, so a later addition goes after them
+ * instead of displacing one of them.
  */
 const CATALOGUE_ORDER = [
   "femulet",
@@ -320,6 +352,7 @@ const CATALOGUE_ORDER = [
   "zyfolic",
   "meta-coq",
   "proluvia-aq",
+  "zyfolic-q4",
   "femi-dros-30",
   "femi-dros-20",
   "miso-pro",

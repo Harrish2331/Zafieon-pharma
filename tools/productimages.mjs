@@ -22,9 +22,13 @@ const MAP = [
   ["meta coq.jpeg", "meta-coq", "Meta-CoQ 300 Tablets — 1 x 5 x 1"],
   ["proluvia.jpeg", "proluvia-aq", "Proluvia-AQ 50 mg Injection — 1 x 5, 5 x 2 ml"],
   ["zyfolic.jpeg", "zyfolic", "ZYFOLIC Softgel Capsules — 1 x 10 x 1"],
-  // "zyfolic Q4.jpeg" is a DIFFERENT product — Zyfolic Q4 Tablets, same
-  // actives in a tablet rather than a softgel. It has no catalogue entry, so
-  // it is deliberately not mapped here rather than being dropped onto Zyfolic.
+  // A DIFFERENT product from Zyfolic, not a second photograph of it: same
+  // actives, but pressed as a tablet rather than filled as a softgel, and
+  // branded "ZYFOLIC Q4" on its own carton. It went unmapped while it had no
+  // catalogue entry; it now has one, so it is mapped to its own slug. It must
+  // never be mapped onto "zyfolic" — that would put the wrong pack, the wrong
+  // dosage form and the wrong pack count against a different product.
+  ["zyfolic Q4.jpeg", "zyfolic-q4", "ZYFOLIC Q4 Tablets — 1 x 10 x 1"],
 ];
 
 const DIR = "public/products";

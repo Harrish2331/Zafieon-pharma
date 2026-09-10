@@ -61,15 +61,23 @@ marking and attributed to the pack — never restated as a Zafieon claim.
 | Ferrin-XT | Name · composition · pack · pack statements · vegetarian mark | `source-assets/images/Ferrin XT.png` |
 | Luna 35 | Name · composition · pack · Rx marking | `source-assets/products/cyproterone acetate.png` |
 | Proluvia-AQ 50 mg | Name · composition · pack · Rx marking · route of administration | `source-assets/products/proluvia-AQ.png` |
-| meta-CoQ | Name only | `source-assets/products/meta coq.png` |
+| Meta-CoQ 300 | Name · composition · pack | `public/products/meta coq.jpeg` |
+| Zyfolic Q4 | Name · composition · pack | `public/products/zyfolic Q4.jpeg` |
 
-**meta-CoQ carries no printed detail.** The supplied artwork is a brand mock-up:
-it shows the brand mark and nothing else — no composition, no strength, no pack
-count, no Rx symbol, no FSSAI licence. It is therefore recorded with
-`detailsPending: true`, and both the card and the product page say in plain
-words that composition and pack details will be published once the finished
-artwork is confirmed. It is grouped under **Nutraceuticals** on the strength of
-two things and nothing more: the absence of an Rx marking, and the brand name.
+**Meta-CoQ 300 is no longer pending.** The artwork first supplied was a brand
+mock-up carrying the brand mark and nothing else, and the product was published
+with `detailsPending: true` while that was true. The carton Zafieon supplied
+since prints the full detail — Coenzyme Q10 (Ubiquinol Acetate) 300 mg with
+L-Carnitine L-Tartrate 750 mg and Astaxanthin 8 mg, 1 x 5 x 1 — so the record
+now carries it and the "details to follow" note is gone. It stays under
+**Nutraceuticals**: no Rx marking is printed on the carton.
+
+**Zyfolic Q4 is a separate product from Zyfolic**, not a second photograph of
+it. The actives are the same, but the carton is branded "ZYFOLIC Q4" in its own
+right and the dose is pressed as a tablet rather than filled as a softgel. It
+is published as its own catalogue entry for that reason; mapping its photograph
+onto Zyfolic would have put the wrong pack and the wrong dosage form against a
+different product.
 ⚠️ **Flagged for Zafieon to confirm the category and supply the pack artwork.**
 
 **Category assignment.** `categories` is a display grouping for the catalogue
@@ -115,9 +123,12 @@ a clinical claim. It drives navigation only.
 - **Femulet, Florabet LL, Ferrin-XT** are FSSAI nutraceuticals / foods for
   special dietary use and carry the standard "not
   intended to diagnose, treat, cure or prevent any disease" statement.
-- Two packs (**MISO-PRO**, **Florabet LL**) and two others (**Zyfolic**,
-  **Femulet**) carry no Zafieon mark in the supplied artwork. Flagged for client
-  confirmation; `zafieonBranded` is recorded per product in `src/data/products.ts`.
+- Only three packs carry the Zafieon mark in the supplied artwork —
+  **Femi-Dros 30**, **Femi-Dros 20** and **Proluvia-AQ 50 mg**. The other ten
+  (MISO-PRO, Zyfolic, Zyfolic Q4, Femulet, Florabet LL, Let Bloom, Mifiprine,
+  Ferrin-XT, Luna 35, Meta-CoQ 300) carry none. Flagged for client
+  confirmation; `zafieonBranded` is recorded per product in
+  `src/data/products.ts` and this list is derived from it.
 
 ---
 

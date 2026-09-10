@@ -386,15 +386,17 @@ export const manufacturing = {
       src: "/video/manufacturing.mp4",
       poster: "/video/manufacturing-poster.webp",
       blurDataURL:
-        "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASoUAAsAPuleqE0pJSOiMAgBIB0JZQCdACP5X0tdb0AVno7QAAD91G3hYozJIjCbsVUuzEV5EzdPEETc7i7L00GUv4Q9sKYGZ9usadcbOPek6VjKm/mu64UIkHQS68wehLJtl4AA",
+        "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAACQAwCdASoUAAsAPulgqE2pJaQiMAgBIB0JZwAAMrrcGzJwKo0AAP4nIlf80h705YgHBbWrAWC/yMuxMW+KJn6NtI/Le0YQN2LC/apw3YmfyDJ6v98Yj9nAAAA=",
       /** Described for screen readers; the film carries no audio narration.
-          Describes the film Zafieon supplied on 8 September: a product carton
-          on a bench. The previous description — laboratory analysis, capsule
-          production, cleanroom inspection and a filling line — belonged to the
-          film this one replaced, and would now be a description of footage
-          that is not there. */
+          Describes the client MASTER — source-assets/video/Video Project.mp4,
+          sha256 5e893df9…, 1920x1080, 12.3s — which is the file this page
+          serves. It is NOT the shorter re-encode that stood here previously:
+          that one ended on a Proluvia-AQ carton, and this film has no carton
+          footage in it at all. Re-check this line against the frames if the
+          film is ever replaced; a description of footage that is not there is
+          worse than none. */
       description:
-        "Empty capsule shells in a tray, a gowned operator in a cleanroom, a vial under automated inspection, a robotic filling line, and a ZAFIEON PHARMA carton of Proluvia-AQ.",
+        "A scientist at a microscope in a laboratory, empty capsule shells in a tray, a gowned operator inspecting a vial in a cleanroom, an automated analyser, a robotic filling line, and a syringe drawn from a vial beside a dish of capsules.",
     },
   },
   principles: [
