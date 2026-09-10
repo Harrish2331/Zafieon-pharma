@@ -114,10 +114,10 @@ const productRecords: Product[] = [
       "A softgel capsule combining L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA and Vitamin D3.",
     composition:
       "L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA & Vitamin D3 Softgel Capsules",
-    packaging: "10 x 1 x 10 Softgel Capsules",
+    packaging: "1 x 10 x 1 Softgel Capsules",
     image: "/products/zyfolic.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAADwAwCdASoUAA8APt1apkyopSOiMAgBEBuJYgDImCHfJZLYkJFW8YQAAP7yNNO0Fcjy6bsWo/Soh+bEHp/pmPLN0AoEW7SUZ6YQLOqLMXBp/81368QWNaJeA8ht9yJilnF/gKVGqD4DD8/snGTM0/bg5vg8FwMAqWPagAAA",
+      "data:image/webp;base64,UklGRogAAABXRUJQVlA4IHwAAADwAwCdASoUAA8APu1iqU2ppaQiMAgBMB2JYgDImCPuPuIq3hI3qPPgAP7t4L3HX3PIBhl2oPhd3teARTmmDhGtXPj81dGiaojvVS2GZ5wINlwGx1+VRyGv1F27NF8TWalqC8bpcZXEK+eRS+1qx9m7L+saW6CvHnwDAAAA",
     imageAlt:
       "Zyfolic carton — L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA and Vitamin D3 softgel capsules, 10 x 1 x 10",
     zafieonBranded: false,
@@ -135,12 +135,12 @@ const productRecords: Product[] = [
       "A nutraceutical tablet for women combining N-Acetyl L-Cysteine, Coenzyme Q10, Melatonin, Astaxanthin, Folic Acid and vitamins B6, B12 and D2.",
     composition:
       "N-Acetyl L-Cysteine, Coenzyme Q10, Melatonin, Astaxanthin, Folic Acid, Vitamin B6, Vitamin B12 & Vitamin D2 Tablets",
-    packaging: "10 x 1 x 10 Tablets",
+    packaging: "1 x 10 x 1 Tablets",
     licence: "FSSAI Lic. No. 22426535000422",
     packMarkings: ["Nutraceutical — For Women", "Vegetarian"],
     image: "/products/femulet.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRoAAAABXRUJQVlA4IHQAAACQBACdASoUABMAPt1iqU+opSOiKAqpEBuJZQBTAAPQ/9BQgDTDdrGT8sXX5cAA/u/6TxB5IPfFEp5tTrJ3x3yA/HRum4PFJ2HOAAgScdpNF1VudovtLSW4YpPUP0iGUt4QzqTdla74LnY20WqjXoE9KjkAAA==",
+      "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAABwBACdASoUABMAPu1mpU2ppaMiMBgMATAdiWUAzFgQ5nlEQAwQ85IX4scvMAD+7W8067npiYyK1GlhaO7Ww17KzK0GzVSbz3tMG3gou3L2uHFzYhFyiTmoDQm+JSNj2quihK+/IIfTm4TSnlngAA==",
     imageAlt:
       "Femulet carton — N-Acetyl L-Cysteine, Coenzyme Q10, Melatonin, Astaxanthin, Folic Acid and vitamin tablets, 10 x 1 x 10",
     zafieonBranded: false,
@@ -158,11 +158,11 @@ const productRecords: Product[] = [
       "A nutraceutical capsule combining prebiotic, probiotic Lactobacilli and Lactoferrin.",
     composition:
       "Prebiotic, Probiotic (Lactobacilli) and Lactoferrin Capsules",
-    packaging: "10 x 10 Capsules",
+    packaging: "10 x 1 Capsules",
     packMarkings: ["Nutraceutical", "Vegetarian"],
     image: "/products/florabet-ll.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRoAAAABXRUJQVlA4IHQAAADwAwCdASoUAAwAPt1cpkyopSOiMAgBEBuJZgDE2B6Nra59mTGXxOAAAP7I2hccrdZ/Qz1EeHe3XPrvzjRBj1KXm+06wuXBjk3O2ktbnD42Wd2YDHTFiM4Jh4cdGxqnviXnEumoGJ5PsY1Sr/HWNA3zcQAAAA==",
+      "data:image/webp;base64,UklGRngAAABXRUJQVlA4IGwAAAAQBACdASoUAAwAPu1iqU2ppaQiMAgBMB2JZgDE2CHgZhX0QfNpSrp7YAD+yNlas+OzZ/NwN5VfkSgq2mI27sMFW7kcqMbtE61wlS3QtS49tH+XMq7+e4K2XEOTHiXTUBtPN3v2GQFehnmuQAA=",
     imageAlt:
       "Florabet LL carton — prebiotic, probiotic Lactobacilli and Lactoferrin capsules, 10 x 10",
     zafieonBranded: false,
@@ -273,7 +273,7 @@ const productRecords: Product[] = [
     packMarkings: ["Rx — Prescription only", "For IM / subcutaneous use"],
     image: "/products/proluvia-aq.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAADwAwCdASoUAA8APu1iqk2ppaQiMAgBMB2JZQAAW9OCyHwPE+b4DuAAAP7xyf/7ssRKL01F0MhGbcOxexfN7/+TVnkEh4UNWfhz08MkJJlWGuNU/fqbABdAAAA=",
+      "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAwBACdASoUAA8APu1iqU2ppaOiMAgBMB2JYwDKACbLLffCvsnrXjEl5gAA/u/uWJPy1H8IvW5NiQU730flE2sExJUqdbmnjGj879dcVNgCBznLPhPyVRlDrL6ywTVwpJcZUDOSv89pbY6OqJDvdB1n+EshxAAA",
     imageAlt:
       "Proluvia-AQ 50 mg carton — aqueous solution of Progesterone injection, 5 x 2 ml, bearing the Zafieon Pharma mark",
     zafieonBranded: true,
@@ -282,19 +282,24 @@ const productRecords: Product[] = [
   {
     id: "prd-12",
     slug: "meta-coq",
-    name: "meta-CoQ",
+    name: "Meta-CoQ 300",
     productClass: "nutraceutical",
     categories: ["nutraceutical"],
     therapeuticAreas: ["gynecology", "fertility"],
+    dosageForm: "Tablets",
     description:
-      "A nutraceutical supplied under the meta-CoQ brand. The supplied artwork carries the brand only — no composition, pack presentation or regulatory marking is printed on it, so none is stated here.",
+      "A nutraceutical tablet combining Coenzyme Q10 as ubiquinol acetate with L-Carnitine L-Tartrate and Astaxanthin.",
+    composition:
+      "Coenzyme Q10 (Ubiquinol Acetate) 300 mg + L-Carnitine L-Tartrate 750 mg + Astaxanthin 8 mg",
+    packaging: "1 x 5 x 1 Tablets",
     image: "/products/meta-coq.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAACQAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JZwAAW+nyD/duRK2AAP7xxOmBnlwd13X7R2Y68Gx7BRpccvwTaTbkGT/ADY+o76zVMOMVM2NxgAAA",
-    imageAlt: "meta-CoQ carton bearing the meta-CoQ brand mark",
+      "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAADwAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JZQAAW+l19LR+L3OH9uoAAP7xyIiXw30waRqvZiXwSJQ2aYWm4MYQNJ/IhIZSDZjTMpjF0SfREpEagT0xxmlTO6Yax8Zp3WnneU8RsYN2ZEnDtQAAAA==",
+    imageAlt:
+      "Meta-CoQ 300 carton — Coenzyme Q10, L-Carnitine L-Tartrate and Astaxanthin tablets, 1 x 5 x 1",
     zafieonBranded: false,
-    detailsPending: true,
-    source: "source-assets/products/meta coq.png",
+    source:
+      "public/products/meta coq.jpeg — carton photography supplied 10 September. The carton prints the third active as “Asthaxanthin”; it is set here under its standard spelling.",
   },
 ];
 

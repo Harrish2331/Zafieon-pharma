@@ -41,6 +41,13 @@ import * as THREE from "three";
 /** The diagonal the reference stands the capsule on, in radians. */
 const TILT = 0.52;
 
+/** Touch devices get a cheaper build of the same scene — same composition,
+    fewer segments and fewer points. Read once, at module scope: this file is
+    imported with `ssr: false`. */
+const COARSE =
+  typeof window !== "undefined" &&
+  window.matchMedia("(pointer: coarse)").matches;
+
 const NAVY = "#14274b";
 const MAGENTA = "#e5188a";
 
@@ -52,31 +59,32 @@ function useStudioEnv() {
   const { gl } = useThree();
   return useMemo(() => {
     const c = document.createElement("canvas");
-    c.width = 256;
-    c.height = 128;
+    c.width = COARSE ? 128 : 256;
+    c.height = COARSE ? 64 : 128;
     const ctx = c.getContext("2d")!;
 
-    const g = ctx.createLinearGradient(0, 0, 0, 128);
+    const g = ctx.createLinearGradient(0, 0, 0, c.height);
     g.addColorStop(0, "#ffffff");
     g.addColorStop(0.42, "#eef3fa");
-    g.addColorStop(0.66, "#c8d5e8");
-    g.addColorStop(1, "#5f72a0");
+    g.addColorStop(0.66, "#dcc7e2");
+    g.addColorStop(1, "#8a6f9e");
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 256, 128);
+    ctx.fillRect(0, 0, c.width, c.height);
 
     // Key light — the highlight that runs along the capsule's shoulder.
-    const key = ctx.createRadialGradient(186, 26, 2, 186, 26, 62);
+    const k = c.width / 256;
+    const key = ctx.createRadialGradient(186 * k, 26 * k, 2, 186 * k, 26 * k, 62 * k);
     key.addColorStop(0, "rgba(255,255,255,1)");
     key.addColorStop(1, "rgba(255,255,255,0)");
     ctx.fillStyle = key;
-    ctx.fillRect(0, 0, 256, 128);
+    ctx.fillRect(0, 0, c.width, c.height);
 
     // Magenta bounce, low and left, so the glass picks up the brand accent.
-    const fill = ctx.createRadialGradient(52, 96, 2, 52, 96, 76);
-    fill.addColorStop(0, "rgba(229,24,138,0.5)");
+    const fill = ctx.createRadialGradient(52 * k, 96 * k, 2, 52 * k, 96 * k, 76 * k);
+    fill.addColorStop(0, "rgba(229,24,138,0.72)");
     fill.addColorStop(1, "rgba(229,24,138,0)");
     ctx.fillStyle = fill;
-    ctx.fillRect(0, 0, 256, 128);
+    ctx.fillRect(0, 0, c.width, c.height);
 
     const tex = new THREE.CanvasTexture(c);
     tex.mapping = THREE.EquirectangularReflectionMapping;
@@ -95,7 +103,7 @@ function useStudioEnv() {
    ------------------------------------------------------------------------- */
 function Core({ still }: { still: boolean }) {
   const ref = useRef<THREE.InstancedMesh>(null);
-  const COUNT = 56;
+  const COUNT = COARSE ? 44 : 74;
 
   const seeds = useMemo(
     () =>
@@ -109,7 +117,7 @@ function Core({ still }: { still: boolean }) {
           r,
           a,
           speed: 0.12 + Math.random() * 0.3,
-          scale: 0.05 + Math.random() * 0.055,
+          scale: 0.042 + Math.random() * 0.042,
           hot: Math.random() > 0.72,
           // Each pill sits at its own angle and tumbles slowly, so the fill
           // reads as loose granules rather than a pattern.
@@ -126,14 +134,17 @@ function Core({ still }: { still: boolean }) {
      rounded granules, which is also what an actual filled capsule looks like;
      a sphere reads as a bubble. Kept to four radial segments — there are 56 of
      them and none is ever more than a few pixels across. */
-  const geo = useMemo(() => new THREE.CapsuleGeometry(0.4, 0.85, 3, 8), []);
+  const geo = useMemo(() => new THREE.CapsuleGeometry(0.4, 0.85, COARSE ? 2 : 3, COARSE ? 6 : 8), []);
   const mat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: "#ff6fbe",
+        /* Barely emissive. At the intensities this carried before, the
+           granules bloomed into each other through the glass and read as one
+           smear of colour; the reference shows separate beads. */
+        color: "#c2166f",
         emissive: new THREE.Color(MAGENTA),
-        emissiveIntensity: 2.4,
-        roughness: 0.3,
+        emissiveIntensity: 0.45,
+        roughness: 0.42,
         metalness: 0.05,
       }),
     [],
@@ -207,7 +218,7 @@ function Label() {
   const SPAN = 1.15;
   const geo = useMemo(
     () =>
-      new THREE.CylinderGeometry(0.772, 0.772, 1.78, 28, 1, true, -SPAN / 2, SPAN),
+      new THREE.CylinderGeometry(0.772, 0.772, 1.78, COARSE ? 18 : 28, 1, true, -SPAN / 2, SPAN),
     [],
   );
 
@@ -230,7 +241,7 @@ function Label() {
    ------------------------------------------------------------------------- */
 function Field({ still }: { still: boolean }) {
   const ref = useRef<THREE.Points>(null);
-  const COUNT = 420;
+  const COUNT = COARSE ? 190 : 420;
 
   const geo = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
@@ -286,7 +297,7 @@ function Registers({ still }: { still: boolean }) {
     [],
   );
   const geos = useMemo(
-    () => rings.map((x) => new THREE.TorusGeometry(x.r, 0.005, 6, 190)),
+    () => rings.map((x) => new THREE.TorusGeometry(x.r, 0.005, 6, COARSE ? 110 : 190)),
     [rings],
   );
 
@@ -324,7 +335,33 @@ function Scene({
   const env = useStudioEnv();
   const lean = useRef<THREE.Group>(null);
   const entrance = useRef(0);
-  const { camera, gl } = useThree();
+  const { camera, gl, size } = useThree();
+
+  /**
+   * Frame the capsule to whatever box it is given.
+   *
+   * The camera distance was a constant tuned against the desktop panel, which
+   * is tall and narrow. A phone gives this a short, wide box instead — and at
+   * a fixed distance the object is then height-constrained and sits small in
+   * the middle with the registers running off the sides. Solving for the
+   * distance that puts the capsule at a set fraction of the tighter axis makes
+   * it fill its frame at any shape, which is the responsive answer rather than
+   * a per-width override.
+   *
+   * Only on touch: the desktop framing is the art direction and is left alone.
+   */
+  useEffect(() => {
+    if (!COARSE) return;
+    const halfV = Math.tan((32 * Math.PI) / 180 / 2);
+    const aspect = size.width / Math.max(1, size.height);
+    /** Half the capsule's extent, allowing for the tilt. */
+    const R = 1.62;
+    /** How much of the tighter axis the capsule should occupy. */
+    const FILL = 0.86;
+    const d = aspect >= 1 ? R / (FILL * halfV) : R / (FILL * halfV * aspect);
+    camera.position.z = Math.min(9.5, Math.max(4.8, d));
+    camera.updateProjectionMatrix();
+  }, [camera, size]);
 
   // Transmission is the only costly thing in the scene. Configure the renderer
   // once, in an effect, rather than during render.
@@ -332,8 +369,12 @@ function Scene({
     const r = gl as THREE.WebGLRenderer & {
       transmissionResolutionScale?: number;
     };
-    if (r.transmissionResolutionScale !== undefined)
-      r.transmissionResolutionScale = 0.5;
+    if (r.transmissionResolutionScale !== undefined) {
+      r.transmissionResolutionScale = window.matchMedia("(pointer: coarse)")
+        .matches
+        ? 0.35
+        : 0.5;
+    }
   }, [gl]);
 
 
@@ -344,26 +385,27 @@ function Scene({
         transmission: 1,
         specularIntensity: 1,
         reflectivity: 0.6,
-        thickness: 0.82,
-        ior: 1.4,
-        roughness: 0.035,
+        thickness: 0.95,
+        ior: 1.44,
+        roughness: 0.045,
         metalness: 0,
         clearcoat: 1,
         clearcoatRoughness: 0.03,
         envMap: env,
-        envMapIntensity: 1.9,
-        /* The reference capsule is near-clear with the fill glowing through
-           it. The old navy attenuation tinted the whole body and read as a
-           blue object rather than as glass. */
-        attenuationColor: new THREE.Color("#dce8f7"),
-        attenuationDistance: 3.6,
+        envMapIntensity: 1.55,
+        /* The tint the light picks up crossing the body. The reference reads
+           as a warm violet that deepens toward the shoulders and lets the fill
+           glow through — not the near-clear glass this was, and not the navy
+           it was before that, which made it read as a blue object. */
+        attenuationColor: new THREE.Color("#e7b9d8"),
+        attenuationDistance: 1.55,
         transparent: true,
       }),
     [env],
   );
 
   const capsule = useMemo(
-    () => new THREE.CapsuleGeometry(0.76, 1.7, 24, 64),
+    () => new THREE.CapsuleGeometry(0.76, 1.7, COARSE ? 14 : 24, COARSE ? 40 : 64),
     [],
   );
 
@@ -419,8 +461,8 @@ function Scene({
       <Field still={still} />
 
       <group ref={lean} rotation={[0.08, 0, TILT]}>
-        <pointLight position={[0, 0, 0]} intensity={7} distance={4.2} color={MAGENTA} />
-        <pointLight position={[0, 0.9, 0]} intensity={3} distance={3} color="#ff8fcf" />
+        <pointLight position={[0, 0, 0]} intensity={3.2} distance={4.2} color={MAGENTA} />
+        <pointLight position={[0, 0.9, 0]} intensity={1.4} distance={3} color="#ff8fcf" />
         <Core still={still} />
         <Label />
         <mesh geometry={capsule} material={shell} />
@@ -433,6 +475,14 @@ function Scene({
 export default function PrecisionForm() {
   const pointer = useRef({ x: 0, y: 0 });
   const still = useReducedMotion() ?? false;
+  /* Touch devices, which get a cheaper render. Read during the first render
+     rather than in an effect: this module is imported with `ssr: false`, so it
+     only ever runs in the browser and there is no server pass to disagree
+     with — and reading it late would mean one frame at the desktop DPR, which
+     on a phone is the expensive one. */
+  const [coarse] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(pointer: coarse)").matches,
+  );
   const host = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
 
@@ -464,7 +514,10 @@ export default function PrecisionForm() {
       onPointerLeave={() => (pointer.current = { x: 0, y: 0 })}
     >
       <Canvas
-        dpr={[1, 1.5]}
+        /* A phone's device pixel ratio is 3 on most current handsets, and a
+           transmissive material is fill-rate bound: rendering this at 3x is
+           what would make it stutter. Capped harder there than on desktop. */
+        dpr={coarse ? [1, 1.2] : [1, 1.5]}
         gl={{
           antialias: true,
           alpha: true,

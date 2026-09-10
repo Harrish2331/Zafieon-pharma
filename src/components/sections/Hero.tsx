@@ -99,7 +99,12 @@ export default function Hero() {
                 <CssRise delay={0.5 + i * 0.06} y={14}>
                   <div className="pr-4 sm:px-5 lg:px-7">
                     <span className="eyebrow block text-magenta-600">{v.index}</span>
-                    <span className="mt-3 block font-[family-name:var(--font-display)] text-[0.98rem] tracking-[0.01em] text-navy uppercase">
+                    {/* Fluid only where it has to be. In a two-column register at 320px
+                        each cell leaves 123px, and "INNOVATION" sets 136px at the
+                        fixed size — it was running out of its cell. The clamp
+                        reaches the fixed size by ~373px and holds there, so
+                        nothing changes on any larger screen. */}
+                    <span className="mt-3 block font-[family-name:var(--font-display)] text-[clamp(0.8rem,4.2vw,0.98rem)] tracking-[0.01em] text-navy uppercase">
                       {v.title}
                     </span>
                   </div>

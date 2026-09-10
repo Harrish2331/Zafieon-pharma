@@ -386,7 +386,7 @@ export const manufacturing = {
       src: "/video/manufacturing.mp4",
       poster: "/video/manufacturing-poster.webp",
       blurDataURL:
-        "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAAAQBACdASoUAAsAPulgqU0pJaQiMAgBIB0JZQCsACBvd+9imWjz39NkAAD+1Lmj7nh0orDxNgpAucVAw8Ob6mx+TBj2up0jVUoL8aUzw+KFQAAA",
+        "data:image/webp;base64,UklGRnYAAABXRUJQVlA4IGoAAAAQBACdASoUAAsAPuleqE0pJSOiMAgBIB0JZQCdACP5X0tdb0AVno7QAAD91G3hYozJIjCbsVUuzEV5EzdPEETc7i7L00GUv4Q9sKYGZ9usadcbOPek6VjKm/mu64UIkHQS68wehLJtl4AA",
       /** Described for screen readers; the film carries no audio narration.
           Describes the film Zafieon supplied on 8 September: a product carton
           on a bench. The previous description — laboratory analysis, capsule
@@ -394,7 +394,7 @@ export const manufacturing = {
           film this one replaced, and would now be a description of footage
           that is not there. */
       description:
-        "A ZAFIEON PHARMA carton of Aqueous Solution of Progesterone Injection, 5 x 2 ml, resting on a bench in a production environment.",
+        "Empty capsule shells in a tray, a gowned operator in a cleanroom, a vial under automated inspection, a robotic filling line, and a ZAFIEON PHARMA carton of Proluvia-AQ.",
     },
   },
   principles: [

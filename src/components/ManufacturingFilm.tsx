@@ -28,9 +28,11 @@ type Connection = {
  * poster and nothing moving. WCAG 2.2.2 wants a way to stop motion that starts
  * on its own and runs past five seconds; with no visible control by design, the
  * OS-level preference is that mechanism, so it is honoured rather than ignored.
- * Save-Data and 2G/3G connections hold at the poster for a plainer reason: 30 MB
- * is not a reasonable thing to push at a metered phone. Nobody else sees any
- * difference — everyone gets the loop.
+ * Save-Data and 2G/3G connections hold at the poster for a plainer reason: a
+ * video is not a reasonable thing to push at a metered phone uninvited. The
+ * encode is 1.5 MB now rather than the 30 MB that first prompted this, so the
+ * courtesy costs those visitors little — but it is still their choice to make,
+ * not ours. Nobody else sees any difference: everyone gets the loop.
  *
  * ── Why the media state is read, not just listened for ─────────────────────
  * `src` is in the server-rendered HTML, so the browser starts loading the file
@@ -148,14 +150,27 @@ export default function ManufacturingFilm({
   return (
     <div ref={wrap} className="relative isolate mt-14 lg:mt-20">
       <figure className="relative">
-        {/* `w-full` is load-bearing, not decoration. With `aspect-ratio` set
+        {/* Two different jobs at two sizes.
+
+            From `md` the plate takes the film's own ratio, so `cover` has
+            nothing to crop — the frame and the source are both 1.7667.
+
+            Below `md` the plate has to be tall enough to hold the standfirst
+            that sits over it, which on a phone makes it portrait: a 1.77 film
+            in a 0.73 frame. `cover` there showed about two fifths of the
+            film's width. That is fine for footage that is texture; it is not
+            fine for footage of a carton, which is what this is. So the film is
+            CONTAINed below `md` and centred on the navy plate instead — the
+            whole frame, letterboxed, with the copy over the band. At `md` and
+            up contain and cover are the same thing, the ratios being equal.
+
+            `w-full` is load-bearing, not decoration. With `aspect-ratio` set
             and `width: auto`, a `min-height` that wins over the ratio-derived
             height makes Chrome re-derive the WIDTH from that height — the plate
             came out 512px wide inside a 390px viewport, clipped silently by the
-            hero's `overflow-hidden`, taking the right-hand third of the
-            overlaid copy with it. Pinning the width means the ratio can only
+            hero's `overflow-hidden`. Pinning the width means the ratio can only
             ever drive the height. */}
-        <div className="relative min-h-[24rem] w-full overflow-hidden bg-navy-950 md:aspect-16/9 md:min-h-0">
+        <div className="relative min-h-[24rem] w-full overflow-hidden bg-navy-950 md:aspect-[848/480] md:min-h-0">
           {/* Poster as a real image beneath the film: it decodes early, blurs
               up from its own LQIP, and covers the gap before the first frame
               paints. The video sits above it and simply reveals when ready. */}
@@ -168,7 +183,7 @@ export default function ManufacturingFilm({
             sizes="(max-width: 1024px) 100vw, 1200px"
             placeholder={blurDataURL ? "blur" : "empty"}
             blurDataURL={blurDataURL}
-            className="object-cover object-center"
+            className="object-contain object-center md:object-cover"
           />
 
           {/* No `controls`, and deliberately inert: it is motion behind the
@@ -181,20 +196,22 @@ export default function ManufacturingFilm({
             poster={poster}
             muted
             loop
-            // `metadata`, deliberately. A visitor who never reaches this
-            // section pays for a file header, not 30 MB.
+            // `auto`, now that the encode is 1.5 MB rather than 30 MB.
             //
-            // `none` was tried and is worse: Chrome attributes LCP to this
-            // element either way, so deferring the fetch only pushed LCP from
-            // 3.9s to 6.5s on a throttled connection. The element is the hero;
-            // the honest fix is a smaller encode, not a loading flag.
+            // `metadata` was right for the old file: a visitor who never
+            // reached this section should not pay for 30 MB. At a megabyte and
+            // a half that reasoning inverts — holding back the body only buys
+            // a stall when playback starts. `none` was tried and is worse
+            // still: Chrome attributes LCP to this element either way, so
+            // deferring the fetch pushed LCP from 3.9s to 6.5s on a throttled
+            // connection.
             playsInline
-            preload="metadata"
+            preload="auto"
             aria-hidden="true"
             tabIndex={-1}
             disablePictureInPicture
             controlsList="nodownload noplaybackrate noremoteplayback"
-            className={`pointer-events-none absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
+            className={`pointer-events-none absolute inset-0 h-full w-full object-contain object-center transition-opacity md:object-cover duration-700 ${
               ready ? "opacity-100" : "opacity-0"
             }`}
           />

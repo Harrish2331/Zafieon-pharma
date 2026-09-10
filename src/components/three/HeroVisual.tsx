@@ -25,8 +25,14 @@ const PrecisionForm = dynamic(() => import("./PrecisionForm"), {
 function canAfford3D(): boolean {
   if (typeof window === "undefined") return false;
 
-  if (!window.matchMedia("(min-width: 1024px)").matches) return false;
-  if (!window.matchMedia("(pointer: fine)").matches) return false;
+  /* Width and pointer type are NOT gates any more.
+     They were, and the effect was that a phone got the flat fallback — a
+     capsule with none of the sculpture's tilt, granules or print. That reads
+     as a broken visual rather than as a considered fallback, which is exactly
+     how it was reported. Capability is still gated, on the three things that
+     actually predict whether the scene will run: real WebGL, enough cores and
+     enough memory. A phone that clears those runs it; one that does not gets
+     StaticForm, which now carries the same composition. */
 
   const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   if (typeof mem === "number" && mem < 4) return false;
@@ -69,7 +75,41 @@ function canAfford3D(): boolean {
  * was written for; the opening is now pure CSS on the compositor, with
  * 'contain: strict', and cannot be stuttered by anything happening here.
  */
-const sceneChunk = canAfford3D() ? import("./PrecisionForm") : null;
+const eligible = canAfford3D();
+
+/** Touch devices, which pay far more for the same work. */
+const coarse =
+  typeof window !== "undefined" &&
+  window.matchMedia("(pointer: coarse)").matches;
+
+/**
+ * On a pointer device the chunk is requested at module evaluation — the
+ * earliest the browser can be asked — because the opening is covering the
+ * hero and the scene has to be up before the curtain lifts.
+ *
+ * A phone is a different trade. Parsing three.js and building the scene costs
+ * 1.3-2.9s of blocking on a throttled handset, measured, and doing it during
+ * first paint delays the copy the visitor actually came to read. So on touch
+ * it waits for the load event and then for an idle moment. StaticForm holds
+ * the frame meanwhile and carries the same composition, so the wait shows a
+ * considered image rather than a placeholder.
+ */
+function requestScene(): Promise<unknown> | null {
+  if (!eligible) return null;
+  if (!coarse) return import("./PrecisionForm");
+
+  return new Promise((resolve) => {
+    const go = () => {
+      const ric =
+        window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 200));
+      ric(() => resolve(import("./PrecisionForm")));
+    };
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+  });
+}
+
+const sceneChunk = requestScene();
 
 export default function HeroVisual() {
   const host = useRef<HTMLDivElement>(null);
@@ -157,20 +197,31 @@ export default function HeroVisual() {
 
 /**
  * The flat counterpart — the same object drawn as one SVG so it costs nothing
- * on devices that should not be running WebGL. Same capsule, same suspended
- * core, same registers: the composition holds, it simply stops moving.
+ * on devices that should not be running WebGL, and so a phone has something
+ * considered to look at while three.js is still arriving.
+ *
+ * It carries the sculpture's composition, not an older one: the same diagonal,
+ * the same violet body deepening toward the shoulders, granules rather than
+ * dots, and the same printed lockup — literally the same baked texture, so the
+ * mark cannot drift between the two states. Getting this wrong is what made
+ * the phone look broken: it was still drawing an upright, blue-tinted capsule
+ * with none of that.
  */
 export function StaticForm() {
-  // Deterministic core particles — no randomness, so SSR and client agree.
   const r2 = (n: number) => Number(n.toFixed(2));
-  const core = Array.from({ length: 34 }, (_, i) => {
+
+  /* Granules, laid out deterministically so the server and the client agree.
+     Pills rather than dots, at mixed angles, the way the sculpture fills. */
+  const core = Array.from({ length: 54 }, (_, i) => {
     const a = i * 2.399963; // golden angle
-    const t = i / 33;
+    const t = i / 53;
     return {
-      cx: r2(260 + Math.cos(a) * (26 + 44 * Math.sin(t * Math.PI))),
-      cy: r2(196 + t * 250),
-      r: r2(2.2 + 3.4 * Math.abs(Math.cos(a * 1.7))),
-      o: r2(0.35 + 0.55 * Math.abs(Math.sin(a))),
+      x: r2(260 + Math.cos(a) * (18 + 52 * Math.sin(t * Math.PI))),
+      y: r2(178 + t * 288),
+      rot: r2((a * 180) / Math.PI),
+      w: r2(11 + 8 * Math.abs(Math.cos(a * 1.7))),
+      h: r2(5.4 + 2.6 * Math.abs(Math.sin(a * 2.3))),
+      o: r2(0.5 + 0.45 * Math.abs(Math.sin(a))),
     };
   });
 
@@ -183,88 +234,95 @@ export function StaticForm() {
         role="presentation"
       >
         <defs>
-          <linearGradient id="zf-glass" x1="0.1" y1="0" x2="0.95" y2="1">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-            <stop offset="38%" stopColor="#e6edf7" stopOpacity="0.62" />
-            <stop offset="72%" stopColor="#c3d2e8" stopOpacity="0.5" />
-            <stop offset="100%" stopColor="#8fa6c6" stopOpacity="0.62" />
+          {/* The body: a warm violet that deepens toward the shoulders, which
+              is the gradient the WebGL shell resolves to. */}
+          <linearGradient id="zf-glass" x1="0.12" y1="0.02" x2="0.9" y2="1">
+            <stop offset="0%" stopColor="#fdf7fb" stopOpacity="0.96" />
+            <stop offset="30%" stopColor="#efd7e8" stopOpacity="0.93" />
+            <stop offset="66%" stopColor="#d9a9cb" stopOpacity="0.92" />
+            <stop offset="100%" stopColor="#a87ba6" stopOpacity="0.95" />
           </linearGradient>
-          <linearGradient id="zf-rim" x1="0" y1="0" x2="1" y2="0.6">
+          <linearGradient id="zf-rim" x1="0" y1="0" x2="1" y2="0.7">
             <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="45%" stopColor="#dbe4f1" />
-            <stop offset="100%" stopColor="#9db1cd" />
+            <stop offset="48%" stopColor="#f0dcea" />
+            <stop offset="100%" stopColor="#bf9bba" />
           </linearGradient>
-          <radialGradient id="zf-core" cx="0.5" cy="0.42" r="0.6">
-            <stop offset="0%" stopColor="#ff8ac6" />
-            <stop offset="55%" stopColor="#e5188a" />
-            <stop offset="100%" stopColor="#a80f64" />
-          </radialGradient>
           <radialGradient id="zf-bloom" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%" stopColor="#e5188a" stopOpacity="0.55" />
-            <stop offset="55%" stopColor="#e5188a" stopOpacity="0.16" />
+            <stop offset="0%" stopColor="#e5188a" stopOpacity="0.4" />
+            <stop offset="58%" stopColor="#e5188a" stopOpacity="0.12" />
             <stop offset="100%" stopColor="#e5188a" stopOpacity="0" />
           </radialGradient>
           <clipPath id="zf-clip">
-            <rect x="160" y="140" width="200" height="360" rx="100" />
+            <rect x="168" y="150" width="184" height="344" rx="92" />
           </clipPath>
         </defs>
 
-        {/* Registers */}
-        <g fill="none" stroke="#e5188a">
-          <ellipse cx="260" cy="320" rx="196" ry="58" strokeOpacity="0.55" />
-          <ellipse cx="260" cy="320" rx="236" ry="70" strokeOpacity="0.26" />
-          <ellipse cx="260" cy="320" rx="278" ry="83" strokeOpacity="0.11" />
+        {/* Registers. Tilted, so they read as ellipses around the object. */}
+        <g
+          fill="none"
+          stroke="#e5188a"
+          transform="rotate(-24 260 320)"
+        >
+          <ellipse cx="260" cy="320" rx="196" ry="62" strokeOpacity="0.6" />
+          <ellipse cx="260" cy="320" rx="238" ry="76" strokeOpacity="0.32" />
+          <ellipse cx="260" cy="320" rx="280" ry="90" strokeOpacity="0.14" />
         </g>
 
-        {/* Depth field */}
-        <g fill="#14274b" opacity="0.4">
-          {Array.from({ length: 46 }, (_, i) => {
-            const a = i * 2.399963;
-            const r = 200 + ((i * 37) % 150);
-            return (
-              <circle
+        {/* The capsule itself, on the same diagonal the sculpture stands on. */}
+        <g transform="rotate(-30 260 320)">
+          <ellipse cx="260" cy="320" rx="146" ry="228" fill="url(#zf-bloom)" />
+
+          <g clipPath="url(#zf-clip)">
+            {core.map((p, i) => (
+              <rect
                 key={i}
-                cx={r2(260 + Math.cos(a) * r * 0.98)}
-                cy={r2(320 + Math.sin(a) * r * 0.42)}
-                r={r2(1.1 + ((i * 7) % 3) * 0.5)}
+                x={p.x - p.w / 2}
+                y={p.y - p.h / 2}
+                width={p.w}
+                height={p.h}
+                rx={p.h / 2}
+                fill="#c2166f"
+                opacity={p.o}
+                transform={`rotate(${p.rot} ${p.x} ${p.y})`}
               />
-            );
-          })}
+            ))}
+          </g>
+
+          <rect
+            x="168"
+            y="150"
+            width="184"
+            height="344"
+            rx="92"
+            fill="url(#zf-glass)"
+            stroke="url(#zf-rim)"
+            strokeWidth="2.5"
+          />
+
+          {/* The printed lockup — the same baked artwork the sculpture uses,
+              so the two states carry an identical mark. */}
+          <image
+            href="/brand/capsule-label.webp"
+            x="212"
+            y="176"
+            width="96"
+            height="292"
+            preserveAspectRatio="xMidYMid meet"
+            opacity="0.95"
+          />
+
+          {/* Specular along the shoulder. */}
+          <path
+            d="M204 244a62 62 0 0 1 25-52c10-7 18-4 14 6-9 22-15 47-17 73-1 14-12 16-16 4a90 90 0 0 1-6-31Z"
+            fill="#ffffff"
+            opacity="0.8"
+          />
+          <path
+            d="M330 392c4 23 0 46-10 60-5 7-12 4-11-5 3-21 5-43 4-61 0-9 9-11 12-2 2 3 4 6 5 8Z"
+            fill="#ffffff"
+            opacity="0.32"
+          />
         </g>
-
-        {/* Bloom behind the core — a gradient rather than a blur filter, so it
-            composites for free on the devices that take this path. */}
-        <ellipse cx="260" cy="320" rx="150" ry="230" fill="url(#zf-bloom)" />
-
-        {/* Suspended core, clipped to the capsule volume */}
-        <g clipPath="url(#zf-clip)">
-          {core.map((p, i) => (
-            <circle key={i} cx={p.cx} cy={p.cy} r={p.r} fill="url(#zf-core)" opacity={p.o} />
-          ))}
-        </g>
-
-        {/* Glass shell */}
-        <rect
-          x="160"
-          y="140"
-          width="200"
-          height="360"
-          rx="100"
-          fill="url(#zf-glass)"
-          stroke="url(#zf-rim)"
-          strokeWidth="2.5"
-        />
-        {/* Specular */}
-        <path
-          d="M196 232a64 64 0 0 1 26-52c10-7 18-4 14 6-9 22-16 48-18 74-1 14-12 16-16 4a92 92 0 0 1-6-32Z"
-          fill="#ffffff"
-          opacity="0.85"
-        />
-        <path
-          d="M330 380c4 24 0 48-10 62-5 7-12 4-11-5 3-22 5-44 4-63 0-9 9-11 12-2 2 3 4 6 5 8Z"
-          fill="#ffffff"
-          opacity="0.35"
-        />
       </svg>
     </div>
   );

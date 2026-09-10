@@ -33,7 +33,7 @@ const V_TO = 0.94;
 /* The HORIZONTAL lockup, not the stacked one: turned a quarter turn it puts
    the mark at the top of the capsule with the wordmark reading down beneath
    it, which is the arrangement in the reference. */
-const src = "public/brand/logo-horizontal.svg";
+const src = "public/brand/logo-horizontal-white.svg";
 
 // Rasterise the lockup, then turn it a quarter turn so it reads down the
 // capsule when the texture is wrapped.

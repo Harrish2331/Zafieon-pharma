@@ -240,7 +240,9 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
   t("Video is the supplied file", v && v.src === "/video/manufacturing.mp4");
   t("Video has a poster", !!(v && v.poster));
   t("Video is muted, looping and inline", !!(v && v.muted && v.loop && v.playsInline));
-  t("Video preloads metadata only", v && v.preload === "metadata");
+  // `auto` since the encode dropped from 30 MB to 1.5 MB. At 30 MB holding
+  // back the body was right; at 1.5 MB it only bought a stall on first play.
+  t("Video preloads its body", v && v.preload === "auto");
   t("Video carries no autoplay attribute (no hydration branch)", v && v.autoplayAttr === false);
   t("Video sits in the hero section", v && v.inFirstSection === true);
 

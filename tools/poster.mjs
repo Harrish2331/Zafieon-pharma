@@ -45,23 +45,39 @@ const page = await browser.newPage();
 await page.setViewport({ width: 1280, height: 720 });
 await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: "domcontentloaded" });
 
-const frame = await page.evaluate(async ({ port, at }) => {
+const frame = await page.evaluate(async ({ at }) => {
+  /* Played and sampled, not seeked. Setting currentTime on a video that is
+     not in the document does not reliably move it — it silently stayed at 0,
+     and the poster that produced was a frame from nowhere in this film. */
   const v = document.createElement("video");
   v.src = "/film.mp4";
   v.muted = true;
   v.playsInline = true;
+  v.preload = "auto";
+  document.body.appendChild(v);
   await new Promise((res, rej) => {
-    v.onloadeddata = res;
+    v.oncanplaythrough = res;
     v.onerror = () => rej(new Error("video failed to load"));
+    setTimeout(res, 8000);
   });
-  v.currentTime = Math.min(at, Math.max(0, v.duration - 0.1));
-  await new Promise((res) => { v.onseeked = res; });
+  await v.play();
+  const target = Math.min(at, Math.max(0, v.duration - 0.1));
+  while (v.currentTime < target && !v.ended) {
+    await new Promise((r) => setTimeout(r, 60));
+  }
+  v.pause();
   const c = document.createElement("canvas");
   c.width = v.videoWidth;
   c.height = v.videoHeight;
   c.getContext("2d").drawImage(v, 0, 0);
-  return { data: c.toDataURL("image/png"), w: v.videoWidth, h: v.videoHeight, dur: v.duration };
-}, { port, at: AT });
+  return {
+    data: c.toDataURL("image/png"),
+    w: v.videoWidth,
+    h: v.videoHeight,
+    dur: v.duration,
+    at: +v.currentTime.toFixed(2),
+  };
+}, { at: AT });
 void port;
 
 await browser.close();
@@ -70,7 +86,7 @@ server.close();
 const png = Buffer.from(frame.data.split(",")[1], "base64");
 
 const poster = await sharp(png).webp({ quality: 82 }).toFile(OUT);
-console.log(`  frame at ${AT}s of ${frame.dur.toFixed(2)}s — ${frame.w}x${frame.h}`);
+console.log(`  frame at ${frame.at}s of ${frame.dur.toFixed(2)}s — ${frame.w}x${frame.h}`);
 console.log(`  poster  ${OUT}  ${poster.width}x${poster.height}  ${(poster.size / 1024).toFixed(0)} KB`);
 
 // The tiny blurred placeholder that site.ts carries inline.
