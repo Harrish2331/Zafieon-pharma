@@ -237,7 +237,7 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
     };
   });
   t("Manufacturing hero has a video", !!v);
-  t("Video is the supplied file", v && v.src === "/video/manufacturing.mp4");
+  t("Video is the supplied file", v && v.src === "/video/r2/manufacturing.mp4");
   t("Video has a poster", !!(v && v.poster));
   t("Video is muted, looping and inline", !!(v && v.muted && v.loop && v.playsInline));
   // `auto` since the encode is 1.5 MB rather than 30 MB. At 30 MB holding
@@ -279,7 +279,9 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
   // file, and a 30 MB hero video simply looks broken until it does. Run
   // `node tools/faststart.mjs` on any replacement.
   {
-    const head = await fetch(BASE + "/video/manufacturing.mp4", {
+    // Fetched through the URL the PAGE uses, so the /video/r2 rewrite is
+    // covered too — a broken rewrite would otherwise only show as a dead hero.
+    const head = await fetch(BASE + "/video/r2/manufacturing.mp4", {
       headers: { range: "bytes=0-65535" },
     });
     const bytes = Buffer.from(await head.arrayBuffer());
@@ -288,6 +290,14 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
     const mdat = text.indexOf("mdat");
     t("Film is served with byte-range support", head.status === 206);
     t("Film is faststart (moov ahead of mdat)", moov > 0 && (mdat < 0 || moov < mdat));
+
+    /* Regression guard. The film lived behind `immutable` for a year-long
+       max-age while being replaced in place three times; browsers went on
+       playing whichever cut they had cached and a refresh did not dislodge
+       it. `immutable` is only honest when the URL carries a content hash. */
+    const cc = (await fetch(BASE + "/video/r2/manufacturing.mp4")).headers.get("cache-control") ?? "";
+    t("Film is not cached as immutable", !/immutable/i.test(cc));
+    t("Film revalidates on each load", /must-revalidate|no-cache|max-age=0/i.test(cc));
   }
   await p.close();
 }

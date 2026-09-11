@@ -383,8 +383,11 @@ export const manufacturing = {
     line2: "into every dose.",
     body: "At ZAFIEON PHARMA, we believe that quality begins long before a product reaches the patient. We work with carefully selected and qualified pharmaceutical manufacturing partners who share our commitment to quality, consistency, regulatory compliance, and responsible manufacturing practices.",
     film: {
-      src: "/video/manufacturing.mp4",
-      poster: "/video/manufacturing-poster.webp",
+      /* `/video/r2/…` is rewritten to `/video/…` — see next.config.ts. The
+         prefix exists to dislodge browsers holding an earlier cut of the film
+         under an `immutable` header; the files themselves are unprefixed. */
+      src: "/video/r2/manufacturing.mp4",
+      poster: "/video/r2/manufacturing-poster.webp",
       blurDataURL:
         "data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAACwAwCdASoUAAsAPulgqU2pJaQiMAgBIB0JZwDImBjZa4moC05+AAD9Uz7pze6LKUj0U6MApv88WjDK2taRi63kVDHlQgAGQ/LnKH4C2/BhfAAA",
       /** Described for screen readers; the film carries no audio narration.

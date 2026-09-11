@@ -56,17 +56,56 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  /**
+   * A cache-busting prefix for the film and its poster.
+   *
+   * Fixing the header above stops the problem recurring, but it cannot undo
+   * it: a browser holding an `immutable` copy will not revalidate, so it would
+   * go on playing the wrong cut until 2027. Only a different URL dislodges
+   * that, and the version has to live in the PATH rather than a query string
+   * because `images.localPatterns` matches `search` verbatim — the same
+   * reasoning the Insights image route already follows.
+   *
+   * The files keep their real names on disk. `public/video/manufacturing.mp4`
+   * stays exactly where Zafieon drops it; this only changes the URL the page
+   * asks for. Swapping the file needs no change here — `must-revalidate` picks
+   * it up — so `r2` is expected to stay `r2`.
+   */
+  async rewrites() {
+    return [{ source: "/video/r2/:file", destination: "/video/:file" }];
+  },
+
   async headers() {
     return [
       {
-        // The film is immutable for the life of a deployment: it is replaced
-        // by a rebuild, not in place. Long-cache it so a returning visitor
-        // never pays for 11.8 MB twice.
+        /**
+         * Revalidated, NOT `immutable`. This header used to say
+         * `max-age=31536000, immutable` on the reasoning that the film "is
+         * replaced by a rebuild, not in place" — which was simply wrong. The
+         * URL is stable across rebuilds, so replacing the file does not
+         * change it, and `immutable` tells the browser never to revalidate.
+         *
+         * That cost a day. The film was swapped three times at this one path;
+         * every browser that had loaded the page kept playing whichever cut
+         * it happened to cache, for a year, and a normal refresh did not
+         * dislodge it — measured, not assumed: on reload Chrome served the
+         * body with `fromCache=true` and issued no request at all. The client
+         * was looking at a film with no product reveal in it while the file
+         * on disk had one.
+         *
+         * `max-age=0, must-revalidate` means a conditional request on every
+         * load: a 304 with no body when the film is unchanged, which is what
+         * the long cache was protecting against anyway, and the real bytes the
+         * moment it changes. Correctness over one round trip.
+         *
+         * Do not restore `immutable` here unless the URL carries a content
+         * hash, which is the only thing that makes that promise true.
+         */
         source: "/video/:path*",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            value: "public, max-age=0, must-revalidate",
           },
         ],
       },
