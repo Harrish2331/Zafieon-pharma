@@ -152,6 +152,50 @@ const productRecords: Product[] = [
     source: "public/products/zyfolic Q4.jpeg",
   },
   {
+    id: "prd-14",
+    slug: "iro-cal",
+    name: "Iro Cal",
+    productClass: "nutraceutical",
+    categories: ["nutraceutical"],
+    dosageForm: "Tablets",
+    therapeuticAreas: ["gynecology", "womens-wellness"],
+    description:
+      "A nutraceutical tablet combining calcium as calcium citrate malate with magnesium, Vitamin D3 and folic acid. Each tablet provides 500 mg of calcium citrate malate, 100 mg of magnesium, 400 IU of Vitamin D3 and 200 mcg of folic acid, presented in a ten tablet pack.",
+    composition:
+      "Calcium Citrate Malate 500 mg, Magnesium 100 mg, Vitamin D3 400 IU & Folic Acid 200 mcg Tablets",
+    packaging: "1 x 10 x 1 Tablets",
+    packMarkings: ["For stronger bones & better health"],
+    image: "/products/iro-cal.webp",
+    blurDataURL:
+      "data:image/webp;base64,UklGRmAAAABXRUJQVlA4IFQAAACwAwCdASoUAA0APu1iqU2ppaQiMAgBMB2JZwDLLCHaXu94ogntAAD+6BEDUKQj4ffEPIA23IIYnHVklG0vMS72E/KsoCVaVK9BJQztUETjlFwAAAA=",
+    imageAlt:
+      "Iro Cal carton — Calcium Citrate Malate, Magnesium, Vitamin D3 and Folic Acid tablets, 1 x 10 x 1",
+    zafieonBranded: false,
+    source: "public/products/irocal.jpeg",
+  },
+  {
+    id: "prd-15",
+    slug: "iro-plus",
+    name: "Iro Plus",
+    productClass: "nutraceutical",
+    categories: ["nutraceutical"],
+    dosageForm: "Tablets",
+    therapeuticAreas: ["gynecology", "womens-wellness"],
+    description:
+      "A nutraceutical tablet combining iron, as liposomal ferric pyrophosphate, with Vitamin C, Vitamin B12 and folic acid. Each tablet provides ferric pyrophosphate equivalent to 29 mg of iron, 50 mg of Vitamin C, 2.2 mcg of Vitamin B12 and 200 mcg of folic acid, presented in a ten tablet pack.",
+    composition:
+      "Ferric Pyrophosphate (Liposomal) eq. Iron 29 mg, Vitamin C 50 mg, Vitamin B12 2.2 mcg & Folic Acid 200 mcg Tablets",
+    packaging: "1 x 10 x 1 Tablets",
+    packMarkings: ["For better absorption & healthier tomorrow"],
+    image: "/products/iro-plus.webp",
+    blurDataURL:
+      "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAABwAwCdASoUAA0APu1iqU2ppaQiMAgBMB2JZwAAW79QZnUDcEAA/uqbqPTYxRH5F9Y3bf3OOI5Jq0xgEq1FnhLs3rRBfuUSawAAAA==",
+    imageAlt:
+      "Iro Plus carton — liposomal Ferric Pyrophosphate, Vitamin C, Vitamin B12 and Folic Acid tablets, 1 x 10 x 1",
+    zafieonBranded: false,
+    source: "public/products/iroplus.jpeg",
+  },
+  {
     id: "prd-05",
     slug: "femulet",
     name: "Femulet",
@@ -353,6 +397,8 @@ const CATALOGUE_ORDER = [
   "meta-coq",
   "proluvia-aq",
   "zyfolic-q4",
+  "iro-cal",
+  "iro-plus",
   "femi-dros-30",
   "femi-dros-20",
   "miso-pro",

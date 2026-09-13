@@ -336,8 +336,53 @@ const partnerRecords: Partner[] = [
     shortName: "Janus Biotech India",
     logo: "/partners/janus-biotech-india.webp",
     country: "India",
-    profilePending: true,
-    source: "Manufacturing network/janus biotech india.pdf",
+    region: "Himachal Pradesh",
+    tagline:
+      "WHO-GMP and GLP certified formulation manufacturing at Kala Amb, Himachal Pradesh.",
+    about: [
+      "Janus Biotech India Pvt. Ltd. is a pharmaceutical formulation manufacturer with its manufacturing facility at Kala Amb, Himachal Pradesh, and its business office in Chandigarh.",
+      "The company states that it manufactures under WHO-GMP and GLP standards and holds ISO 9001:2015 certification. Its portfolio of DCGI-approved products is organised into General, Cardiac & Diabetic, Derma, Ophthalmic, Critical Care and Ayurvedic ranges, marketed through eight specialised divisions — Rumi Pharma, Thea, NYX Critical Care, Janus Neutrave, Spica Drugs, Janus Gold, Burgeon Health Series and Drishti Ophthalmi.",
+      "Alongside its own portfolio, Janus Biotech offers third-party manufacturing, covering formulation development, production and packaging under the client's own brand. The dosage forms it lists run from tablets, capsules and soft gelatin capsules to injectables, syrups, oral suspensions and oral drops, and on to ointments, eye and nasal drops, lotions and shampoos, dental care, protein powders, ORS sachets and antiseptic products.",
+      "The company's stated range includes gynaecology products, the capability most directly relevant to Zafieon Pharma's portfolio.",
+    ],
+    capabilities: [
+      "Third-party manufacturing",
+      "Tablets",
+      "Capsules",
+      "Soft gelatin capsules",
+      "Injectables",
+      "Syrups",
+      "Oral suspensions",
+      "Oral drops",
+      "Ointments",
+      "Eye and nasal drops",
+      "Lotions and shampoos",
+      "Dental care products",
+      "Protein powders",
+      "ORS and sachets",
+      "Antiseptic products",
+    ],
+    certifications: ["WHO-GMP", "GLP", "ISO 9001:2015"],
+    regulatoryRegistrations: [
+      "Drugs Controller General of India (DCGI) — product approvals",
+    ],
+    facilities: [
+      {
+        name: "Manufacturing unit",
+        location: "Kala Amb, Himachal Pradesh",
+      },
+      {
+        name: "Business office",
+        location: "Plot No. 84, Raipur Kalan, Chandigarh – 160102",
+      },
+    ],
+    website: "www.janusbiotech.co.in",
+    qualifiers: [
+      "This profile, its certifications, product ranges and dosage forms are taken from the partner's own website, janusbiotech.co.in, accessed September 2026. Certificate documents have not been supplied to Zafieon Pharma, so current certification status should be confirmed with the partner.",
+      "The website gives two different figures for the size of its product range — more than 3,000 and more than 1,200 DCGI-approved products — and refers to two own manufacturing units while naming only the Kala Amb facility. Neither figure is reproduced here; the partner should be asked to reconcile them.",
+    ],
+    source:
+      "https://www.janusbiotech.co.in/ — home, about-us, our-certification and third-party-manufacturing pages, accessed September 2026. Logo from Manufacturing network/janus biotech india.pdf.",
   },
 
   {

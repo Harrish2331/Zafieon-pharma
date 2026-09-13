@@ -63,6 +63,8 @@ marking and attributed to the pack — never restated as a Zafieon claim.
 | Proluvia-AQ 50 mg | Name · composition · pack · Rx marking · route of administration | `source-assets/products/proluvia-AQ.png` |
 | Meta-CoQ 300 | Name · composition · pack | `public/products/meta coq.jpeg` |
 | Zyfolic Q4 | Name · composition · pack | `public/products/zyfolic Q4.jpeg` |
+| Iro Cal | Name · composition · pack · pack statement | `public/products/irocal.jpeg` |
+| Iro Plus | Name · composition · pack · pack statement | `public/products/iroplus.jpeg` |
 
 **Meta-CoQ 300 is no longer pending.** The artwork first supplied was a brand
 mock-up carrying the brand mark and nothing else, and the product was published
@@ -145,7 +147,7 @@ partner's own brochure. Nothing is presented as Zafieon's.
 | Philanto Wellness | 4 capabilities, 2 named people, 2 sites, "500+ approvals" | `Manufacturing network/philant wellness.pdf` |
 | Bionexy Pharma | 2 capabilities, 3 MDs, GMP/GLP/ISO/WHO badges | `Manufacturing network/bionexy pharma and unilite india injection.pdf` |
 | Unilite India | 4 capabilities, Baddi site, GMP/GLP, associations | same file |
-| Janus Biotech India | Name and country only | `Manufacturing network/janus biotech india.pdf` — cover page only |
+| Janus Biotech India | Profile, 15 capabilities, WHO-GMP/GLP/ISO 9001:2015, DCGI product approvals, Kala Amb and Chandigarh sites | `https://www.janusbiotech.co.in/`, accessed September 2026 — the supplied PDF is a cover page only and still provides the logo. No certificate documents supplied; two conflicting product-range figures on the site are not reproduced |
 
 ### Qualifiers surfaced on the site (not buried)
 

@@ -148,10 +148,15 @@ export default function Navbar() {
             animate={reduced ? { opacity: 1 } : { clipPath: "inset(0 0 0% 0)" }}
             exit={reduced ? { opacity: 0 } : { clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.75, ease: EASE }}
-            className="fixed inset-0 z-[90] bg-navy lg:hidden"
+            className="fixed inset-0 z-[90] overflow-x-hidden overflow-y-auto overscroll-contain bg-navy lg:hidden"
           >
             <BrandPattern tone="white" opacity={0.045} scale={190} fade="top" />
-            <div className="shell relative flex h-full flex-col justify-between pt-[100px] pb-12">
+            {/* `min-h-full`, not `h-full`: the list still sits at the top and
+                the CTA at the bottom on a tall phone, but a short screen (a
+                320x568 handset, a tablet in landscape) can scroll to the CTA
+                instead of having it pushed off the bottom with no way to reach
+                it — which is what `h-full` inside a fixed panel did. */}
+            <div className="shell relative flex min-h-full flex-col justify-between pt-[100px] pb-[clamp(1.5rem,5dvh,3rem)]">
               <ul className="flex flex-col">
                 {primaryNav.map((item, i) => (
                   <motion.li
@@ -168,7 +173,25 @@ export default function Navbar() {
                     <Link
                       href={item.href}
                       onClick={() => setOpen(false)}
-                      className="flex items-baseline gap-4 py-5 font-[family-name:var(--font-display)] text-[clamp(1.9rem,9vw,2.75rem)] leading-none tracking-[-0.02em] text-white"
+                      /* Sized from the space the row actually has, not from
+                         the viewport alone. The old `clamp(1.9rem, 9vw, 2.75rem)`
+                         set "Manufacturing" 26-52px past the screen edge at every
+                         phone width from 320 to 480, and wrapped "Zafieon
+                         Insights" onto two lines — a 9vw label cannot fit a row
+                         that is 100vw minus two gutters minus the index.
+
+                         "Zafieon Insights" is the widest label, measured at
+                         11.35em in the display face. The row leaves
+                         100vw - 2 x gutter for content, less ~2rem for the index
+                         and its gap; dividing by 11.9em rather than 11.35em
+                         keeps ~5% in hand for the fallback face before the
+                         webfont swaps in. The 2.75rem ceiling is the previous
+                         maximum, so from ~600px up nothing changes.
+
+                         Vertical padding follows the screen HEIGHT for the
+                         same reason: seven rows at a fixed 20px ran the CTA up
+                         to 191px below the fold on a 568px-tall phone. */
+                      className="flex items-baseline gap-4 py-[clamp(0.5rem,1.8dvh,1.25rem)] font-[family-name:var(--font-display)] text-[length:min(2.75rem,calc((100vw_-_2*var(--spacing-gutter)_-_2rem)/11.9))] leading-none tracking-[-0.02em] whitespace-nowrap text-white"
                     >
                       <span className="font-[family-name:var(--font-sans)] text-[0.65rem] font-medium tracking-[0.2em] text-magenta-400">
                         0{i + 1}

@@ -21,9 +21,9 @@ export const metadata: Metadata = {
  * someone would take it up. Every route out of here lands on the same verified
  * email — there is no second form behind the button.
  *
- * Zafieon has not yet confirmed a registered address or telephone number, so
- * those blocks say exactly that rather than showing an invented one. Each is a
- * one-line change in `contact` once the details are supplied.
+ * The Telephone entry, and the note beneath the details promising a number,
+ * are removed at Zafieon's instruction. Email and the two offices remain; the
+ * number stays in `contact.phone` for the footer until Zafieon decides on it.
  */
 export default function ContactPage() {
   const mailto = `mailto:${contact.email.value}`;
@@ -35,13 +35,6 @@ export default function ContactPage() {
       pending: contact.email.pending,
       href: mailto,
       note: "General and trade enquiries",
-    },
-    {
-      label: "Telephone",
-      value: contact.phone.value,
-      pending: contact.phone.pending,
-      href: contact.phone.value ? `tel:${contact.phone.value}` : undefined,
-      note: "To be confirmed",
     },
   ];
 
@@ -123,15 +116,6 @@ export default function ContactPage() {
             </dl>
 
             <Reveal delay={0.32} y={16}>
-              <div className="mt-10 border-l-2 border-magenta py-1 pl-6">
-                <p className="max-w-[36ch] text-[0.88rem] leading-[1.75] text-muted">
-                  Zafieon Pharma&apos;s telephone number will be published here
-                  once finalised. In the meantime, email reaches us reliably.
-                </p>
-              </div>
-            </Reveal>
-
-            <Reveal delay={0.4} y={16}>
               <p className="mt-10 font-[family-name:var(--font-display)] text-[1.6rem] leading-[1.05] tracking-[-0.02em] text-navy uppercase">
                 Every Dose <span className="accent">Matters.</span>
               </p>

@@ -29,6 +29,8 @@ const MAP = [
   // never be mapped onto "zyfolic" — that would put the wrong pack, the wrong
   // dosage form and the wrong pack count against a different product.
   ["zyfolic Q4.jpeg", "zyfolic-q4", "ZYFOLIC Q4 Tablets — 1 x 10 x 1"],
+  ["irocal.jpeg", "iro-cal", "Iro Cal Tablets — 1 x 10 x 1"],
+  ["iroplus.jpeg", "iro-plus", "Iro Plus Tablets — 1 x 10 x 1"],
 ];
 
 const DIR = "public/products";
