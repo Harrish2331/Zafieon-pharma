@@ -200,28 +200,29 @@ export default function HeroVisual() {
  * on devices that should not be running WebGL, and so a phone has something
  * considered to look at while three.js is still arriving.
  *
- * It carries the sculpture's composition, not an older one: the same diagonal,
- * the same violet body deepening toward the shoulders, granules rather than
- * dots, and the same printed lockup — literally the same baked texture, so the
- * mark cannot drift between the two states. Getting this wrong is what made
- * the phone look broken: it was still drawing an upright, blue-tinted capsule
- * with none of that.
+ * It carries the sculpture's composition, drawn to the same reference: about
+ * ten degrees off vertical, a navy core inset inside a frosted pink shell so
+ * the glass band follows the domes, magenta beads set into the navy, flatter
+ * registers, and the same baked print — literally the same texture, so the
+ * mark cannot drift between the two states.
  */
 export function StaticForm() {
   const r2 = (n: number) => Number(n.toFixed(2));
 
-  /* Granules, laid out deterministically so the server and the client agree.
-     Pills rather than dots, at mixed angles, the way the sculpture fills. */
-  const core = Array.from({ length: 54 }, (_, i) => {
+  /* Beads laid out deterministically so the server and the client agree, over
+     the core's face: denser toward the silhouette, the way a filled capsule
+     reads when its edges are seen side-on. */
+  const beads = Array.from({ length: 70 }, (_, i) => {
     const a = i * 2.399963; // golden angle
-    const t = i / 53;
+    const t = i / 69;
+    const across = Math.sin(a) * (0.35 + 0.65 * Math.abs(Math.cos(a * 0.7)));
     return {
-      x: r2(260 + Math.cos(a) * (18 + 52 * Math.sin(t * Math.PI))),
-      y: r2(178 + t * 288),
+      x: r2(260 + across * 70),
+      y: r2(160 + t * 320),
       rot: r2((a * 180) / Math.PI),
-      w: r2(11 + 8 * Math.abs(Math.cos(a * 1.7))),
-      h: r2(5.4 + 2.6 * Math.abs(Math.sin(a * 2.3))),
-      o: r2(0.5 + 0.45 * Math.abs(Math.sin(a))),
+      w: r2(13 + 6 * Math.abs(Math.cos(a * 1.7))),
+      h: r2(9 + 3 * Math.abs(Math.sin(a * 2.3))),
+      o: r2(0.55 + 0.4 * Math.abs(Math.sin(a))),
     };
   });
 
@@ -234,46 +235,44 @@ export function StaticForm() {
         role="presentation"
       >
         <defs>
-          {/* The body: a warm violet that deepens toward the shoulders, which
-              is the gradient the WebGL shell resolves to. */}
-          <linearGradient id="zf-glass" x1="0.12" y1="0.02" x2="0.9" y2="1">
-            <stop offset="0%" stopColor="#fdf7fb" stopOpacity="0.96" />
-            <stop offset="30%" stopColor="#efd7e8" stopOpacity="0.93" />
-            <stop offset="66%" stopColor="#d9a9cb" stopOpacity="0.92" />
-            <stop offset="100%" stopColor="#a87ba6" stopOpacity="0.95" />
+          {/* Frosted pink shell: clear enough in the middle to show the navy
+              core, milkier toward the domes and the edges. */}
+          <linearGradient id="zf-glass" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#f0b9d8" stopOpacity="0.9" />
+            <stop offset="18%" stopColor="#f6dcea" stopOpacity="0.42" />
+            <stop offset="50%" stopColor="#f7e4ee" stopOpacity="0.22" />
+            <stop offset="82%" stopColor="#f6dcea" stopOpacity="0.42" />
+            <stop offset="100%" stopColor="#ec9fcb" stopOpacity="0.9" />
           </linearGradient>
-          <linearGradient id="zf-rim" x1="0" y1="0" x2="1" y2="0.7">
-            <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="48%" stopColor="#f0dcea" />
-            <stop offset="100%" stopColor="#bf9bba" />
+          <linearGradient id="zf-ends" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f7e4ee" stopOpacity="0.55" />
+            <stop offset="20%" stopColor="#f7e4ee" stopOpacity="0" />
+            <stop offset="78%" stopColor="#f07ab8" stopOpacity="0" />
+            <stop offset="100%" stopColor="#f07ab8" stopOpacity="0.5" />
           </linearGradient>
-          <radialGradient id="zf-bloom" cx="0.5" cy="0.5" r="0.5">
-            <stop offset="0%" stopColor="#e5188a" stopOpacity="0.4" />
-            <stop offset="58%" stopColor="#e5188a" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#e5188a" stopOpacity="0" />
-          </radialGradient>
-          <clipPath id="zf-clip">
-            <rect x="168" y="150" width="184" height="344" rx="92" />
+          <linearGradient id="zf-core" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#2c3558" />
+            <stop offset="45%" stopColor="#1b2446" />
+            <stop offset="100%" stopColor="#141b36" />
+          </linearGradient>
+          <clipPath id="zf-core-clip">
+            <rect x="190" y="160" width="140" height="320" rx="70" />
           </clipPath>
         </defs>
 
-        {/* Registers. Tilted, so they read as ellipses around the object. */}
-        <g
-          fill="none"
-          stroke="#e5188a"
-          transform="rotate(-24 260 320)"
-        >
-          <ellipse cx="260" cy="320" rx="196" ry="62" strokeOpacity="0.6" />
-          <ellipse cx="260" cy="320" rx="238" ry="76" strokeOpacity="0.32" />
-          <ellipse cx="260" cy="320" rx="280" ry="90" strokeOpacity="0.14" />
+        {/* Registers — flat ellipses, right side a little raised. */}
+        <g fill="none" stroke="#e5188a" transform="rotate(-12 260 320)">
+          <ellipse cx="260" cy="320" rx="181" ry="85" strokeOpacity="0.7" />
+          <ellipse cx="260" cy="320" rx="218" ry="102" strokeOpacity="0.38" />
+          <ellipse cx="260" cy="320" rx="260" ry="122" strokeOpacity="0.17" />
         </g>
 
-        {/* The capsule itself, on the same diagonal the sculpture stands on. */}
-        <g transform="rotate(-30 260 320)">
-          <ellipse cx="260" cy="320" rx="146" ry="228" fill="url(#zf-bloom)" />
-
-          <g clipPath="url(#zf-clip)">
-            {core.map((p, i) => (
+        {/* The capsule, about ten degrees off vertical, top to the left. */}
+        <g transform="rotate(-12 260 320)">
+          {/* Navy core, concentric with the shell. */}
+          <rect x="190" y="160" width="140" height="320" rx="70" fill="url(#zf-core)" />
+          <g clipPath="url(#zf-core-clip)">
+            {beads.map((p, i) => (
               <rect
                 key={i}
                 x={p.x - p.w / 2}
@@ -281,46 +280,43 @@ export function StaticForm() {
                 width={p.w}
                 height={p.h}
                 rx={p.h / 2}
-                fill="#c2166f"
+                fill="#c53a95"
                 opacity={p.o}
                 transform={`rotate(${p.rot} ${p.x} ${p.y})`}
               />
             ))}
           </g>
 
+          {/* Shell. */}
           <rect
             x="168"
-            y="150"
+            y="125"
             width="184"
-            height="344"
+            height="390"
             rx="92"
             fill="url(#zf-glass)"
-            stroke="url(#zf-rim)"
+            stroke="#ec9fcb"
+            strokeOpacity="0.85"
             strokeWidth="2.5"
           />
+          <rect x="168" y="125" width="184" height="390" rx="92" fill="url(#zf-ends)" />
 
-          {/* The printed lockup — the same baked artwork the sculpture uses,
-              so the two states carry an identical mark. */}
+          {/* The printed lockup — the same baked artwork the sculpture uses. */}
           <image
             href="/brand/capsule-label.webp"
-            x="212"
-            y="176"
-            width="96"
-            height="292"
+            x="206"
+            y="155"
+            width="108"
+            height="330"
             preserveAspectRatio="xMidYMid meet"
-            opacity="0.95"
+            opacity="0.97"
           />
 
-          {/* Specular along the shoulder. */}
+          {/* Highlight high on the left shoulder. */}
           <path
-            d="M204 244a62 62 0 0 1 25-52c10-7 18-4 14 6-9 22-15 47-17 73-1 14-12 16-16 4a90 90 0 0 1-6-31Z"
+            d="M196 214a70 70 0 0 1 28-58c11-8 20-4 15 7-10 24-16 52-18 81-1 15-13 17-18 4a100 100 0 0 1-7-34Z"
             fill="#ffffff"
-            opacity="0.8"
-          />
-          <path
-            d="M330 392c4 23 0 46-10 60-5 7-12 4-11-5 3-21 5-43 4-61 0-9 9-11 12-2 2 3 4 6 5 8Z"
-            fill="#ffffff"
-            opacity="0.32"
+            opacity="0.75"
           />
         </g>
       </svg>

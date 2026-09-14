@@ -43,14 +43,18 @@ const box = {
 };
 const art = await sharp(src, { density: 72 }) // natural 4523x2599; downscaled from there
   .resize({ width: box.w, height: box.h, fit: "inside" })
-  .rotate(90, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  .rotate(90, { background: { r: 255, g: 255, b: 255, alpha: 0 } })
   .toBuffer();
 
 const meta = await sharp(art).metadata();
 
 await mkdir("public/brand", { recursive: true });
-const out = await sharp({
-  create: { width: W, height: H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
+const flat = await sharp({
+  /* WHITE under the transparent pixels, not black. The GPU mip-maps this
+     texture as it shrinks it onto the capsule, averaging each letter's pixels
+     with its neighbours; with black underneath, thin strokes averaged toward
+     black and "PHARMA" all but disappeared against the navy core. */
+  create: { width: W, height: H, channels: 4, background: { r: 255, g: 255, b: 255, alpha: 0 } },
 })
   .composite([
     {
@@ -59,7 +63,24 @@ const out = await sharp({
       top: Math.round(V_FROM * H + ((V_TO - V_FROM) * H - meta.height) / 2),
     },
   ])
-  .webp({ quality: 92, alphaQuality: 100 })
+  .raw()
+  .toBuffer({ resolveWithObject: true });
+
+/* The rasterised SVG's own empty pixels come out black, whatever background
+   the canvas was given, so set every fully transparent pixel's colour to
+   white. Alpha is untouched, and so is every visible pixel — the magenta mark
+   keeps its colour. */
+for (let i = 0; i < flat.data.length; i += 4) {
+  if (flat.data[i + 3] === 0) {
+    flat.data[i] = 255;
+    flat.data[i + 1] = 255;
+    flat.data[i + 2] = 255;
+  }
+}
+
+const out = await sharp(flat.data, { raw: flat.info })
+  // `exact` keeps the white under the transparent pixels; WebP drops it otherwise.
+  .webp({ quality: 92, alphaQuality: 100, exact: true })
   .toFile("public/brand/capsule-label.webp");
 
 console.log(`  artwork   ${src}`);

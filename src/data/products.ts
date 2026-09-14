@@ -182,16 +182,16 @@ const productRecords: Product[] = [
     dosageForm: "Tablets",
     therapeuticAreas: ["gynecology", "womens-wellness"],
     description:
-      "A nutraceutical tablet combining iron, as liposomal ferric pyrophosphate, with Vitamin C, Vitamin B12 and folic acid. Each tablet provides ferric pyrophosphate equivalent to 29 mg of iron, 50 mg of Vitamin C, 2.2 mcg of Vitamin B12 and 200 mcg of folic acid, presented in a ten tablet pack.",
+      "A nutraceutical tablet combining liposomal ferric pyrophosphate with Vitamin C, Vitamin B12 and folic acid. Each tablet provides 30 mg of liposomal ferric pyrophosphate, 50 mg of Vitamin C, 2.2 mcg of Vitamin B12 and 200 mcg of folic acid, presented in a ten tablet pack.",
     composition:
-      "Ferric Pyrophosphate (Liposomal) eq. Iron 29 mg, Vitamin C 50 mg, Vitamin B12 2.2 mcg & Folic Acid 200 mcg Tablets",
+      "Ferric Pyrophosphate (Liposomal) 30 mg, Vitamin C 50 mg, Vitamin B12 2.2 mcg & Folic Acid 200 mcg Tablets",
     packaging: "1 x 10 x 1 Tablets",
     packMarkings: ["For better absorption & healthier tomorrow"],
     image: "/products/iro-plus.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAABwAwCdASoUAA0APu1iqU2ppaQiMAgBMB2JZwAAW79QZnUDcEAA/uqbqPTYxRH5F9Y3bf3OOI5Jq0xgEq1FnhLs3rRBfuUSawAAAA==",
+      "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAAAQAwCdASoUAA0APu1kqU4ppaOiMAgBMB2JZwAAetDL2AAA/u/5k47XqEdSQXXBnU14DRpxcpzO6PZJURN8o+3Af2BIIO9DB/HaAAAA",
     imageAlt:
-      "Iro Plus carton — liposomal Ferric Pyrophosphate, Vitamin C, Vitamin B12 and Folic Acid tablets, 1 x 10 x 1",
+      "Iro Plus carton — Ferric Pyrophosphate (Liposomal) 30 mg, Vitamin C, Vitamin B12 and Folic Acid tablets, 1 x 10 x 1",
     zafieonBranded: false,
     source: "public/products/iroplus.jpeg",
   },
