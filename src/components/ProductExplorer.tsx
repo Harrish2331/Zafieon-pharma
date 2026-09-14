@@ -28,7 +28,8 @@ type AreaFilter = "all" | FocusAreaId;
  * Adding a product in a new category or a new area extends the relevant chip
  * set with no change here.
  *
- * Every product sits under Gynaecology, so that chip shows the whole range;
+ * Every women's-health product sits under Gynaecology, so that chip shows
+ * nearly the whole range — Meta-CoQ 300, marked "For Men", is the exception;
  * the narrower areas are what actually reduce the list. Counts beside each
  * chip make that visible before the reader clicks, rather than after.
  *

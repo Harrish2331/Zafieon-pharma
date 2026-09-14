@@ -61,7 +61,7 @@ marking and attributed to the pack — never restated as a Zafieon claim.
 | Ferrin-XT | Name · composition · pack · pack statements · vegetarian mark | `source-assets/images/Ferrin XT.png` |
 | Luna 35 | Name · composition · pack · Rx marking | `source-assets/products/cyproterone acetate.png` |
 | Proluvia-AQ 50 mg | Name · composition · pack · Rx marking · route of administration | `source-assets/products/proluvia-AQ.png` |
-| Meta-CoQ 300 | Name · composition · pack | `public/products/meta coq.jpeg` |
+| Meta-CoQ 300 | Name · composition · pack · "For Men" marking | `public/products/meta coq.jpeg` |
 | Zyfolic Q4 | Name · composition · pack | `public/products/zyfolic Q4.jpeg` |
 | Iro Cal | Name · composition · pack · pack statement | `public/products/irocal.jpeg` |
 | Iro Plus | Name · composition · pack · pack statement | `public/products/iroplus.jpeg` |
@@ -72,14 +72,19 @@ with `detailsPending: true` while that was true. The carton Zafieon supplied
 since prints the full detail — Coenzyme Q10 (Ubiquinol Acetate) 300 mg with
 L-Carnitine L-Tartrate 750 mg and Astaxanthin 8 mg, 1 x 5 x 1 — so the record
 now carries it and the "details to follow" note is gone. It stays under
-**Nutraceuticals**: no Rx marking is printed on the carton.
+**Nutraceuticals**: no Rx marking is printed on the carton. The carton supplied
+14 September is marked **"For Men"**, so the product is no longer listed under
+Gynaecology; it stays under Fertility, which is not a women-only area, and the
+marking is shown on the product page.
 
 **Zyfolic Q4 is a separate product from Zyfolic**, not a second photograph of
-it. The actives are the same, but the carton is branded "ZYFOLIC Q4" in its own
-right and the dose is pressed as a tablet rather than filled as a softgel. It
-is published as its own catalogue entry for that reason; mapping its photograph
-onto Zyfolic would have put the wrong pack and the wrong dosage form against a
-different product.
+it: the carton is branded "ZYFOLIC Q4" in its own right, the dose is a tablet
+rather than a softgel, and the carton supplied 14 September prints a different
+formula — (6S)-5-Methyltetrahydrofolic Acid 527.25 mcg, Glucosamine Salt 570 mcg
+Folate, Pyridoxal 5'-Phosphate 2.3 mg, Cyanocobalamin 2.45 mcg and Glycine
+10.0 mg. The composition and description were updated to that carton at
+Zafieon's instruction, replacing the L-Methyl folate / Methylcobalamin / DHA /
+Vitamin D3 formula the earlier artwork carried.
 ⚠️ **Flagged for Zafieon to confirm the category and supply the pack artwork.**
 
 **Category assignment.** `categories` is a display grouping for the catalogue
@@ -336,15 +341,18 @@ mifepristone as a hormone.
 One rule, applied in two places, means the Our Focus panel and the catalogue
 filter cannot disagree about what a hormone product is.
 
-### Every product appears under Gynaecology
+### Women's-health products appear under Gynaecology
 
-At Zafieon's instruction, all twelve products carry `gynecology` as their first
-therapeutic area. This is editorial placement for navigation, not a clinical
-claim — as §2 already records for therapeutic areas generally. The rationale is
-that the entire portfolio sits inside gynaecology and women's health, so a
-reader filtering to that area should see the full range rather than a subset;
-the narrower areas beside it are what actually reduce the list, and the chip
-counts make that visible before the reader clicks.
+At Zafieon's instruction, every women's-health product carries `gynecology` as
+its first therapeutic area — fourteen of the fifteen. This is editorial
+placement for navigation, not a clinical claim — as §2 already records for
+therapeutic areas generally. The rationale is that a reader filtering to that
+area should see the full women's-health range rather than a subset; the
+narrower areas beside it are what actually reduce the list, and the chip counts
+make that visible before the reader clicks.
+
+The exception is **Meta-CoQ 300**, whose carton is marked "For Men". It is not
+a gynaecology product and is listed under Fertility only.
 
 ⚠️ Nothing about this asserts that a given product is indicated for a given
 condition. No page states an indication for any product.

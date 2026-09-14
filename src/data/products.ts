@@ -33,10 +33,11 @@ import type { Product, ProductCategory } from "./types";
  * Editorial placement for navigation. It is not a clinical claim, and no page
  * presents it as one — see docs/CLAIMS.md.
  *
- * Every product carries `gynecology` first, at Zafieon's instruction: the whole
- * portfolio sits inside gynaecology and women's health, so a reader filtering
- * to that area should see the full range rather than a subset of it. The
- * narrower areas listed after it are what actually reduce the list.
+ * Every women's-health product carries `gynecology` first, at Zafieon's
+ * instruction, so a reader filtering to that area sees that whole range rather
+ * than a subset of it; the narrower areas listed after it are what actually
+ * reduce the list. The one exception is Meta-CoQ 300, whose carton is marked
+ * "For Men" — it is not a gynaecology product and is not listed as one.
  */
 const productRecords: Product[] = [
   {
@@ -125,11 +126,10 @@ const productRecords: Product[] = [
   },
   {
     /**
-     * A separate product from Zyfolic, not a second photograph of it. The
-     * actives are the same, but the pack is branded "ZYFOLIC Q4" in its own
-     * right and the dose is pressed as a TABLET rather than filled as a
-     * softgel — a different dosage form is a different product. Every value
-     * below is read off that carton.
+     * A separate product from Zyfolic, not a second photograph of it: the pack
+     * is branded "ZYFOLIC Q4" in its own right, the dose is a TABLET rather
+     * than a softgel, and — on the carton supplied 14 September — the formula
+     * differs too. Every value below is read off that carton.
      */
     id: "prd-13",
     slug: "zyfolic-q4",
@@ -139,9 +139,9 @@ const productRecords: Product[] = [
     dosageForm: "Tablets",
     therapeuticAreas: ["gynecology", "fertility"],
     description:
-      "A tablet combining L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA and Vitamin D3.",
+      "A tablet combining (6S)-5-methyltetrahydrofolic acid glucosamine salt, Pyridoxal 5'-phosphate, Cyanocobalamin and Glycine, presented in a ten tablet pack.",
     composition:
-      "L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA & Vitamin D3 Tablets",
+      "(6S)-5-Methyltetrahydrofolic Acid 527.25 mcg, Glucosamine Salt 570 mcg Folate, Pyridoxal 5'-Phosphate 2.3 mg, Cyanocobalamin 2.45 mcg & Glycine 10.0 mg Tablets",
     packaging: "1 x 10 x 1 Tablets",
     image: "/products/zyfolic-q4.webp",
     blurDataURL:
@@ -357,18 +357,21 @@ const productRecords: Product[] = [
     name: "Meta-CoQ 300",
     productClass: "nutraceutical",
     categories: ["nutraceutical"],
-    therapeuticAreas: ["gynecology", "fertility"],
+    /* The carton is marked "For Men", so it is not listed under gynaecology.
+       Fertility is kept: it is not a women-only area. */
+    therapeuticAreas: ["fertility"],
     dosageForm: "Tablets",
     description:
-      "A nutraceutical tablet combining Coenzyme Q10 as ubiquinol acetate with L-Carnitine L-Tartrate and Astaxanthin.",
+      "A nutraceutical tablet for men combining Coenzyme Q10 as ubiquinol acetate with L-Carnitine L-Tartrate and Astaxanthin.",
     composition:
       "Coenzyme Q10 (Ubiquinol Acetate) 300 mg + L-Carnitine L-Tartrate 750 mg + Astaxanthin 8 mg",
     packaging: "1 x 5 x 1 Tablets",
+    packMarkings: ["For Men"],
     image: "/products/meta-coq.webp",
     blurDataURL:
       "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAAAQBACdASoUAA8APu1iqU2ppaQiMAgBMB2JYwDG9CHhqz2aY5ZX35HfgAD+8fGFMCdANGm+w8GLkVtDOLmNpnLdu9X7fbPLLT6EpixRsTFjhEgKOZAXS7N6r67M0Nr5NWsFspbNzdvraueQGkIlhSLPgAA=",
     imageAlt:
-      "Meta-CoQ 300 carton — Coenzyme Q10, L-Carnitine L-Tartrate and Astaxanthin tablets, 1 x 5 x 1",
+      "Meta-CoQ 300 carton for men — Coenzyme Q10, L-Carnitine L-Tartrate and Astaxanthin tablets, 1 x 5 x 1",
     zafieonBranded: false,
     source:
       "public/products/meta coq.jpeg — carton photography supplied 14 September. The carton prints the third active as “Asthaxanthin”; it is set here under its standard spelling.",

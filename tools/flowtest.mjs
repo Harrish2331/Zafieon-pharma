@@ -387,7 +387,9 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
 
   const total = Number(process.env.TOTAL_PRODUCTS);
 
-  // Every product must be reachable under Gynaecology.
+  // Every women's-health product must be reachable under Gynaecology. That is
+  // all but Meta-CoQ 300, whose carton is marked "For Men" — GYN_COUNT.
+  const gynExpected = Number(process.env.GYN_COUNT ?? total);
   const gyn = await p.evaluate(async () => {
     const btn = [...document.querySelectorAll("button")]
       .find(x => /^Gyna?ecology/i.test(x.textContent.trim()));
@@ -396,13 +398,15 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
     return new Set([...document.querySelectorAll('a[href^="/products/"]')]
       .map(a => a.getAttribute("href"))).size;
   });
-  t(`Gynaecology lists every product (${total})`, gyn === total);
+  t(`Gynaecology lists every women's-health product (${gynExpected})`, gyn === gynExpected);
 
-  // …and no duplicates anywhere.
+  // …and no duplicates anywhere. Reset BOTH axes — category and therapeutic
+  // area each have an "All" chip. Clicking only the first left the area filter
+  // on Gynaecology, which passed only while Gynaecology held every product.
   const dupes = await p.evaluate(async () => {
-    const btn = [...document.querySelectorAll("button")]
-      .find(x => x.textContent.trim() === "All");
-    btn.click();
+    [...document.querySelectorAll("button")]
+      .filter(x => x.textContent.trim().startsWith("All"))
+      .forEach(b => b.click());
     await new Promise(r => setTimeout(r, 1200));
     const hrefs = [...document.querySelectorAll('a[href^="/products/"]')]
       .map(a => a.getAttribute("href"));
