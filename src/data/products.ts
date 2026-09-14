@@ -145,9 +145,9 @@ const productRecords: Product[] = [
     packaging: "1 x 10 x 1 Tablets",
     image: "/products/zyfolic-q4.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAQBACdASoUAA8APu1iqk2ppaQiMAgBMB2JZADKACHf46ez9bBoQWzdMAD+7eC9xzLn7Mxn8VGgBzKgK8bQxpSXuptCijxOCG4KcvsK4wpmLwfvkFRUfxJy0wwWCoTFBw25h+EJlmp4sChnmCUdY0tyfdmosAAA",
+      "data:image/webp;base64,UklGRnwAAABXRUJQVlA4IHAAAACwAwCdASoUAA0APu1iqk2ppaQiMAgBMB2JaAAAW+nk++rUsLRrAAD+6r82MHY+vhKrMv5v9jWsIq78FeDLT5/G/Avu2Y1PppgHDpGBWPdGj7E3Bjs372cUtQ+jhwiFMl3zofa8KRDntc6zX6MwAAAA",
     imageAlt:
-      "Zyfolic Q4 carton — L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA and Vitamin D3 tablets, 1 x 10 x 1",
+      "Zyfolic Q4 carton — (6S)-5-methyltetrahydrofolic acid glucosamine salt, Pyridoxal 5'-phosphate, Cyanocobalamin and Glycine tablets, 1 x 10 x 1",
     zafieonBranded: false,
     source: "public/products/zyfolic Q4.jpeg",
   },
@@ -366,12 +366,12 @@ const productRecords: Product[] = [
     packaging: "1 x 5 x 1 Tablets",
     image: "/products/meta-coq.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAADwAwCdASoUAA8APu1iqU2ppaOiMAgBMB2JZQAAW+l19LR+L3OH9uoAAP7xyIiXw30waRqvZiXwSJQ2aYWm4MYQNJ/IhIZSDZjTMpjF0SfREpEagT0xxmlTO6Yax8Zp3WnneU8RsYN2ZEnDtQAAAA==",
+      "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAAAQBACdASoUAA8APu1iqU2ppaQiMAgBMB2JYwDG9CHhqz2aY5ZX35HfgAD+8fGFMCdANGm+w8GLkVtDOLmNpnLdu9X7fbPLLT6EpixRsTFjhEgKOZAXS7N6r67M0Nr5NWsFspbNzdvraueQGkIlhSLPgAA=",
     imageAlt:
       "Meta-CoQ 300 carton — Coenzyme Q10, L-Carnitine L-Tartrate and Astaxanthin tablets, 1 x 5 x 1",
     zafieonBranded: false,
     source:
-      "public/products/meta coq.jpeg — carton photography supplied 10 September. The carton prints the third active as “Asthaxanthin”; it is set here under its standard spelling.",
+      "public/products/meta coq.jpeg — carton photography supplied 14 September. The carton prints the third active as “Asthaxanthin”; it is set here under its standard spelling.",
   },
 ];
 

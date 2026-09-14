@@ -3,6 +3,7 @@ import PageHero from "@/components/PageHero";
 import Reveal, { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/SectionHeader";
 import { PrimaryButton } from "@/components/ui/Button";
+import SocialLinks from "@/components/SocialLinks";
 import { contact, connect, site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -113,9 +114,21 @@ export default function ContactPage() {
                   </div>
                 </Reveal>
               ))}
+
+              {/* Social profiles, as one more row in the same register. */}
+              <Reveal delay={0.32} y={16}>
+                <div className="border-b border-line py-7">
+                  <dt className="text-[0.7rem] font-semibold tracking-[0.14em] text-muted-light uppercase">
+                    Follow us
+                  </dt>
+                  <dd className="mt-4">
+                    <SocialLinks />
+                  </dd>
+                </div>
+              </Reveal>
             </dl>
 
-            <Reveal delay={0.32} y={16}>
+            <Reveal delay={0.4} y={16}>
               <p className="mt-10 font-[family-name:var(--font-display)] text-[1.6rem] leading-[1.05] tracking-[-0.02em] text-navy uppercase">
                 Every Dose <span className="accent">Matters.</span>
               </p>

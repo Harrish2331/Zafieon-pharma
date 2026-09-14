@@ -88,6 +88,34 @@ export const contact = {
 } as const;
 
 /**
+ * Zafieon's social profiles, shown on the Contact page.
+ *
+ * `href` is the verified profile URL. An empty `href` means the profile link
+ * has not been supplied yet: the icon is still shown, but it is not a link and
+ * no placeholder URL is emitted. Add the URL here and it becomes a link.
+ */
+export type SocialId = "instagram" | "threads" | "facebook";
+
+export const social: { id: SocialId; label: string; href: string }[] = [
+  {
+    id: "instagram",
+    label: "Instagram",
+    href: "https://www.instagram.com/zafieonpharma?stkn=MW55Z3JyOTNsdGE1ag==",
+  },
+  {
+    id: "threads",
+    label: "Threads",
+    href: "https://www.threads.com/@zafieonpharma",
+  },
+  {
+    id: "facebook",
+    label: "Facebook",
+    // To be supplied by Zafieon. Leave empty until then.
+    href: "",
+  },
+];
+
+/**
  * The Contact page's standing invitation, in place of an enquiry form.
  *
  * Each strand names a reason someone would get in touch and routes to the same
