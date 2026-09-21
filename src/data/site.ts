@@ -110,36 +110,51 @@ export const social: { id: SocialId; label: string; href: string }[] = [
   {
     id: "facebook",
     label: "Facebook",
-    // To be supplied by Zafieon. Leave empty until then.
-    href: "",
+    href: "https://www.facebook.com/61593976726278/?http_ref=eyJ0cyI6MTc4OTc5NzY3NTAwMCwiciI6IiJ9",
   },
 ];
 
 /**
- * The Contact page's standing invitation, in place of an enquiry form.
+ * The Contact page's enquiry routes, in place of a form.
  *
- * Each strand names a reason someone would get in touch and routes to the same
- * verified email — there is no second form behind it.
+ * Five departments, each with the address Zafieon published for it. Every one
+ * is a real mailbox supplied by the client — nothing here is a guess, and the
+ * page turns each into a `mailto:` link.
  */
 export const connect = {
   eyebrow: "Let's connect",
-  headline: ["Good partnerships begin", "with a conversation."],
-  body: "Whether you're interested in our products, exploring a business opportunity, or simply want to know more about Zafieon Pharma, we'd be happy to connect.",
+  headline: ["How can we", "help you?"],
+  body: "At ZAFIEON PHARMA, we believe meaningful partnerships begin with meaningful conversations. Whether you are a healthcare professional, distributor, business partner, supplier, or customer, our team is here to assist you.",
   strands: [
     {
-      id: "products",
-      label: "Products",
-      body: "Pharmaceutical products and portfolio",
-    },
-    {
-      id: "partnerships",
-      label: "Partnerships",
-      body: "Business and collaboration opportunities",
-    },
-    {
       id: "general",
-      label: "General Information",
-      body: "Learn more about Zafieon Pharma",
+      label: "General Enquiries",
+      body: "For general information about ZAFIEON PHARMA, our products, services, and company.",
+      email: "info@zafieonpharma.com",
+    },
+    {
+      id: "sales",
+      label: "Sales & Business Development",
+      body: "For product enquiries, business opportunities, distribution partnerships, and sales-related enquiries.",
+      email: "sales@zafieonpharma.com",
+    },
+    {
+      id: "purchase",
+      label: "Purchase & Procurement",
+      body: "For suppliers, procurement, manufacturing requirements, and purchase-related enquiries.",
+      email: "purchase@zafieonpharma.com",
+    },
+    {
+      id: "corporate",
+      label: "Corporate Enquiries",
+      body: "For corporate communication, strategic partnerships, and management-related matters.",
+      email: "jahirhussain.s@zafieonpharma.com",
+    },
+    {
+      id: "administration",
+      label: "Administration",
+      body: "For administrative and organizational enquiries.",
+      email: "afiathabusun.n@zafieonpharma.com",
     },
   ],
   cta: { label: "Get in Touch" },

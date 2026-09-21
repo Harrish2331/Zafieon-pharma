@@ -70,17 +70,17 @@ const productRecords: Product[] = [
     dosageForm: "Tablets",
     therapeuticAreas: ["gynecology", "hormonal-health"],
     description:
-      "A prescription combination tablet containing Drospirenone and Ethinyl Estradiol at a lower estradiol strength, presented in a twenty-one tablet pack.",
-    composition: "Drospirenone 3 mg + Ethinyl Estradiol 0.02 mg Tablets IP",
-    packaging: "1 x 21 Tablets",
+      "A prescription combination tablet containing Drospirenone and Ethinylestradiol at a lower estradiol strength, presented in blisters of twenty-one tablets.",
+    composition: "Drospirenone 3 mg & Ethinylestradiol 0.02 mg Tablets IP",
+    packaging: "10 x 1 x 21 Tablets",
     packMarkings: ["Rx — Prescription only"],
     image: "/products/femi-dros-20.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRoYAAABXRUJQVlA4IHoAAABwAwCdASoUAA0APt1apkyopSOiMAgBEBuJQAALfV6u//76xAAA/ut4NhNBQz6R73L7j477E+VufulUO5NIPUoVknFcvDqHXvy+C9vDOt6fXtN4r0eUIxR/uqsycAVCr6XV32JrfIKy9KLrf43xjyu0AZybJg5RpqbwAA==",
+      "data:image/webp;base64,UklGRnIAAABXRUJQVlA4IGYAAACQAwCdASoUAA0APu1iqU2ppaOiMAgBMB2JYwDImB4alFXt/LqAAP7tYaYW5300fqHSoV09QC1x3xIcOIIJf5B3x7LY6yM+sAc4jCKPKKJbq+BPkks/bJoSK85fMBl1h1vsN3MAAAA=",
     imageAlt:
-      "Femi-Dros 20 carton — Drospirenone 3 mg and Ethinyl Estradiol 0.02 mg Tablets IP, 1 x 21 tablets, bearing the Zafieon Pharma mark",
+      "Femi-Dros 20 carton — Drospirenone 3 mg and Ethinylestradiol 0.02 mg Tablets IP, 10 x 1 x 21 tablets, bearing the Zafieon Pharma mark",
     zafieonBranded: true,
-    source: "Product Images/Femi dros 0.2.jpeg",
+    source: "public/products/femi dros 20.jpeg",
   },
   {
     id: "prd-03",
@@ -89,7 +89,7 @@ const productRecords: Product[] = [
     productClass: "prescription",
     categories: ["prescription"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["gynecology"],
+    therapeuticAreas: ["gynecology", "reproductive-womens-health"],
     description:
       "A prescription tablet containing Misoprostol 200 mcg, presented in a twenty tablet pack.",
     composition: "Misoprostol Tablets IP 200 mcg",
@@ -110,7 +110,7 @@ const productRecords: Product[] = [
     productClass: "nutraceutical",
     categories: ["nutraceutical"],
     dosageForm: "Softgel Capsules",
-    therapeuticAreas: ["gynecology", "fertility"],
+    therapeuticAreas: ["gynecology", "womens-wellness"],
     description:
       "A softgel capsule combining L-Methyl folate, Methylcobalamin, Pyridoxal-5 Phosphate, DHA and Vitamin D3.",
     composition:
@@ -137,17 +137,17 @@ const productRecords: Product[] = [
     productClass: "nutraceutical",
     categories: ["nutraceutical"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["gynecology", "fertility"],
+    therapeuticAreas: ["gynecology", "womens-wellness"],
     description:
-      "A tablet combining (6S)-5-methyltetrahydrofolic acid glucosamine salt, Pyridoxal 5'-phosphate, Cyanocobalamin and Glycine, presented in a ten tablet pack.",
+      "A tablet combining (6S)-5-methyltetrahydrofolic acid as its glucosamine salt with Pyridoxal, Cyanocobalamin and Glycine, presented in a ten tablet pack.",
     composition:
-      "(6S)-5-Methyltetrahydrofolic Acid 527.25 mcg, Glucosamine Salt 570 mcg Folate, Pyridoxal 5'-Phosphate 2.3 mg, Cyanocobalamin 2.45 mcg & Glycine 10.0 mg Tablets",
+      "(6S)-5-Methyltetrahydrofolic Acid 527.25 mcg, Glucosamine Salt, Pyridoxal 2.3 mg, Cyanocobalamin 2.45 mcg & Glycine 10.0 mg Tablets",
     packaging: "1 x 10 x 1 Tablets",
     image: "/products/zyfolic-q4.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRnwAAABXRUJQVlA4IHAAAACwAwCdASoUAA0APu1iqk2ppaQiMAgBMB2JaAAAW+nk++rUsLRrAAD+6r82MHY+vhKrMv5v9jWsIq78FeDLT5/G/Avu2Y1PppgHDpGBWPdGj7E3Bjs372cUtQ+jhwiFMl3zofa8KRDntc6zX6MwAAAA",
+      "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAADwAwCdASoUAA0APu1iqU2ppaQiMAgBMB2JZgC7ACHfkMiF7abOXiAAAP7qvzYwdj7KkEXRgps/yBV33U+bSDhSmxI8keJvvYvKJMayTE7oErT4qBFs30Xao4/BJNABLc5QZ+6vnmj9r+9RrD3IFiBIAAA=",
     imageAlt:
-      "Zyfolic Q4 carton — (6S)-5-methyltetrahydrofolic acid glucosamine salt, Pyridoxal 5'-phosphate, Cyanocobalamin and Glycine tablets, 1 x 10 x 1",
+      "Zyfolic Q4 carton — (6S)-5-methyltetrahydrofolic acid glucosamine salt, Pyridoxal, Cyanocobalamin and Glycine tablets, 1 x 10 x 1",
     zafieonBranded: false,
     source: "public/products/zyfolic Q4.jpeg",
   },
@@ -182,16 +182,16 @@ const productRecords: Product[] = [
     dosageForm: "Tablets",
     therapeuticAreas: ["gynecology", "womens-wellness"],
     description:
-      "A nutraceutical tablet combining liposomal ferric pyrophosphate with Vitamin C, Vitamin B12 and folic acid. Each tablet provides 30 mg of liposomal ferric pyrophosphate, 50 mg of Vitamin C, 2.2 mcg of Vitamin B12 and 200 mcg of folic acid, presented in a ten tablet pack.",
+      "A nutraceutical tablet combining iron, as liposomal ferric pyrophosphate, with Vitamin C, Vitamin B12 and folic acid. Each tablet provides ferric pyrophosphate equivalent to 30 mg of iron, 50 mg of Vitamin C, 2.2 mcg of Vitamin B12 and 200 mcg of folic acid, presented in a ten tablet pack.",
     composition:
-      "Ferric Pyrophosphate (Liposomal) 30 mg, Vitamin C 50 mg, Vitamin B12 2.2 mcg & Folic Acid 200 mcg Tablets",
+      "Ferric Pyrophosphate (Liposomal) eq. Iron 30 mg, Vitamin C 50 mg, Vitamin B12 2.2 mcg & Folic Acid 200 mcg Tablets",
     packaging: "1 x 10 x 1 Tablets",
     packMarkings: ["For better absorption & healthier tomorrow"],
     image: "/products/iro-plus.webp",
     blurDataURL:
-      "data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAAAQAwCdASoUAA0APu1kqU4ppaOiMAgBMB2JZwAAetDL2AAA/u/5k47XqEdSQXXBnU14DRpxcpzO6PZJURN8o+3Af2BIIO9DB/HaAAAA",
+      "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAACwAwCdASoUAA0APu1iqU2ppaQiMAgBMB2JZwAAXK00V1DPr8GAAAD+6pupBSqAbAYwxGobti7eI4n0GEhHKKUMmghdMwR+tEF+5RJrAAA=",
     imageAlt:
-      "Iro Plus carton — Ferric Pyrophosphate (Liposomal) 30 mg, Vitamin C, Vitamin B12 and Folic Acid tablets, 1 x 10 x 1",
+      "Iro Plus carton — Ferric Pyrophosphate (Liposomal) eq. Iron 30 mg, Vitamin C, Vitamin B12 and Folic Acid tablets, 1 x 10 x 1",
     zafieonBranded: false,
     source: "public/products/iroplus.jpeg",
   },
@@ -202,7 +202,7 @@ const productRecords: Product[] = [
     productClass: "nutraceutical",
     categories: ["nutraceutical"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["gynecology", "womens-wellness"],
+    therapeuticAreas: ["gynecology", "fertility"],
     description:
       "A nutraceutical tablet for women combining N-Acetyl L-Cysteine, Coenzyme Q10, Melatonin, Astaxanthin, Folic Acid and vitamins B6, B12 and D2.",
     composition:
@@ -268,7 +268,7 @@ const productRecords: Product[] = [
     productClass: "prescription",
     categories: ["prescription", "hormone"],
     dosageForm: "Tablets",
-    therapeuticAreas: ["gynecology", "hormonal-health"],
+    therapeuticAreas: ["gynecology", "hormonal-health", "reproductive-womens-health"],
     description:
       "A prescription tablet containing Mifepristone 200 mg, presented in a ten tablet pack.",
     composition: "Mifepristone Tablets IP 200 mg",

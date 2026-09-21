@@ -28,7 +28,8 @@ export type FocusAreaId =
   | "gynecology"
   | "hormonal-health"
   | "fertility"
-  | "womens-wellness";
+  | "womens-wellness"
+  | "reproductive-womens-health";
 
 export interface Product {
   id: string;

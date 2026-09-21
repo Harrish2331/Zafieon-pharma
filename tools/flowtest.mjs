@@ -80,8 +80,11 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
     [...document.querySelectorAll("button")].map(x => x.textContent.trim()));
   t("Products filter offers Nutraceuticals, Prescription, Hormones",
     ["Nutraceuticals","Prescription","Hormones"].every(c => chips.includes(c)));
-  t("Products filter no longer offers Reproductive",
-    !chips.some(c => /reproductive/i.test(c)));
+  // The old standalone "Reproductive" / "Reproductive Health" chip stays gone.
+  // "Reproductive & Women's Health" is a separate area Zafieon added on
+  // 19 September, and is allowed.
+  t("Products filter no longer offers the old Reproductive category",
+    !chips.some(c => /^Reproductive(\s+Health)?\s*\d*$/i.test(c)));
   await p.close();
 }
 
@@ -383,7 +386,9 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
     chips.some(c => /^Gyna?ecology/i.test(c)) && chips.some(c => /^Fertility/i.test(c)));
   t("Hormonal Health has replaced Reproductive Health",
     chips.some(c => /^Hormonal Health/i.test(c)) &&
-    !chips.some(c => /reproductive/i.test(c)));
+    !chips.some(c => /^Reproductive Health/i.test(c)));
+  t("Reproductive & Women's Health area is offered",
+    chips.some(c => /^Reproductive & Women.s Health/i.test(c)));
 
   const total = Number(process.env.TOTAL_PRODUCTS);
 
@@ -448,8 +453,14 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
     /Chennai . 600021/i.test(c.txt));
   t("Email appears in at least two places",
     c.mailtos.filter(h => h === "mailto:info@zafieonpharma.com").length >= 2);
+  // Every mailto on the page is one of the five addresses Zafieon published,
+  // spelled exactly — no typos, no stray spaces.
+  const PUBLISHED = [
+    "info@zafieonpharma.com", "sales@zafieonpharma.com", "purchase@zafieonpharma.com",
+    "jahirhussain.s@zafieonpharma.com", "afiathabusun.n@zafieonpharma.com",
+  ].map(m => "mailto:" + m);
   t("Email address has no typos or stray spaces",
-    c.mailtos.every(h => h === "mailto:info@zafieonpharma.com"));
+    c.mailtos.every(h => PUBLISHED.includes(h)) && PUBLISHED.every(m => c.mailtos.includes(m)));
   t("Email is shown as text too", /info@zafieonpharma\.com/.test(c.txt));
   await p.close();
 }

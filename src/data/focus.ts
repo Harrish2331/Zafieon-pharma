@@ -66,6 +66,20 @@ export const focusAreas: FocusArea[] = [
     detail:
       "A nutraceutical is not a lesser product. Our wellness range is held to the same partner qualification, the same documentation expectations and the same supply discipline as everything else we put our name to.",
   },
+  {
+    /* Added at Zafieon's instruction, for the products dispensed in
+       reproductive care. No area artwork has been supplied for it yet, and
+       `image` is optional — the home Focus panel and Our Focus both render an
+       area without one rather than showing a stand-in. */
+    id: "reproductive-womens-health",
+    slug: "reproductive-womens-health",
+    label: "Reproductive & Women's Health",
+    headline: "Reproductive care, supplied responsibly.",
+    description:
+      "Prescription products used in reproductive care, dispensed under medical supervision and supplied through qualified manufacturing partners.",
+    detail:
+      "These are products where the supply chain itself carries a duty of care: prescription-only medicines, dispensed under medical supervision, with the regulatory conditions that apply to them observed at every step. Zafieon's role is to be certain of what was made, how it was documented and how it reaches the pharmacy.",
+  },
 ];
 
 export const getFocusArea = (slug: string) =>

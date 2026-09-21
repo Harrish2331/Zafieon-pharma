@@ -354,6 +354,23 @@ make that visible before the reader clicks.
 The exception is **Meta-CoQ 300**, whose carton is marked "For Men". It is not
 a gynaecology product and is listed under Fertility only.
 
+### Area changes of 19 September, at Zafieon's instruction
+
+- A new area, **Reproductive & Women's Health**, holds Mifiprine and MISO-PRO.
+  Both keep their existing areas as well. No area artwork has been supplied for
+  it, and none is substituted.
+- **Femulet** moves from Women's Wellness to Fertility.
+- **Zyfolic** and **Zyfolic Q4** move from Fertility to Women's Wellness.
+
+### The green vegetarian mark
+
+At Zafieon's instruction the green vegetarian mark is shown on **every**
+product card. ⚠️ Only Femulet, Florabet LL and Ferrin-XT print a vegetarian
+mark on their supplied artwork; the prescription tablets and the Proluvia-AQ
+injection do not. The mark on those cards is Zafieon's own statement, not a
+reproduction of the pack, and Zafieon should confirm it is accurate for every
+product before launch.
+
 ⚠️ Nothing about this asserts that a given product is indicated for a given
 condition. No page states an indication for any product.
 

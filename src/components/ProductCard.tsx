@@ -53,6 +53,18 @@ export default function ProductCard({
           </span>
         )}
 
+        {/* The green vegetarian mark — a green square outline around a green
+            dot — shown on every card at Zafieon's instruction. Top-right, so it
+            never collides with the Rx badge on the left. */}
+        <span
+          role="img"
+          aria-label="Vegetarian"
+          title="Vegetarian"
+          className="absolute top-4 right-4 inline-flex h-5 w-5 items-center justify-center border-[1.5px] border-[#1a8f3c] bg-white"
+        >
+          <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-[#1a8f3c]" />
+        </span>
+
         {/* Magenta sweep on the plate's base edge */}
         <span
           aria-hidden="true"

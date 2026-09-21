@@ -18,9 +18,9 @@ export const metadata: Metadata = {
  *
  * There is deliberately no enquiry form. Zafieon uses this site as a company
  * presentation in front of doctors and trade, not as a lead-capture funnel, so
- * the space a form would occupy carries an invitation and the three reasons
- * someone would take it up. Every route out of here lands on the same verified
- * email — there is no second form behind the button.
+ * the space a form would occupy carries the five enquiry departments Zafieon
+ * supplied — General, Sales & Business Development, Purchase & Procurement,
+ * Corporate and Administration — each with its own mailbox as a mailto: link.
  *
  * The Telephone entry, and the note beneath the details promising a number,
  * are removed at Zafieon's instruction. Email and the two offices remain; the
@@ -42,9 +42,9 @@ export default function ContactPage() {
   return (
     <>
       <PageHero
-        eyebrow="Contact"
-        lines={["Let's", "connect."]}
-        body="Whether you are a distributor, a healthcare professional, a prospective manufacturing partner or simply want to understand what we do — we would like to hear from you."
+        eyebrow="Contact Us"
+        lines={["Let's", "Connect."]}
+        body={connect.body}
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Contact", href: "/contact" },
@@ -148,7 +148,6 @@ export default function ContactPage() {
                   </span>
                 ))}
               </h2>
-              <p className="lede mt-7 max-w-[48ch]">{connect.body}</p>
             </Reveal>
 
             <Stagger step={0.08} className="mt-14 border-t border-line">
@@ -164,6 +163,15 @@ export default function ContactPage() {
                       </h3>
                       <p className="mt-2.5 text-[0.92rem] leading-[1.7] text-muted">
                         {s.body}
+                      </p>
+                      <p className="mt-3 text-[0.9rem] leading-[1.6] text-navy">
+                        <span className="text-muted-light">Email: </span>
+                        <a
+                          href={`mailto:${s.email}`}
+                          className="break-all underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-magenta"
+                        >
+                          {s.email}
+                        </a>
                       </p>
                     </div>
                   </div>
