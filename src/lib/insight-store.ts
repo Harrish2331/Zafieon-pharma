@@ -1,5 +1,5 @@
 import "server-only";
-import { mkdir, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile, rm } from "node:fs/promises";
 import path from "node:path";
 import { insights } from "@/data/insights";
 import type { Insight } from "@/data/types";
@@ -213,9 +213,41 @@ async function writeManifest(m: Manifest): Promise<void> {
     await blobPut(BLOB_MANIFEST, json, "application/json");
   } else {
     await mkdir(dir(), { recursive: true });
-    await writeFile(manifestPath(), json, "utf8");
+    /* Written to a sibling and renamed, never in place. `writeFile` to the
+       live path is not atomic: two overlapping writes interleave and leave the
+       file unparseable, and one interrupted write truncates it. A rename
+       within the same directory replaces the file in one step, so a reader
+       sees either the whole previous manifest or the whole new one. */
+    const tmp = `${manifestPath()}.${process.pid}.tmp`;
+    await writeFile(tmp, json, "utf8");
+    await rename(tmp, manifestPath());
   }
   cached = { at: Date.now(), manifest: m };
+}
+
+/**
+ * Every mutation runs through here, one at a time.
+ *
+ * Each one is a read-modify-write of a single manifest holding all four slots.
+ * Run concurrently they both read the same manifest and the second write drops
+ * the first one's branch — four parallel saves to four different slots kept
+ * one and lost three, measured against this store. Serialising them makes each
+ * read-modify-write atomic within the process, which is the whole surface
+ * here: one operator, one dashboard, one server.
+ *
+ * It is not a cross-process lock. Two server instances sharing one Blob store
+ * can still interleave; the Blob driver's own write is at least whole-object,
+ * so the failure there is a lost update rather than a torn file.
+ */
+let chain: Promise<unknown> = Promise.resolve();
+function serialise<T>(work: () => Promise<T>): Promise<T> {
+  const run = chain.then(work, work);
+  // The chain must survive a rejected mutation, or every later save rejects.
+  chain = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
 }
 
 /* ── Public API — images ─────────────────────────────────────────────────── */
@@ -290,7 +322,10 @@ export async function readSlotFile(slot: Slot): Promise<
 }
 
 /** Replace one slot's image. Leaves that slot's text untouched. */
-export async function saveSlot(
+export const saveSlot = (slot: Slot, body: Buffer, contentType: string) =>
+  serialise(() => saveSlotLocked(slot, body, contentType));
+
+async function saveSlotLocked(
   slot: Slot,
   body: Buffer,
   contentType: string,
@@ -359,7 +394,9 @@ export async function saveSlot(
 }
 
 /** Drop a slot's image override. Leaves that slot's text untouched. */
-export async function resetSlot(slot: Slot): Promise<void> {
+export const resetSlot = (slot: Slot) => serialise(() => resetSlotLocked(slot));
+
+async function resetSlotLocked(slot: Slot): Promise<void> {
   const m = await readManifest(true);
   const rec = m.images[`${slot}`];
   if (rec?.pathname) {
@@ -393,7 +430,12 @@ export async function slotText(): Promise<Partial<Record<Slot, TextRecord>>> {
  * Never touches `m.images`, which is what keeps a description edit from
  * disturbing the artwork.
  */
-export async function saveText(
+export const saveText = (
+  slot: Slot,
+  fields: { title?: string; standfirst?: string; body?: string[] },
+) => serialise(() => saveTextLocked(slot, fields));
+
+async function saveTextLocked(
   slot: Slot,
   fields: { title?: string; standfirst?: string; body?: string[] },
 ): Promise<TextRecord> {
@@ -446,7 +488,9 @@ export async function saveText(
 }
 
 /** Drop a slot's text override. Leaves that slot's image untouched. */
-export async function resetText(slot: Slot): Promise<void> {
+export const resetText = (slot: Slot) => serialise(() => resetTextLocked(slot));
+
+async function resetTextLocked(slot: Slot): Promise<void> {
   const m = await readManifest(true);
   delete m.text[`${slot}`];
   await writeManifest(m);

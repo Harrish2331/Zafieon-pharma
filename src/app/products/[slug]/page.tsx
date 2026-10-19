@@ -53,6 +53,7 @@ export default async function ProductDetailPage({
   const product = getProduct(slug);
   if (!product) notFound();
 
+  const soon = product.availability === "coming-soon";
   const areas = focusAreas.filter((f) => product.therapeuticAreas.includes(f.id));
   const related = products
     .filter(
@@ -86,6 +87,7 @@ export default async function ProductDetailPage({
         ]
       : []),
     ...(product.licence ? [{ label: "Licence", value: product.licence }] : []),
+    ...(soon ? [{ label: "Availability", value: "Coming soon" }] : []),
   ];
 
   const body = (
@@ -138,6 +140,19 @@ export default async function ProductDetailPage({
               lines={[product.name]}
               className="mt-7 text-[length:var(--text-display-1)] leading-[0.94] text-white"
             />
+
+            {/* Said once, immediately under the name, in the magenta the
+                brand already uses for emphasis — before the composition, so
+                nobody reads the specification as an offer. No date: none was
+                supplied, and inventing one would be a commitment. */}
+            {soon && (
+              <Reveal delay={0.16} y={14}>
+                <p className="mt-6 inline-flex items-center gap-3 bg-magenta px-4 py-2 text-[0.68rem] font-semibold tracking-[0.16em] text-white uppercase">
+                  <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-white" />
+                  Coming soon
+                </p>
+              </Reveal>
+            )}
 
             {product.composition && (
               <Reveal delay={0.22} y={18}>
@@ -286,16 +301,20 @@ export default async function ProductDetailPage({
         <div className="shell relative flex flex-col items-start justify-between gap-9 lg:flex-row lg:items-center">
           <div>
             <h2 className="text-[length:var(--text-display-3)] text-white">
-              Enquire about {product.name}
+              {soon ? `${product.name} is coming soon` : `Enquire about ${product.name}`}
             </h2>
+            {/* A product that cannot be supplied yet is not offered for trade
+                order: the same section asks to be told when it is ready. The
+                wording states no date, because Zafieon has not set one. */}
             <p className="mt-4 max-w-[48ch] text-[0.95rem] text-white/55">
-              For distribution, wholesale or trade enquiries, our team will come
-              back to you directly.
+              {soon
+                ? "This product is not yet available to order. Write to us and we will let you know as soon as it is."
+                : "For distribution, wholesale or trade enquiries, our team will come back to you directly."}
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
             <PrimaryButton href="/contact" tone="magenta">
-              Get in Touch
+              {soon ? "Register Interest" : "Get in Touch"}
             </PrimaryButton>
             <SecondaryButton href="/manufacturing" tone="dark">
               Our Network

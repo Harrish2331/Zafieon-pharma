@@ -13,6 +13,15 @@
 export type ProductClass = "prescription" | "nutraceutical";
 
 /**
+ * Whether the product can be ordered today.
+ *
+ * A field rather than a label matched in the UI, so the badge, the enquiry
+ * wording and anything added later all read the same value. Absent means
+ * available: the catalogue's normal state stays the one that needs no data.
+ */
+export type ProductAvailability = "available" | "coming-soon";
+
+/**
  * The portfolio categories shown on /products.
  *
  * These are display groupings, not a pharmacological taxonomy, and a product
@@ -60,6 +69,12 @@ export interface Product {
   licence?: string;
   /** Factual pack markings, e.g. "Rx", "Vegetarian". */
   packMarkings?: string[];
+  /**
+   * Omitted for everything Zafieon supplies today. Set to "coming-soon" and
+   * the card and the detail page both mark it, and the enquiry section asks to
+   * be notified instead of inviting a trade order.
+   */
+  availability?: ProductAvailability;
   image: string;
   imageAlt: string;
   /** Inline LQIP so pack shots resolve blur-to-sharp instead of popping in. */

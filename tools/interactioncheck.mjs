@@ -15,13 +15,20 @@ import puppeteer from "puppeteer-core";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3001";
 
+/* SwiftShader by default, so a run is reproducible on any machine and errs
+   pessimistic. `ANGLE=d3d11` measures the same interactions on the real GPU,
+   which is the column a visitor actually gets - see the renderer comparison
+   in README. Anything compositing-bound differs several times between them,
+   and either renderer swings run to run, so read a median, not one row. */
+const RENDERER = process.env.ANGLE ?? "swiftshader";
+
 const browser = await puppeteer.launch({
   executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
   headless: true,
   args: [
     "--no-sandbox",
     "--use-gl=angle",
-    "--use-angle=swiftshader",
+    `--use-angle=${RENDERER}`,
     "--enable-unsafe-swiftshader",
   ],
 });
@@ -201,6 +208,7 @@ async function openPage(route, viewport = { width: 1440, height: 900 }) {
 
 /* ── Report ──────────────────────────────────────────────────────────────── */
 console.log(
+  `\n  renderer: ${RENDERER}` +
   "\n  interaction                          worst   p95  janky  blocking",
 );
 console.log("  " + "─".repeat(66));

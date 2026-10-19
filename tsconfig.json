@@ -11,6 +11,10 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    /* tools/datacheck.mts imports src/data/*.ts directly and runs under Node's
+       type stripping, which requires the real extension. Safe here because
+       nothing is emitted from this config. */
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [

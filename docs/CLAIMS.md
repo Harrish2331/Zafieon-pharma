@@ -432,3 +432,49 @@ it, and it already had `moov` before `mdat`. The master's hash is kept above so
 that cut stays verifiable too, but the two must not be confused: serving the
 master in place of the branded edit silently removes the product reveal from
 the hero, which has happened once already.
+
+---
+
+## 19 October 2026 — area ordering, Meta-CoQ, office maps
+
+**The Gynaecology sequence** is Zafieon's, supplied by name on 19 October and
+held in `AREA_ORDER` in `src/data/products.ts`:
+
+> Femi-Dros 30 · Femi-Dros 20 · Proluvia-AQ · Meta-CoQ 300 · Zyfolic ·
+> Zyfolic Q4 · Iro Plus · Femulet · Florabet LL · Ferrin-XT · Luna 35 ·
+> Iro Cal · Mifiprine · MISO-PRO
+
+Two things about that list are worth recording rather than leaving implicit:
+
+* **Meta-CoQ 300 is in it.** On 14 September its carton's "For Men" marking
+  took it *out* of Gynaecology, at Zafieon's instruction. The 19 October
+  sequence names it fourth, so it is back in. The carton marking has not
+  changed and is still printed on the card and the product page.
+* **Let Bloom is not in it.** It is a gynaecology product and the sequence does
+  not mention it, so it is kept in the area and sorted after the fourteen
+  rather than being dropped. If Zafieon intends it removed from Gynaecology,
+  that is a data change, not an ordering one.
+
+**Meta-CoQ 300 is marked "Coming soon"** at Zafieon's instruction. No release
+date, price or availability date is stated anywhere, because none was supplied;
+`availability: "coming-soon"` on the record drives the badge, the specification
+row and the wording of the enquiry section.
+
+**Office map links.** Both were supplied by Zafieon on 19 October.
+
+* Mumbai — `https://share.google/OHvZiG2RnKI5Pc2wG` — **opened and checked.**
+  It resolves to the Google listing for *Awfis BKC Adani Inspire*, Unit No. 4,
+  3rd Floor, Inspire BKC, Bandra Kurla Complex, Mumbai 400051, which is the
+  corporate-office address held in `site.ts`. The listing belongs to the
+  building's workspace operator, not to Zafieon.
+* Chennai — `https://share.google/galcaQTS09mTWwMQ2g` — **could not be
+  verified.** Opened twice in a real browser it answered share.google's own
+  "this URL isn't available" error page, so the destination was never seen. It
+  is published as supplied, and `mapsVerified: false` records that. It should
+  be replaced with a fresh share link or a maps.google.com URL.
+
+**WhatsApp and Google reviews** are configured but empty: no business WhatsApp
+number and no Google Business Profile review URL has been supplied, so no
+button renders and nothing is invented. No rating or review count appears
+anywhere on the site, and none may be added except from Zafieon's own Business
+Profile through its API.

@@ -20,6 +20,7 @@ export default function ProductCard({
   size?: "default" | "wide";
 }) {
   const rx = product.productClass === "prescription";
+  const soon = product.availability === "coming-soon";
 
   return (
     <Link
@@ -47,10 +48,23 @@ export default function ProductCard({
           className="object-contain p-6 transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:scale-[1.04] sm:p-8"
         />
 
-        {rx && (
-          <span className="absolute top-4 left-4 border border-navy/15 bg-paper/85 px-2.5 py-1 text-[0.6rem] font-semibold tracking-[0.16em] text-navy uppercase backdrop-blur-sm">
-            Rx
-          </span>
+        {/* Rx and Coming soon stack down the left edge in that order, so a
+            product that is both keeps its regulatory mark in the position a
+            reader already scans for it. The plate's top-right is the veg mark's
+            and is left alone. */}
+        {(rx || soon) && (
+          <div className="absolute top-4 left-4 flex flex-col items-start gap-2">
+            {rx && (
+              <span className="border border-navy/15 bg-paper/85 px-2.5 py-1 text-[0.6rem] font-semibold tracking-[0.16em] text-navy uppercase backdrop-blur-sm">
+                Rx
+              </span>
+            )}
+            {soon && (
+              <span className="border border-magenta/30 bg-magenta px-2.5 py-1 text-[0.6rem] font-semibold tracking-[0.16em] text-white uppercase">
+                Coming soon
+              </span>
+            )}
+          </div>
         )}
 
         {/* The green vegetarian mark — a green square outline around a green

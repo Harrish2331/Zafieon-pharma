@@ -392,8 +392,8 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
 
   const total = Number(process.env.TOTAL_PRODUCTS);
 
-  // Every women's-health product must be reachable under Gynaecology. That is
-  // all but Meta-CoQ 300, whose carton is marked "For Men" — GYN_COUNT.
+  // Every product must be reachable under Gynaecology, Meta-CoQ 300 included
+  // since 19 October 2026 - GYN_COUNT, so an area change has to be declared.
   const gynExpected = Number(process.env.GYN_COUNT ?? total);
   const gyn = await p.evaluate(async () => {
     const btn = [...document.querySelectorAll("button")]
@@ -522,6 +522,95 @@ const t = (name, cond) => (cond ? ok : bad).push(name);
     shown: getComputedStyle(document.querySelector(".zaf-overture")).display,
   }));
   t("Reduced motion suppresses the opening", r.flag === "off" && r.shown === "none");
+  await p.close();
+}
+
+// 20 -- Gynaecology holds Zafieon's exact sequence, and keeps it
+{
+  /* The sequence Zafieon fixed by name on 19 October 2026. Let Bloom is a
+     gynaecology product the sequence does not name, so it follows the fourteen
+     rather than disappearing from the area - asserted, not assumed. */
+  const SEQ = [
+    "femi-dros-30", "femi-dros-20", "proluvia-aq", "meta-coq",
+    "zyfolic", "zyfolic-q4", "iro-plus", "femulet",
+    "florabet-ll", "ferrin-xt", "luna-35", "iro-cal",
+    "mifiprine", "miso-pro",
+  ];
+  const slugs = (d) => [...new Set([...d.querySelectorAll('a[href^="/products/"]')]
+    .map(a => a.getAttribute("href").replace("/products/", "")))];
+  const list = (page, sel = "") => page.evaluate((s) => [...new Set(
+    [...document.querySelectorAll(s + ' a[href^="/products/"]')]
+      .map(a => a.getAttribute("href").replace("/products/", "")))], sel);
+  const seq14 = (a) => JSON.stringify(a.slice(0, 14)) === JSON.stringify(SEQ);
+
+  const p = await b.newPage();
+  await p.setViewport({ width: 1440, height: 900 });
+
+  // a. By clicking the chip.
+  await p.goto(BASE + "/products", { waitUntil: "domcontentloaded" });
+  await new Promise(r => setTimeout(r, 2600));
+  await p.evaluate(async () => {
+    [...document.querySelectorAll("button")]
+      .find(x => /^Gyna?ecology/i.test(x.textContent.trim()))?.click();
+    await new Promise(r => setTimeout(r, 1500));
+  });
+  const clicked = await list(p);
+  t("Gynaecology is in Zafieon's exact 14-product sequence", seq14(clicked));
+  t("Let Bloom is kept in Gynaecology, after the named fourteen",
+    clicked.length === 15 && clicked[14] === "let-bloom");
+
+  // b. Straight from the URL, i.e. what a refresh renders.
+  await p.goto(BASE + "/products?area=gynecology", { waitUntil: "domcontentloaded" });
+  await new Promise(r => setTimeout(r, 2600));
+  const direct = await list(p);
+  t("The sequence survives a refresh on ?area=gynecology", seq14(direct));
+
+  // c. The same order on Our Focus, which renders on the server.
+  await p.goto(BASE + "/our-focus", { waitUntil: "domcontentloaded" });
+  await new Promise(r => setTimeout(r, 1800));
+  t("Our Focus lists Gynaecology in the same sequence",
+    seq14(await list(p, "#gynecology")));
+
+  // d. And again after navigating away and back.
+  await p.goto(BASE + "/products?area=gynecology", { waitUntil: "domcontentloaded" });
+  await new Promise(r => setTimeout(r, 2400));
+  const again = await list(p);
+  t("The sequence is the same after navigating away and back",
+    JSON.stringify(again) === JSON.stringify(direct));
+
+  // e. Narrowing by category or by search removes cards without reordering.
+  const narrowed = await p.evaluate(async (fn) => {
+    const slugs = eval(fn);
+    [...document.querySelectorAll("button")]
+      .find(x => x.textContent.trim() === "Prescription")?.click();
+    await new Promise(r => setTimeout(r, 1400));
+    const rx = slugs(document);
+    return { rx, searched: null };
+  }, "(" + slugs.toString() + ")");
+
+  /* Typed through the keyboard rather than by assigning `value`: React's
+     controlled input ignores a value set from script -- its tracker sees no
+     change and onChange never runs -- so a scripted "search" filters nothing
+     and an assertion about the filtered order passes on an unfiltered list. */
+  await p.click('input[type="search"]');
+  await p.type('input[type="search"]', "tablets", { delay: 25 });
+  await new Promise(r => setTimeout(r, 1700));
+  narrowed.searched = await list(p);
+  const subsetInOrder = (sub, full) => {
+    let at = -1;
+    return sub.every((s) => {
+      const j = full.indexOf(s);
+      const forward = j > at;
+      at = j;
+      return forward;
+    });
+  };
+  t("Filtering by category keeps the area's order",
+    narrowed.rx.length > 0 && narrowed.rx.length < again.length &&
+    subsetInOrder(narrowed.rx, again));
+  t("Searching within the area keeps the area's order",
+    narrowed.searched === null ||
+    (narrowed.searched.length > 0 && subsetInOrder(narrowed.searched, again)));
   await p.close();
 }
 

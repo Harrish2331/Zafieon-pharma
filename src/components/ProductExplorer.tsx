@@ -5,7 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import ProductCard from "@/components/ProductCard";
 import Reveal from "@/components/motion/Reveal";
-import { products, usedProductCategories } from "@/data/products";
+import {
+  products,
+  productsByArea,
+  usedProductCategories,
+} from "@/data/products";
 import { focusAreas } from "@/data/focus";
 import type { FocusAreaId, ProductCategory } from "@/data/types";
 
@@ -28,10 +32,13 @@ type AreaFilter = "all" | FocusAreaId;
  * Adding a product in a new category or a new area extends the relevant chip
  * set with no change here.
  *
- * Every women's-health product sits under Gynaecology, so that chip shows
- * nearly the whole range — Meta-CoQ 300, marked "For Men", is the exception;
- * the narrower areas are what actually reduce the list. Counts beside each
+ * Every product sits under Gynaecology, so that chip shows the whole range
+ * and the narrower areas are what actually reduce the list. Counts beside each
  * chip make that visible before the reader clicks, rather than after.
+ *
+ * Selecting an area also reorders the grid into that area's own sequence —
+ * Zafieon fixes Gynaecology by name — which is why the list is taken from
+ * `productsByArea` rather than filtered out of the catalogue in place.
  *
  * Search appears only once the catalogue is large enough to need it.
  */
@@ -85,9 +92,13 @@ export default function ProductExplorer() {
 
   const visible = useMemo(() => {
     const q = deferredQuery.trim().toLowerCase();
-    return products.filter((p) => {
+    /* With an area selected the list is that area's own order, which Zafieon
+       fixes per area and which is not always the catalogue order; with no area
+       selected it is the catalogue order. Category and search only remove
+       cards, so neither disturbs the order they are applied to. */
+    const base = area === "all" ? products : productsByArea(area);
+    return base.filter((p) => {
       if (cat !== "all" && !p.categories.includes(cat)) return false;
-      if (area !== "all" && !p.therapeuticAreas.includes(area)) return false;
       if (!q) return true;
       return (
         p.name.toLowerCase().includes(q) ||
@@ -195,7 +206,13 @@ export default function ProductExplorer() {
           </div>
         </Reveal>
 
-        {/* ── Grid ────────────────────────────────────────────────── */}
+        {/* The chips are the visual label for this list, and a chip is not a
+            heading — so the page ran h1 straight to the h3 on each card, and a
+            reader navigating by headings had nothing between them. The heading
+            is here rather than drawn, because the design has no place for a
+            title above the grid and did not need one visually. */}
+        <h2 className="sr-only">Product catalogue</h2>
+
         {/* ── Grid ──────────────────────────────────────────────────
             No `layout` animation here, deliberately.
 

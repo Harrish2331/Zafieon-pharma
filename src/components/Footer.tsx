@@ -98,6 +98,19 @@ export default function Footer() {
                       </span>
                     ))}
                   </address>
+                  {/* Directions from the footer too: it is on every page, and
+                      it is where someone looks for an address. Same link as
+                      Contact, so there is one source for it. */}
+                  {o.mapsUrl && (
+                    <a
+                      href={o.mapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block text-[0.68rem] font-semibold tracking-[0.12em] text-white/45 uppercase underline decoration-white/20 underline-offset-4 transition-colors hover:text-white hover:decoration-magenta"
+                    >
+                      Get directions
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

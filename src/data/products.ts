@@ -1,4 +1,4 @@
-import type { Product, ProductCategory } from "./types";
+import type { FocusAreaId, Product, ProductCategory } from "./types";
 
 /**
  * The products currently supplied by Zafieon Pharma.
@@ -33,11 +33,15 @@ import type { Product, ProductCategory } from "./types";
  * Editorial placement for navigation. It is not a clinical claim, and no page
  * presents it as one — see docs/CLAIMS.md.
  *
- * Every women's-health product carries `gynecology` first, at Zafieon's
- * instruction, so a reader filtering to that area sees that whole range rather
- * than a subset of it; the narrower areas listed after it are what actually
- * reduce the list. The one exception is Meta-CoQ 300, whose carton is marked
- * "For Men" — it is not a gynaecology product and is not listed as one.
+ * Every product carries `gynecology` first, at Zafieon's instruction, so a
+ * reader filtering to that area sees the whole range rather than a subset of
+ * it; the narrower areas listed after it are what actually reduce the list.
+ * That includes Meta-CoQ 300, which Zafieon named fourth in the Gynaecology
+ * sequence on 19 October 2026 although its carton is marked "For Men"; the
+ * marking stays on the product page and the card, so the reader sees it.
+ *
+ * Within an area the display order is `AREA_ORDER` near the foot of this file,
+ * not this array's order.
  */
 const productRecords: Product[] = [
   {
@@ -357,9 +361,12 @@ const productRecords: Product[] = [
     name: "Meta-CoQ 300",
     productClass: "nutraceutical",
     categories: ["nutraceutical"],
-    /* The carton is marked "For Men", so it is not listed under gynaecology.
-       Fertility is kept: it is not a women-only area. */
-    therapeuticAreas: ["fertility"],
+    /* Listed under gynaecology at Zafieon's instruction of 19 October, which
+       names Meta-CoQ 300 fourth in the Gynaecology sequence. The carton is
+       marked "For Men" and that marking is still shown on the product, so the
+       reader sees it; the area is editorial placement, not a claim about who
+       the product is for. Fertility is kept — it is not a women-only area. */
+    therapeuticAreas: ["gynecology", "fertility"],
     dosageForm: "Tablets",
     description:
       "A nutraceutical tablet for men combining Coenzyme Q10 as ubiquinol acetate with L-Carnitine L-Tartrate and Astaxanthin.",
@@ -367,6 +374,9 @@ const productRecords: Product[] = [
       "Coenzyme Q10 (Ubiquinol Acetate) 300 mg + L-Carnitine L-Tartrate 750 mg + Astaxanthin 8 mg",
     packaging: "1 x 5 x 1 Tablets",
     packMarkings: ["For Men"],
+    /* Marked coming soon at Zafieon's instruction of 19 October 2026. No
+       release date is stated anywhere, because none was supplied. */
+    availability: "coming-soon",
     image: "/products/meta-coq.webp",
     blurDataURL:
       "data:image/webp;base64,UklGRn4AAABXRUJQVlA4IHIAAAAQBACdASoUAA8APu1iqU2ppaQiMAgBMB2JYwDG9CHhqz2aY5ZX35HfgAD+8fGFMCdANGm+w8GLkVtDOLmNpnLdu9X7fbPLLT6EpixRsTFjhEgKOZAXS7N6r67M0Nr5NWsFspbNzdvraueQGkIlhSLPgAA=",
@@ -433,8 +443,85 @@ export const getProduct = (slug: string) =>
 export const productsByClass = (c: Product["productClass"]) =>
   products.filter((p) => p.productClass === c);
 
-export const productsByArea = (area: string) =>
-  products.filter((p) => p.therapeuticAreas.includes(area as never));
+/**
+ * Per-area display order, fixed by Zafieon.
+ *
+ * `CATALOGUE_ORDER` above orders the catalogue as a whole. An area can be
+ * ordered differently from it — Zafieon fixed the Gynaecology sequence by name
+ * on 19 October 2026 — so an area's own order belongs here rather than being
+ * inferred from the catalogue, and the two can move independently.
+ *
+ * Named by slug and checked on load: a slug that is not a product, a product
+ * that is not in that area, or a slug named twice fails the build instead of
+ * reordering the area silently. A product that IS in the area but is not named
+ * here keeps its catalogue position and follows the named ones, so adding a
+ * product can never drop it out of a listing.
+ *
+ * Let Bloom is the one such product today: Zafieon's Gynaecology sequence does
+ * not name it, and it is a gynaecology product, so it sits last rather than
+ * being removed from the area. See docs/CLAIMS.md.
+ */
+export const AREA_ORDER: Partial<Record<FocusAreaId, readonly string[]>> = {
+  gynecology: [
+    "femi-dros-30",
+    "femi-dros-20",
+    "proluvia-aq",
+    "meta-coq",
+    "zyfolic",
+    "zyfolic-q4",
+    "iro-plus",
+    "femulet",
+    "florabet-ll",
+    "ferrin-xt",
+    "luna-35",
+    "iro-cal",
+    "mifiprine",
+    "miso-pro",
+  ],
+};
+
+for (const [area, order] of Object.entries(AREA_ORDER)) {
+  const seen = new Set<string>();
+  for (const slug of order) {
+    const p = productRecords.find((x) => x.slug === slug);
+    if (!p) {
+      throw new Error(`AREA_ORDER.${area} names an unknown product: ${slug}`);
+    }
+    if (!p.therapeuticAreas.includes(area as FocusAreaId)) {
+      throw new Error(`AREA_ORDER.${area} names ${slug}, not in that area`);
+    }
+    if (seen.has(slug)) {
+      throw new Error(`AREA_ORDER.${area} names ${slug} twice`);
+    }
+    seen.add(slug);
+  }
+}
+
+/**
+ * Every product in a therapeutic area, in that area's own order.
+ *
+ * The single source of area ordering: the catalogue filter, Our Focus and the
+ * home Focus panel all read it, so an area reads the same everywhere and a
+ * reorder is one edit to `AREA_ORDER`.
+ */
+export const productsByArea = (area: string) => {
+  const inArea = products.filter((p) =>
+    p.therapeuticAreas.includes(area as never),
+  );
+  const order = AREA_ORDER[area as FocusAreaId];
+  if (!order) return inArea;
+
+  // Unnamed products sort to the end; the index keeps the sort stable there,
+  // so they stay in catalogue order rather than in whatever order sort visits.
+  const rank = (slug: string) => {
+    const i = order.indexOf(slug);
+    return i === -1 ? order.length : i;
+  };
+  return inArea
+    .map((p, i) => [p, i] as const)
+    .sort(([a, i], [b, j]) => rank(a.slug) - rank(b.slug) || i - j)
+    .map(([p]) => p);
+};
 
 export const productClassLabel: Record<Product["productClass"], string> = {
   prescription: "Prescription",

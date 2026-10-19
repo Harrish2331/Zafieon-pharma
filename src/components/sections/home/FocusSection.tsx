@@ -9,7 +9,7 @@ import Reveal from "@/components/motion/Reveal";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { TextLink } from "@/components/ui/Button";
 import { focusAreas } from "@/data/focus";
-import { products } from "@/data/products";
+import { productsByArea } from "@/data/products";
 import { home } from "@/data/site";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -65,9 +65,7 @@ export default function FocusSection() {
     return () => io.disconnect();
   }, [warm]);
   const area = focusAreas[active];
-  const count = products.filter((p) =>
-    p.therapeuticAreas.includes(area.id),
-  ).length;
+  const count = productsByArea(area.id).length;
 
   return (
     <section className="relative overflow-hidden navy-field py-24 text-white lg:py-36">

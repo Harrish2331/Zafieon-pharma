@@ -4,6 +4,7 @@ import Reveal, { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import { Eyebrow } from "@/components/ui/SectionHeader";
 import { PrimaryButton } from "@/components/ui/Button";
 import SocialLinks from "@/components/SocialLinks";
+import ContactActions from "@/components/ContactActions";
 import { contact, connect, site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -26,6 +27,19 @@ export const metadata: Metadata = {
  * are removed at Zafieon's instruction. Email and the two offices remain; the
  * number stays in `contact.phone` for the footer until Zafieon decides on it.
  */
+/** Map pin, 12px, inherits colour — matches the hairline UI on this page. */
+const Pin = () => (
+  <svg
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    focusable="false"
+    className="h-3.5 w-3.5 fill-none stroke-current stroke-[1.6]"
+  >
+    <path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z" />
+    <circle cx="12" cy="10" r="2.4" />
+  </svg>
+);
+
 export default function ContactPage() {
   const mailto = `mailto:${contact.email.value}`;
 
@@ -110,10 +124,32 @@ export default function ContactPage() {
                           </span>
                         ))}
                       </address>
+                      {/* Opens Google Maps in a new tab, with `noopener` so
+                          the destination gets no handle on this page. The
+                          label names the city, which is what someone scanning
+                          for directions is looking for. */}
+                      {o.mapsUrl && (
+                        <a
+                          href={o.mapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 inline-flex items-center gap-2 text-[0.68rem] font-semibold tracking-[0.14em] text-navy uppercase underline decoration-line-strong underline-offset-4 transition-colors hover:text-magenta-600 hover:decoration-magenta focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-magenta"
+                        >
+                          <Pin />
+                          View {o.city} on Google Maps
+                        </a>
+                      )}
                     </dd>
                   </div>
                 </Reveal>
               ))}
+
+              {/* WhatsApp and Google reviews, when Zafieon has supplied
+                  what each one needs. Renders nothing until then, rather than
+                  a dead button — see ContactActions. */}
+              <Reveal delay={0.28} y={16}>
+                <ContactActions />
+              </Reveal>
 
               {/* Social profiles, as one more row in the same register. */}
               <Reveal delay={0.32} y={16}>

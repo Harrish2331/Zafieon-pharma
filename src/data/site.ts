@@ -69,22 +69,84 @@ export const contact = {
       id: "corporate",
       label: "Corporate Office",
       short: "Corp. Office",
+      city: "Mumbai",
       lines: [
         "3rd Floor, Unit No. 4, Inspire, Main Road,",
         "G Block, BKC, Bandra Kurla Complex,",
         "Mumbai, Maharashtra – 400051.",
       ],
+      /**
+       * Supplied by Zafieon on 19 October 2026 and opened to check where it
+       * goes before being published: it resolves to the Google listing for
+       * "Awfis BKC Adani Inspire", Unit No. 4, 3rd Floor, Inspire BKC, Bandra
+       * Kurla Complex, Mumbai 400051 — the same address as the line above, so
+       * the label is accurate. The listing itself belongs to the building's
+       * workspace operator rather than to Zafieon.
+       */
+      mapsUrl: "https://share.google/OHvZiG2RnKI5Pc2wG",
+      mapsVerified: true,
     },
     {
       id: "registered",
       label: "Registered Office",
       short: "Reg. Office",
+      city: "Chennai",
       lines: [
         "No: 1/1, 3rd Main Road, Mint Modern City,",
         "Chennai – 600021.",
       ],
+      /**
+       * Supplied by Zafieon on 19 October 2026 and kept as supplied, but NOT
+       * verified: opened twice in a real browser it answered share.google's
+       * own "this URL isn't available" error page, so the destination could
+       * not be read and the link may have expired. It is published because
+       * Zafieon asked for it; replace it with a fresh share link, or a
+       * maps.google.com URL, and set `mapsVerified` to true.
+       */
+      mapsUrl: "https://share.google/galcaQTS09mTWwMQ2g",
+      mapsVerified: false,
     },
   ],
+} as const;
+
+/* ============================================================================
+   WHATSAPP
+   Zafieon has not supplied a WhatsApp business number — `contact.phone` is
+   still pending — so there is nothing to dial and no number is invented here.
+   Fill `number` in with the business number in international format, digits
+   only (e.g. "919876543210"), and the WhatsApp option appears on Contact and
+   on the floating action; leave it empty and nothing renders at all.
+   ========================================================================== */
+
+export const whatsapp = {
+  /** International format, digits only, no "+" and no spaces. */
+  number: "",
+  /** Pre-filled first message. Kept short; the visitor can replace it. */
+  prefill:
+    "Hello Zafieon Pharma, I would like to enquire about your products.",
+  label: "Chat on WhatsApp",
+} as const;
+
+/** wa.me link, or null while no number is configured. */
+export const whatsappHref = whatsapp.number
+  ? `https://wa.me/${whatsapp.number}?text=${encodeURIComponent(whatsapp.prefill)}`
+  : null;
+
+/* ============================================================================
+   GOOGLE REVIEWS
+   Both URLs come from Zafieon's own Google Business Profile — "Ask for
+   reviews" gives the write link, and the profile gives the read link. Neither
+   has been supplied, so both are empty and the section does not render. No
+   rating, review count or review text is ever stated here: the only honest
+   source for those is the Business Profile API, which needs Zafieon's own
+   OAuth credentials.
+   ========================================================================== */
+
+export const googleReviews = {
+  /** The profile's public reviews page, e.g. a g.page or maps.google URL. */
+  readUrl: "",
+  /** The "write a review" link from the Business Profile dashboard. */
+  writeUrl: "",
 } as const;
 
 /**

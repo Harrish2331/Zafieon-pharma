@@ -7,7 +7,7 @@ import Reveal, { Stagger, StaggerItem } from "@/components/motion/Reveal";
 import ProductCard from "@/components/ProductCard";
 import { PrimaryButton, SecondaryButton } from "@/components/ui/Button";
 import { focusAreas } from "@/data/focus";
-import { products } from "@/data/products";
+import { productsByArea } from "@/data/products";
 
 export const metadata: Metadata = {
   title: "Our Focus",
@@ -102,9 +102,7 @@ export default function OurFocusPage() {
 
       {/* ── The four areas ────────────────────────────────────────── */}
       {focusAreas.map((area, i) => {
-        const related = products.filter((p) =>
-          p.therapeuticAreas.includes(area.id),
-        );
+        const related = productsByArea(area.id);
         const dark = i % 2 === 1;
 
         return (
