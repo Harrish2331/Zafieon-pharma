@@ -467,11 +467,20 @@ row and the wording of the enquiry section.
   3rd Floor, Inspire BKC, Bandra Kurla Complex, Mumbai 400051, which is the
   corporate-office address held in `site.ts`. The listing belongs to the
   building's workspace operator, not to Zafieon.
-* Chennai — `https://share.google/galcaQTS09mTWwMQ2g` — **could not be
-  verified.** Opened twice in a real browser it answered share.google's own
-  "this URL isn't available" error page, so the destination was never seen. It
-  is published as supplied, and `mapsVerified: false` records that. It should
-  be replaced with a fresh share link or a maps.google.com URL.
+* Chennai — `https://share.google/galcaQTS09mTWwMQ2` — **opened and checked.**
+  It resolves to Zafieon Pharma's own Google listing, a "Pharmaceutical
+  company in Chennai, Tamil Nadu" at Mint Modern City, No CS2, 1/1, Old
+  Washermanpet, Chennai 600021 — the registered-office address in `site.ts`.
+  The first link supplied, `…MQ2g`, was one character longer and answered
+  share.google's error page; Zafieon corrected it the same day. The same
+  listing is reachable at `https://maps.google.com/?cid=4207767364672018297`
+  if the share link ever lapses.
+
+  That listing is also Zafieon's Google Business Profile, so it is where the
+  review links belong when Zafieon supplies them. Its rating and review count
+  are deliberately NOT copied into the site: a number read off a search page
+  today is stale tomorrow, and the only sound source is the Business Profile
+  API under Zafieon's own credentials.
 
 **WhatsApp and Google reviews** are configured but empty: no business WhatsApp
 number and no Google Business Profile review URL has been supplied, so no

@@ -15,7 +15,7 @@ const bad = [];
 const t = (n, c, d = "") => (c ? ok : bad).push(n + (c || !d ? "" : ` -- ${d}`));
 
 const MUMBAI = "https://share.google/OHvZiG2RnKI5Pc2wG";
-const CHENNAI = "https://share.google/galcaQTS09mTWwMQ2g";
+const CHENNAI = "https://share.google/galcaQTS09mTWwMQ2";
 const SEQ = [
   "femi-dros-30", "femi-dros-20", "proluvia-aq", "meta-coq",
   "zyfolic", "zyfolic-q4", "iro-plus", "femulet",

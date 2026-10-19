@@ -96,15 +96,19 @@ export const contact = {
         "Chennai – 600021.",
       ],
       /**
-       * Supplied by Zafieon on 19 October 2026 and kept as supplied, but NOT
-       * verified: opened twice in a real browser it answered share.google's
-       * own "this URL isn't available" error page, so the destination could
-       * not be read and the link may have expired. It is published because
-       * Zafieon asked for it; replace it with a fresh share link, or a
-       * maps.google.com URL, and set `mapsVerified` to true.
+       * Corrected by Zafieon on 19 October 2026 and opened to check where it
+       * goes: it resolves to Zafieon Pharma's own Google listing — a
+       * "Pharmaceutical company in Chennai, Tamil Nadu" at Mint Modern City,
+       * No CS2, 1/1, Old Washermanpet, Chennai 600021, which is the
+       * registered-office address above.
+       *
+       * The first link supplied (…MQ2g, one character longer) answered
+       * share.google's own error page and is not this one. If this link ever
+       * stops resolving, the same listing is reachable at
+       * https://maps.google.com/?cid=4207767364672018297.
        */
-      mapsUrl: "https://share.google/galcaQTS09mTWwMQ2g",
-      mapsVerified: false,
+      mapsUrl: "https://share.google/galcaQTS09mTWwMQ2",
+      mapsVerified: true,
     },
   ],
 } as const;
