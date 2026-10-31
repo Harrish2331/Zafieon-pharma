@@ -58,7 +58,23 @@ export const footerNav = {
 
 export const contact = {
   email: { value: "info@zafieonpharma.com", pending: false },
-  phone: { value: "", pending: true },
+  /**
+   * Supplied by Zafieon on 31 October 2026 as "Zafieon Office Number",
+   * 8838282151 — that name is `label`, and it is what the site prints above
+   * the number rather than a generic "Telephone".
+   *
+   * `value` is for reading and `tel` is for dialling: a tel: href wants the
+   * number in international form with no spaces, or a phone abroad cannot
+   * route it. The +91 is India's code — both offices are in India and the
+   * supplied ten digits are an Indian mobile series — and it is the one thing
+   * here not taken verbatim from what Zafieon sent.
+   */
+  phone: {
+    label: "Zafieon Office Number",
+    value: "+91 88382 82151",
+    tel: "+918838282151",
+    pending: false,
+  },
   /**
    * Both offices, as supplied by Zafieon. `lines` is rendered one line per
    * entry rather than as one string with commas, so the postal formatting

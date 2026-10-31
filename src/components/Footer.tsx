@@ -77,7 +77,7 @@ export default function Footer() {
                   </span>
                 ) : (
                   <a
-                    href={`tel:${contact.phone.value}`}
+                    href={`tel:${contact.phone.tel}`}
                     className="transition-colors hover:text-white"
                   >
                     {contact.phone.value}

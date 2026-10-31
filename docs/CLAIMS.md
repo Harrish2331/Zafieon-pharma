@@ -487,3 +487,26 @@ number and no Google Business Profile review URL has been supplied, so no
 button renders and nothing is invented. No rating or review count appears
 anywhere on the site, and none may be added except from Zafieon's own Business
 Profile through its API.
+
+---
+
+## 31 October 2026 — the office number
+
+Zafieon supplied one telephone number, named by Zafieon as **"Zafieon Office
+Number"**: `8838282151`. It is published on Contact, directly under the email,
+and in the footer on every page, under that name rather than a generic
+"Telephone".
+
+Two things about it are worth recording:
+
+* **The +91 is ours.** Zafieon sent ten digits. The site prints
+  "+91 88382 82151" and dials `tel:+918838282151`, because a tel: link without
+  a country code cannot be routed from outside India, and both offices are in
+  India. Nothing else about the number was altered.
+* **No hours are stated.** Zafieon has not given any, so the row carries the
+  number alone — no "Mon-Sat", no office hours, nothing implied.
+
+It is **not** wired to WhatsApp. Whether this number is on WhatsApp is not
+something the site can know, and sending visitors to a wa.me link for a number
+that is not on WhatsApp produces a dead end. `whatsapp.number` in `site.ts`
+stays empty until Zafieon confirms it.

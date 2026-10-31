@@ -23,9 +23,11 @@ export const metadata: Metadata = {
  * supplied — General, Sales & Business Development, Purchase & Procurement,
  * Corporate and Administration — each with its own mailbox as a mailto: link.
  *
- * The Telephone entry, and the note beneath the details promising a number,
- * are removed at Zafieon's instruction. Email and the two offices remain; the
- * number stays in `contact.phone` for the footer until Zafieon decides on it.
+ * The telephone row was removed in September, when Zafieon had not settled on
+ * a number. It is back as of 31 October, under the name Zafieon gave it —
+ * "Zafieon Office Number" — directly beneath the email, which is where a
+ * reader scanning for a way to make contact looks first. The note that used to
+ * promise a number stays gone: there is nothing left to promise.
  */
 /** Map pin, 12px, inherits colour — matches the hairline UI on this page. */
 const Pin = () => (
@@ -50,6 +52,14 @@ export default function ContactPage() {
       pending: contact.email.pending,
       href: mailto,
       note: "General and trade enquiries",
+    },
+    {
+      label: contact.phone.label,
+      value: contact.phone.value,
+      pending: contact.phone.pending,
+      href: `tel:${contact.phone.tel}`,
+      // No hours: Zafieon has not stated any, so none is implied.
+      note: "",
     },
   ];
 

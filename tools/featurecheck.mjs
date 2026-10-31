@@ -135,8 +135,21 @@ for (const [label, w, h, mob] of [
       links,
       overflow:
         document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      // Nothing may claim a phone number, which Zafieon has not supplied.
-      invented: /\+91[\d\s-]{8,}/.test(document.body.innerText),
+      /* One number is published — the office number Zafieon supplied on 31
+         October. Every phone number on the page is collected so the test can
+         say it is that one and nothing else: a second number appearing here
+         would mean something invented it. */
+      phones: [
+        ...new Set(
+          (document.body.innerText.match(/(?:\+91[\s-]?)?\d[\d\s-]{8,}\d/g) ?? [])
+            .map((n) => n.replace(/[\s-]/g, ""))
+            .filter((n) => n.replace(/^\+91/, "").length === 10),
+        ),
+      ],
+      tel: [...document.querySelectorAll('a[href^="tel:"]')].map((a) =>
+        a.getAttribute("href"),
+      ),
+      labelled: /ZAFIEON OFFICE NUMBER/i.test(document.body.innerText),
     };
   });
   const main = maps.links.filter((l) => !l.inFooter);
@@ -155,7 +168,14 @@ for (const [label, w, h, mob] of [
     String(foot.length));
   t(`Every map link is actually rendered (${label})`,
     maps.links.every((l) => l.w > 0), JSON.stringify(maps.links.map((l) => l.w)));
-  t(`No telephone number is invented on Contact (${label})`, !maps.invented);
+  t(`Contact publishes the office number, under Zafieon's own label (${label})`,
+    maps.labelled && maps.phones.includes("+918838282151"),
+    JSON.stringify({ labelled: maps.labelled, phones: maps.phones }));
+  t(`It is dialable, and it is the only number on the page (${label})`,
+    maps.tel.length > 0 &&
+      maps.tel.every((h) => h === "tel:+918838282151") &&
+      maps.phones.length === 1,
+    JSON.stringify({ tel: maps.tel, phones: maps.phones }));
 
   // ── The optional actions are absent, not broken, while unconfigured ───────
   const optional = await p.evaluate(() => ({
